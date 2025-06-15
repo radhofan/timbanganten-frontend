@@ -20,17 +20,17 @@ export default function Admin() {
     },
     {
       title: "List Makam",
-      imgSrc: "/images/list_makam.png",
+      imgSrc: "/images/list makam1.png",
       href: "/admin/layanan/makam",
     },
     {
       title: "Denah Makam",
-      imgSrc: "/images/denah_makam.png",
+      imgSrc: "/images/denah makam1.png",
       href: "/admin/layanan/denah",
     },
     {
       title: "Perpanjangan",
-      imgSrc: "/images/perpanjangan.png",
+      imgSrc: "/images/perpanjangan1.png",
       href: "/admin/layanan/pesan/status",
     },
     {

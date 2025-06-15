@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 
 import { User } from "@/components/types";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Pemesanan() {
   const today = new Date();
@@ -11,6 +12,7 @@ export default function Pemesanan() {
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 6 }, (_, i) => currentYear + i); // e.g., 2024-2029
+  const router = useRouter();
 
   const [masaAktif, setMasaAktif] = useState({
     day: today.getDate(),
@@ -75,6 +77,18 @@ export default function Pemesanan() {
     if (useExisting && selectedUser) {
       // Use existing user's ID
       pjId = selectedUser.id;
+      await fetch(`/api/user?id=${pjId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: selectedUser.name,
+          contact: selectedUser.contact,
+          email: selectedUser.email,
+          status: "AKTIF/PESAN", 
+        }),
+      });
     } else {
       // Create new PJ
       const newUserRes = await fetch("/api/user", {
@@ -127,6 +141,7 @@ export default function Pemesanan() {
 
       if (res.ok) {
         alert("Pemesanan berhasil disimpan!");
+        router.push("/admin/layanan/pesan/status")
         form.reset();
       } else {
         const error = await res.json();

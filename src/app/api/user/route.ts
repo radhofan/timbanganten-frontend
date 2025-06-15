@@ -93,7 +93,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // 1. Update the user
   await prisma.user.update({
     where: { id: userId },
     data: {
