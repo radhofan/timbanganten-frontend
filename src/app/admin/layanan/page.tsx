@@ -24,19 +24,19 @@ export default function Layanan() {
     },
     {
       title: "List Makam",
-      imgSrc: "/images/list_makam-removebg-preview 1.png",
+      imgSrc: "/images/list makam1.png",
       description: "Lihat daftar lokasi makam yang tersedia atau telah dipesan.",
       link: "/admin/layanan/makam",
     },
     {
       title: "Denah Makam",
-      imgSrc: "/images/denah_makam-removebg-preview 1.png",
+      imgSrc: "/images/denah makam1.png",
       description: "Lihat denah lokasi pemakaman untuk memilih lokasi yang sesuai.",
       link: "/admin/layanan/denah",
     },
     {
       title: "Perpanjangan",
-      imgSrc: "/images/makam-removebg-preview 1.png",
+      imgSrc: "/images/perpanjangan1.png",
       description: "Perpanjang masa aktif lokasi makam yang telah dipesan.",
       link: "/admin/layanan/perpanjangan",
     },
