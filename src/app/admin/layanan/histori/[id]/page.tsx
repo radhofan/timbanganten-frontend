@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // Move Input component outside to prevent recreation on every render
 function Input({
@@ -111,6 +112,7 @@ export default function Edit() {
   });
 
   const router = useRouter();
+  const { role } = useAuthStore();
 
   useEffect(() => {
     if (!id) return;
@@ -208,8 +210,8 @@ export default function Edit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input label="Nama Penanggung Jawab" id="namapj" value={formData.namapj} onChange={handleChange} readOnly/>
               <Input label="No. Kontak PJ" id="kontak" value={formData.kontak} onChange={handleChange} readOnly/>
-              <Input label="Hubungan Silsilah" id="silsilah" value={formData.silsilah} onChange={handleChange} />
-              <Input label="Nama Jenazah" id="namajenazah" value={formData.namajenazah} onChange={handleChange} />
+              <Input label="Hubungan Silsilah" id="silsilah" value={formData.silsilah} onChange={handleChange} readOnly={role !== "admin"}/>
+              <Input label="Nama Jenazah" id="namajenazah" value={formData.namajenazah} onChange={handleChange} readOnly={role !== "admin"}/>
               <div>
                 <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
                 <select
@@ -226,7 +228,7 @@ export default function Edit() {
                   <option value="Dayeuhkolot">Dayeuhkolot</option>
                 </select>
               </div>
-              <Input label="Blok Makam" id="blok" value={formData.blok} onChange={handleChange} />
+              <Input label="Blok Makam" id="blok" value={formData.blok} onChange={handleChange} readOnly={role !== "admin"}/>
             </div>
           </section>
 
@@ -241,6 +243,7 @@ export default function Edit() {
               value={formData.notes}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              readOnly={role !== "admin"}
             />
           </section>
 
@@ -265,19 +268,27 @@ export default function Edit() {
 
          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-6 border-t">
-            <button
-              type="button"
-              className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
-              onClick={() => router.push(`/admin/layanan/histori/user/${formData.userId}`)}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-            >
-              Edit Pesanan
-            </button>
+            {role === "admin" && (
+              <button
+                type="submit"
+                className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+              >
+                Submit
+              </button>
+            )}
+
+            {role === "approver" && (
+              <button
+                type="button"
+                onClick={() => {
+                  // implement approval logic here
+                  alert("Approved (TODO: implement logic)");
+                }}
+                className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+              >
+                Approve
+              </button>
+            )}
           </div>
         </form>
       </main>
