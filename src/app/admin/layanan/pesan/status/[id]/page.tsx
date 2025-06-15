@@ -84,6 +84,35 @@ function StatusCard({ title, status, onResolve }: {
   );
 }
 
+// utils/approveMakam.ts or just inline above the component
+export async function approveMakam(id: string): Promise<boolean> {
+  try {
+    const res = await fetch("/api/approveMakam", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error?.error || "Approval failed");
+    }
+
+    return true;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("Approval error:", err);
+      alert("Gagal menyetujui makam: " + err.message);
+    } else {
+      console.error("Unknown error:", err);
+      alert("Terjadi kesalahan tidak dikenal.");
+    }
+    return false;
+  }
+}
+
 export default function MakamStatus() {
   const { id } = useParams();
   const [formData, setFormData] = useState({
@@ -279,9 +308,9 @@ export default function MakamStatus() {
             {role === "approver" && (
               <button
                 type="button"
-                onClick={() => {
-                  // implement approval logic here
-                  alert("Approved (TODO: implement logic)");
+                onClick={async () => {
+                  const success = await approveMakam(id as string);
+                  if (success) router.push("/admin/layanan/makam");
                 }}
                 className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
               >
