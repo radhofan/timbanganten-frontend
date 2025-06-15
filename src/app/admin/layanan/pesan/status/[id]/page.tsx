@@ -84,35 +84,6 @@ function StatusCard({ title, status, onResolve }: {
   );
 }
 
-// utils/approveMakam.ts or just inline above the component
-export async function approveMakam(id: string): Promise<boolean> {
-  try {
-    const res = await fetch("/api/approveMakam", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.error || "Approval failed");
-    }
-
-    return true;
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.error("Approval error:", err);
-      alert("Gagal menyetujui makam: " + err.message);
-    } else {
-      console.error("Unknown error:", err);
-      alert("Terjadi kesalahan tidak dikenal.");
-    }
-    return false;
-  }
-}
-
 export default function MakamStatus() {
   const { id } = useParams();
   const [formData, setFormData] = useState({
@@ -127,6 +98,35 @@ export default function MakamStatus() {
     approved: "",
     blok: "",
   });
+
+  // utils/approveMakam.ts or just inline above the component
+  async function approveMakam(id: string): Promise<boolean> {
+    try {
+      const res = await fetch("/api/approveMakam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error?.error || "Approval failed");
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Approval error:", err);
+        alert("Gagal menyetujui makam: " + err.message);
+      } else {
+        console.error("Unknown error:", err);
+        alert("Terjadi kesalahan tidak dikenal.");
+      }
+      return false;
+    }
+  }
 
   const router = useRouter();
   const { role } = useAuthStore();
