@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User } from "@/components/types";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function UserDetail() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function UserDetail() {
     data: "",
   });
   const [success, setSuccess] = useState(false);
+  const { role } = useAuthStore();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -149,7 +151,12 @@ export default function UserDetail() {
               <button
                 type="submit"
                 onClick={() => router.push(`/admin/layanan/histori`)}
-                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition transform hover:scale-105 active:scale-95"
+                disabled={role !== "admin"}
+                className={`px-6 py-3 font-semibold rounded-lg transition transform active:scale-95 ${
+                  role === "admin"
+                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 Simpan Perubahan
               </button>
