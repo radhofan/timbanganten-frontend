@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { id } = body; // ID of the makamStatus record
+    const body = await request.json();
+    const id = parseInt(body.id, 10); // ✅ Convert id to Int
 
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
 
     // Find the status record
@@ -16,17 +16,17 @@ export async function POST(req: NextRequest) {
     });
 
     if (!status) {
-      return NextResponse.json({ error: "Status not found" }, { status: 404 });
+      return NextResponse.json({ error: "Makam status tidak ditemukan" }, { status: 404 });
     }
 
-    // Create new makam record with approved: "APPROVED"
+    // Create the new Makam entry
     const newMakam = await prisma.makam.create({
       data: {
         blok: status.blok,
         nama: status.nama,
         lokasi: status.lokasi,
         silsilah: status.silsilah,
-        ext: status.ext,
+        ext: "PAID",
         masa_aktif: status.masa_aktif,
         nama_penanggung_jawab: status.nama_penanggung_jawab,
         kontak_penanggung_jawab: status.kontak_penanggung_jawab,
@@ -37,17 +37,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Delete the status record
-    await prisma.makamStatus.delete({
-      where: { id },
-    });
+    // Delete from makamStatus
+    await prisma.makamStatus.delete({ where: { id } });
 
-    return NextResponse.json(newMakam, { status: 201 });
-  } catch (error) {
-    console.error("[approveMakam]", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Berhasil disetujui", makam: newMakam });
+  } catch (err) {
+    console.error("[approveMakam]", err);
+    return NextResponse.json({ error: "Terjadi kesalahan saat menyetujui makam." }, { status: 500 });
   }
 }
