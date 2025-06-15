@@ -284,19 +284,6 @@ export default function Edit() {
               Submit
             </button>
           )}
-
-          {role === "approver" && (
-            <button
-              type="button"
-              onClick={() => {
-                // implement approval logic here
-                alert("Approved (TODO: implement logic)");
-              }}
-              className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-            >
-              Approve
-            </button>
-          )}
           
         </div>
       </form>
