@@ -187,7 +187,7 @@ export default function Admin() {
         </section>
       </div>
 
-      <main className="flex-1 p-24 relative bg-gray-100">
+      <main className="flex-1 p-24 relative bg-white">
         <div className="mx-auto w-full max-w-4xl px-4 mt-12 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
             {cards.map(({ title, imgSrc, href }, i) => (
@@ -198,7 +198,7 @@ export default function Admin() {
                     boxShadow: "-6px 6px 20px rgba(0, 0, 0, 0.2)",
                   }}
                 >
-                  <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
+                  <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
                     <Image
                       src={imgSrc}
                       alt={title}
