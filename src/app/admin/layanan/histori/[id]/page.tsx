@@ -95,6 +95,7 @@ function StatusCard({
 export default function Edit() {
   const { id } = useParams();
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(true);
   const typeParam = searchParams.get("type");
   const type = typeParam === "makam" ? "makam" : "makamStatus"; // default fallback
   const [formData, setFormData] = useState({
@@ -114,11 +115,17 @@ export default function Edit() {
   const router = useRouter();
   const { role } = useAuthStore();
 
+
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/${type}?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Start loading
+
+        const res = await fetch(`/api/${type}?id=${id}`);
+        const data = await res.json();
+
         setFormData({
           namapj: data.nama_penanggung_jawab || "",
           kontak: data.kontak_penanggung_jawab || "",
@@ -132,9 +139,23 @@ export default function Edit() {
           blok: data.blok,
           userId: data.userId,
         });
-      })
-      .catch((err) => console.error("Failed to fetch data:", err));
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoading(false); // End loading
+      }
+    };
+
+    fetchData();
   }, [id, type]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Memuat data makam...</p>
+      </div>
+    );
+  }
 
   // utils/approveMakam.ts or just inline above the component
   async function approveMakam(id: string): Promise<boolean> {

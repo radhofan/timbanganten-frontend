@@ -138,7 +138,7 @@ export default function Edit() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Memuat data pengguna...</p>
+        <p className="text-gray-500">Memuat data makam...</p>
       </div>
     );
   }
