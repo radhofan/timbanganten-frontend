@@ -86,6 +86,7 @@ function StatusCard({ title, status, onResolve }: {
 
 export default function MakamStatus() {
   const { id } = useParams();
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     namapj: "",
     kontak: "",
@@ -133,9 +134,14 @@ export default function MakamStatus() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/makamStatus?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Start loading
+
+        const res = await fetch(`/api/makamStatus?id=${id}`);
+        const data = await res.json();
+
         setFormData({
           namapj: data.nama_penanggung_jawab || "",
           kontak: data.kontak_penanggung_jawab || "",
@@ -148,9 +154,23 @@ export default function MakamStatus() {
           approved: data.approved,
           blok: data.blok,
         });
-      })
-      .catch((err) => console.error("Failed to fetch data:", err));
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
+    fetchData();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Memuat data pengguna...</p>
+      </div>
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
