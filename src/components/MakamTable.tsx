@@ -153,7 +153,8 @@ export default function MakamTable() {
                     {new Date(item.masa_aktif).toLocaleDateString("id-ID")}
                   </span>
                 </td>
-                <td className="px-4 py-3 max-w-xs break-words text-center">
+                <td className="px-4 py-3 whitespace-nowrap text-center">{item.description}</td>
+                {/* <td className="px-4 py-3 max-w-xs break-words text-center">
                   { item.description &&  item.description.trim() !== "" ? (
                     <details className="group">
                       <summary className="cursor-pointer text-blue-600 underline decoration-blue-400 decoration-2 underline-offset-2 list-none [&::-webkit-details-marker]:hidden">
@@ -167,7 +168,7 @@ export default function MakamTable() {
                   ) : (
                     <span className="text-gray-400 italic">Tidak ada penjelasan</span>
                   )}
-                </td>
+                </td> */}
                 <td className="px-4 py-3 text-center">
                   <Link
                     href={`/admin/layanan/makam/${item.id}`}

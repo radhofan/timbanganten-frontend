@@ -27,7 +27,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
 
   return (
     <>
-      <header className="flex items-center justify-between p-4 bg-gray-100 relative ml-16">
+      <header className="flex items-center justify-between p-4 bg-white relative ml-16">
         {/* Left side: logo + "Timbanganten" */}
         <Link href="/admin">
         <div className="flex items-center space-x-3">
@@ -61,7 +61,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
             </span>
           </div>
 
-          <div className="w-px h-8 bg-gray-400 justify-center items-center" />
+          <div className="w-px h-8 bg-white justify-center items-center" />
           {/* Profile icon */}
           <button
             onClick={() => setShowDropdown(!showDropdown)}
