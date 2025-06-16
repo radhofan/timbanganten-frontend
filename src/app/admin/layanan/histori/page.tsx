@@ -113,7 +113,7 @@ export default function Histori() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 px-6 py-12 bg-white max-w-6xl mx-auto border border-gray-300 rounded-xl">
+      <main className="flex-1 px-6 py-12 bg-white max-w-6xl mx-auto border border-gray-300 rounded-xl mb-12">
         <h1 className="text-3xl font-bold text-center mb-8">Histori Pengguna</h1>
 
         {/* Search & Filter Controls */}
