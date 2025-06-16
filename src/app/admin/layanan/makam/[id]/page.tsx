@@ -86,6 +86,7 @@ function StatusCard({ title, status, onResolve }: {
 
 export default function Edit() {
   const { id } = useParams();
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     namapj: "",
     kontak: "",
@@ -104,9 +105,14 @@ export default function Edit() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/makam?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+
+    const fetchData = async () => {
+      try {
+        setLoading(true); // start loading
+
+        const res = await fetch(`/api/makam?id=${id}`);
+        const data = await res.json();
+
         setFormData({
           namapj: data.nama_penanggung_jawab || "",
           kontak: data.kontak_penanggung_jawab || "",
@@ -119,9 +125,23 @@ export default function Edit() {
           approved: data.approved,
           blok: data.blok,
         });
-      })
-      .catch((err) => console.error("Failed to fetch data:", err));
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoading(false); // stop loading
+      }
+    };
+
+    fetchData();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Memuat data pengguna...</p>
+      </div>
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
