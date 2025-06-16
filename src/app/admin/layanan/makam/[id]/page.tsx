@@ -60,6 +60,7 @@ function StatusCard({ title, status, onResolve }: {
   const color =
     status === 'YES' ? 'bg-green-100 text-green-700' :
     status === 'PAID' ? 'bg-green-100 text-green-700' :
+    status === 'APPROVED' ? 'bg-green-100 text-green-700' :
     status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
     'bg-yellow-100 text-yellow-800';
 
