@@ -188,7 +188,7 @@ export default function Edit() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-    <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start">
+    <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start mb-24">
       <form
         className="bg-white rounded-2xl shadow-md p-6 md:p-10 w-full max-w-4xl space-y-8"
         onSubmit={handleSubmit}
