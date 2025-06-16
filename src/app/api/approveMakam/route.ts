@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         nama: status.nama,
         lokasi: status.lokasi,
         silsilah: status.silsilah,
-        ext: "PAID",
+        ext: status.ext,
         masa_aktif: status.masa_aktif,
         nama_penanggung_jawab: status.nama_penanggung_jawab,
         kontak_penanggung_jawab: status.kontak_penanggung_jawab,
