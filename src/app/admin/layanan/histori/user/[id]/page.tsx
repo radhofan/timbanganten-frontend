@@ -88,7 +88,7 @@ export default function UserDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header hideBanner />
 
       <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24">
