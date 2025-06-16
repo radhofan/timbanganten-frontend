@@ -88,10 +88,10 @@ export default function UserDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col mb-20">
+    <div className="min-h-screen bg-white flex flex-col mb-24">
       <Header hideBanner />
 
-      <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24 mb-20">
+      <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24 mb-24">
         <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
           Detail Pengguna
         </h1>
