@@ -173,7 +173,7 @@ export default function Pemesanan() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner /> 
 
-      <main className="flex-1 p-12 relative bg-gray-100 flex justify-center items-start">
+      <main className="flex-1 p-12 relative bg-white flex justify-center items-start">
         <form
           className="bg-white border border-gray-400 rounded-lg p-8 w-full max-w-lg space-y-6 mb-8"
           onSubmit={handleSubmit}
