@@ -195,7 +195,7 @@ export default function Admin() {
                 <div
                   className="bg-white rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-6 w-full h-full"
                   style={{
-                    boxShadow: "-6px 6px 20px rgba(0, 0, 0, 0.2)",
+                    boxShadow: "-6px 6px 20px rgba(34, 61, 60, 0.2)",
                   }}
                 >
                   <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
