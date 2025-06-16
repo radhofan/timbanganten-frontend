@@ -107,7 +107,7 @@ export default function Status() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 p-6 relative bg-gray-100 flex flex-col items-center gap-4">
+      <main className="flex-1 p-6 relative bg-white flex flex-col items-center gap-4">
         <div className="text-xl text-center">Status Pemesanan</div>
 
         {/* Filters */}

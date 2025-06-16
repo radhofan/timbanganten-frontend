@@ -51,7 +51,7 @@ export default function Layanan() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
-      <main className="flex-1 p-6 md:p-24 bg-gray-100">
+      <main className="flex-1 p-6 md:p-24 bg-white-100">
         <div className="mx-auto w-full max-w-6xl flex flex-col md:flex-row gap-10">
             {/* Left Side - List of Cards */}
             <div className="w-full md:w-1/3 space-y-4 border-2 border-gray-300 rounded-xl bg-white shadow-lg p-8">
@@ -67,7 +67,7 @@ export default function Layanan() {
                     onClick={() => setSelectedCard(index)}
                 >
                     <div className="flex items-center space-x-4">
-                    <div className="relative w-16 h-16 rounded-md overflow-hidden bg-gray-50">
+                    <div className="relative w-16 h-16 rounded-md overflow-hidden bg-white">
                         <Image
                         src={card.imgSrc}
                         alt={card.title}
@@ -94,7 +94,7 @@ export default function Layanan() {
                     {cards[selectedCard].title}
                   </h2>
                   <div className="flex-1 flex flex-col items-center justify-center text-center">
-                    <div className="relative w-full max-w-md h-48 md:h-56 mb-6 rounded-lg overflow-hidden bg-gray-50 mx-auto">
+                    <div className="relative w-full max-w-md h-48 md:h-56 mb-6 rounded-lg overflow-hidden bg-white mx-auto">
                       <Image
                         src={cards[selectedCard].imgSrc}
                         alt={cards[selectedCard].title}
