@@ -130,6 +130,34 @@ export default function MakamStatus() {
     }
   }
 
+  async function convertMakam(id: string): Promise<boolean> {
+    try {
+      const res = await fetch("/api/convertMakam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error?.error || "Konversi makam gagal");
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Convert error:", err);
+        alert("Gagal mengaktifkan makam: " + err.message);
+      } else {
+        console.error("Unknown error:", err);
+        alert("Terjadi kesalahan tidak dikenal.");
+      }
+      return false;
+    }
+  }
+
   const router = useRouter();
   const { role } = useAuthStore();
 
@@ -403,8 +431,8 @@ export default function MakamStatus() {
                       <button
                         type="button"
                         onClick={async () => {
-                          const success = await approveMakam(id as string);
-                          if (success) router.push("/admin/layanan/pesan/Status");
+                          const success = await convertMakam(id as string);
+                          if (success) router.push("/admin/layanan/makam");
                         }}
                         className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
                       >
@@ -427,6 +455,7 @@ export default function MakamStatus() {
                   Approve
                 </button>
               )}
+
             </div>
           </form>
         )}
