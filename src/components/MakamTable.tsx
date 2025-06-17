@@ -6,19 +6,20 @@ import Link from "next/link";
 
 export default function MakamTable() {
   const [data, setData] = useState<Makam[]>([]);
+  const [loading, setLoading] = useState(true); // 👈 Add loading state
+  const [search, setSearch] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedLocation, setSelectedLocation] = useState("Semua");
 
   useEffect(() => {
     fetch("/api/makam")
       .then((res) => res.json())
       .then((data) => {
         setData(data);
+        setLoading(false); // 👈 Stop loading when data is received
       });
   }, []);
-
-  const [search, setSearch] = useState("");
-  const [itemsPerPage, setItemsPerPage] = useState(12);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLocation, setSelectedLocation] = useState("Semua");
 
   const filteredData = data.filter((item) => {
     const query = search.toLowerCase();
@@ -109,7 +110,13 @@ export default function MakamTable() {
           </tr>
         </thead>
         <tbody>
-          {paginatedData.length === 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan={10} className="text-center py-6 text-gray-400 italic">
+                Loading data...
+              </td>
+            </tr>
+          ) : paginatedData.length === 0 ? (
             <tr>
               <td colSpan={10} className="text-center py-6 text-gray-400 italic">
                 No results found.
