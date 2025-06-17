@@ -65,7 +65,7 @@ export default function MakamTable() {
             }}
             className="border px-2 py-1 rounded border-gray-300"
           >
-            <option value="ALL">ALL</option>
+            <option value="Semua">Semua</option>
             <option value="Karang Anyar">Karang Anyar</option>
             <option value="Dalem Kaum">Dalem Kaum</option>
             <option value="Dayeuhkolot">Dayeuhkolot</option>
