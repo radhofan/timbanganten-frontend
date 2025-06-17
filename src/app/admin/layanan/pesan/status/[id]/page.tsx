@@ -165,6 +165,32 @@ export default function MakamStatus() {
     fetchData();
   }, [id]);
 
+  const fetchData = async () => {
+    try {
+      setLoading(true); // Start loading
+
+      const res = await fetch(`/api/makamStatus?id=${id}`);
+      const data = await res.json();
+
+      setFormData({
+        namapj: data.nama_penanggung_jawab || "",
+        kontak: data.kontak_penanggung_jawab || "",
+        namajenazah: data.nama || "",
+        silsilah: data.silsilah || "",
+        lokasi: data.lokasi || "",
+        notes: data.description || "",
+        payment: data.payment || "",
+        ext: data.ext || "",
+        approved: data.approved,
+        blok: data.blok,
+      });
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
   // if (loading) {
   //   return (
   //     <div className="min-h-screen flex items-center justify-center">
@@ -235,19 +261,19 @@ export default function MakamStatus() {
   };
 
   const markAsResolving = async (id: string) => {
-    await fetch("/api/makam-status/mark-resolving", {
+    await fetch("/api/makamStatus/resolving", {
       method: "POST",
       body: JSON.stringify({ id }),
     });
-    // refresh data, e.g., call fetchMakamStatus()
+    fetchData();
   };
 
   const markAsResolved = async (id: string) => {
-    await fetch("/api/makam-status/mark-resolved", {
+    await fetch("/api/makamStatus/resolved", {
       method: "POST",
       body: JSON.stringify({ id }),
     });
-    // refresh data, e.g., call fetchMakamStatus()
+    fetchData();
   };
 
   return (
