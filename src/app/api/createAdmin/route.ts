@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         email: email.toLowerCase()
       }
     });
-
+ 
     if (existingAdmin) {
       return NextResponse.json(
         { error: 'Admin with this email already exists' },
