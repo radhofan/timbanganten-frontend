@@ -261,7 +261,7 @@ export default function MakamStatus() {
   };
 
   const markAsResolving = async (id: string) => {
-    await fetch("/api/makamStatus/resolving", {
+    await fetch("/api/resolving", {
       method: "POST",
       body: JSON.stringify({ id }),
     });
@@ -269,7 +269,7 @@ export default function MakamStatus() {
   };
 
   const markAsResolved = async (id: string) => {
-    await fetch("/api/makamStatus/resolved", {
+    await fetch("/api/resolved", {
       method: "POST",
       body: JSON.stringify({ id }),
     });
@@ -404,11 +404,11 @@ export default function MakamStatus() {
                         type="button"
                         onClick={async () => {
                           const success = await approveMakam(id as string);
-                          if (success) router.push("/admin/layanan/makam");
+                          if (success) router.push("/admin/layanan/pesan/Status");
                         }}
                         className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
                       >
-                        Approve Makam
+                        Aktifkan Makam
                       </button>
                   )}
                   
@@ -420,7 +420,7 @@ export default function MakamStatus() {
                   type="button"
                   onClick={async () => {
                     const success = await approveMakam(id as string);
-                    if (success) router.push("/admin/layanan/makam");
+                    if (success) router.push("/admin/layanan/pesan/status");
                   }}
                   className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                 >
