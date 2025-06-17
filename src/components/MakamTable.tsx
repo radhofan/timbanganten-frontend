@@ -18,14 +18,19 @@ export default function MakamTable() {
   const [search, setSearch] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedLocation, setSelectedLocation] = useState("Semua");
 
   const filteredData = data.filter((item) => {
     const query = search.toLowerCase();
-    return (
+    const matchesSearch =
       String(item.nama).toLowerCase().includes(query) ||
       String(item.nama_penanggung_jawab).toLowerCase().includes(query) ||
-      String(item.blok).toLowerCase().includes(query)
-    );
+      String(item.blok).toLowerCase().includes(query);
+
+    const matchesLocation =
+      selectedLocation === "Semua" || item.lokasi === selectedLocation;
+
+    return matchesSearch && matchesLocation;
   });
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -38,7 +43,7 @@ export default function MakamTable() {
         Status Pemakaman
       </div>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
         <input
           type="text"
           placeholder="Cari nama, blok, atau penanggung jawab..."
@@ -47,20 +52,23 @@ export default function MakamTable() {
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="border px-2 py-1 rounded w-1/2 border-gray-300"
+          className="border px-2 py-1 rounded w-full md:w-1/2 border-gray-300"
         />
 
         <div className="flex items-center space-x-2 border-gray-300">
           <div>Tempat Makam:</div>
           <select
-            onChange={() => {
-              // your handler here
+            value={selectedLocation}
+            onChange={(e) => {
+              setSelectedLocation(e.target.value);
+              setCurrentPage(1);
             }}
             className="border px-2 py-1 rounded border-gray-300"
           >
-            <option>Karang Anyar</option>
-            <option>Dalem Kaum</option>
-            <option>Dayeuhkolot</option>
+            <option value="ALL">ALL</option>
+            <option value="Karang Anyar">Karang Anyar</option>
+            <option value="Dalem Kaum">Dalem Kaum</option>
+            <option value="Dayeuhkolot">Dayeuhkolot</option>
           </select>
         </div>
 
