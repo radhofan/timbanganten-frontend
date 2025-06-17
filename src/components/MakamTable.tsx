@@ -5,11 +5,10 @@ import { Makam } from "@/components/types";
 import Link from "next/link";
 
 export default function MakamTable() {
-
   const [data, setData] = useState<Makam[]>([]);
 
   useEffect(() => {
-    fetch('/api/makam')
+    fetch("/api/makam")
       .then((res) => res.json())
       .then((data) => {
         setData(data);
@@ -20,17 +19,21 @@ export default function MakamTable() {
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredData = data.filter((item) =>
-    item.nama.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredData = data.filter((item) => {
+    const query = search.toLowerCase();
+    return (
+      String(item.nama).toLowerCase().includes(query) ||
+      String(item.nama_penanggung_jawab).toLowerCase().includes(query) ||
+      String(item.blok).toLowerCase().includes(query)
+    );
+  });
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
-    <div className="p-4 ">
-
+    <div className="p-4">
       <div className="text-3xl font-bold text-center mb-8">
         Status Pemakaman
       </div>
@@ -38,11 +41,15 @@ export default function MakamTable() {
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
-          placeholder="Cari nama, id, kerabat dll..."
+          placeholder="Cari nama, blok, atau penanggung jawab..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
           className="border px-2 py-1 rounded w-1/2 border-gray-300"
         />
+
         <div className="flex items-center space-x-2 border-gray-300">
           <div>Tempat Makam:</div>
           <select
@@ -56,6 +63,7 @@ export default function MakamTable() {
             <option>Dayeuhkolot</option>
           </select>
         </div>
+
         <select
           value={itemsPerPage}
           onChange={(e) => {
@@ -102,58 +110,51 @@ export default function MakamTable() {
           ) : (
             paginatedData.map((item) => (
               <tr
-                key={item.blok}
+                key={item.id}
                 className="even:bg-gray-50 hover:bg-gray-100 transition-colors"
               >
-                <td className="px-4 py-3 whitespace-nowrap text-center">{item.blok}</td>
-                <td className="px-4 py-3 whitespace-nowrap font-medium text-center">{item.nama}</td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">{item.lokasi}</td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">{item.nama_penanggung_jawab}</td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">{item.silsilah}</td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">{item.kontak_penanggung_jawab}</td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">
+                <td className="px-4 py-3 text-center">{item.blok}</td>
+                <td className="px-4 py-3 font-medium text-center">{item.nama}</td>
+                <td className="px-4 py-3 text-center">{item.lokasi}</td>
+                <td className="px-4 py-3 text-center">{item.nama_penanggung_jawab}</td>
+                <td className="px-4 py-3 text-center">{item.silsilah}</td>
+                <td className="px-4 py-3 text-center">{item.kontak_penanggung_jawab}</td>
+                <td className="px-4 py-3 text-center">
                   <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
-                      ${
-                        item.ext === "PAID"
-                          ? "bg-green-100 text-green-800"
-                          : ["PENDING", "VERIFICATION", "RESOLVING"].includes(item.ext ?? "")
-                          ? "bg-yellow-100 text-yellow-800"
-                          : item.ext === "LEWAT BATAS"
-                          ? "bg-red-100 text-red-800"
-                          : item.ext === "BELUM AKTIF"
-                          ? "bg-gray-300 text-gray-700"
-                          : ""
-                      }
-                    `}
+                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                      item.ext === "PAID"
+                        ? "bg-green-100 text-green-800"
+                        : ["PENDING", "VERIFICATION", "RESOLVING"].includes(item.ext ?? "")
+                        ? "bg-yellow-100 text-yellow-800"
+                        : item.ext === "LEWAT BATAS"
+                        ? "bg-red-100 text-red-800"
+                        : item.ext === "BELUM AKTIF"
+                        ? "bg-gray-300 text-gray-700"
+                        : ""
+                    }`}
                   >
                     {item.ext}
                   </span>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-center">
+                <td className="px-4 py-3 text-center">
                   <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
-                      ${
-                        item.ext === "BELUM AKTIF"
-                          ? "bg-gray-300 text-gray-700"
-                          : (() => {
-                              if (!item.masa_aktif) return "";
-
-                              const masaAktifDate = new Date(item.masa_aktif);
-                              const today = new Date();
-                              today.setHours(0, 0, 0, 0);
-
-                              return masaAktifDate >= today
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800";
-                            })()
-                      }
-                    `}
+                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                      item.ext === "BELUM AKTIF"
+                        ? "bg-gray-300 text-gray-700"
+                        : (() => {
+                            if (!item.masa_aktif) return "";
+                            const masaAktifDate = new Date(item.masa_aktif);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return masaAktifDate >= today
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800";
+                          })()
+                    }`}
                   >
                     {new Date(item.masa_aktif).toLocaleDateString("id-ID")}
                   </span>
                 </td>
-                {/* <td className="px-4 py-3 whitespace-nowrap text-center">{item.description}</td> */}
                 <td className="px-4 py-3 max-w-xs break-words text-center">
                   {item.description && item.description.trim() !== "" ? (
                     <details className="group cursor-pointer">
@@ -215,7 +216,6 @@ export default function MakamTable() {
           Next
         </button>
       </div>
-      
     </div>
   );
 }
