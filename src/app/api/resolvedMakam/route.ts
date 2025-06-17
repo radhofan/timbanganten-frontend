@@ -10,17 +10,16 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Invalid or missing ID" }, { status: 400 });
     }
 
-    const updated = await prisma.makamStatus.update({
+    const updated = await prisma.makam.update({
       where: { id: parseInt(id, 10) },
       data: {
-        payment: "PAID",
         ext: "PAID",
       },
     });
 
     return NextResponse.json(updated);
   } catch (err) {
-    console.error("[PUT /api/resolved]", err);
+    console.error("[PUT /api/resolvedMakam]", err);
     return NextResponse.json({ error: "Failed to update status to PAID" }, { status: 500 });
   }
 }

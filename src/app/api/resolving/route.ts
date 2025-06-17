@@ -20,7 +20,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json(updated);
   } catch (err) {
-    console.error("[PUT /makamStatus/resolving]", err);
+    console.error("[PUT /api/resolving]", err);
     return NextResponse.json({ error: "Failed to update status to RESOLVING" }, { status: 500 });
   }
 }
