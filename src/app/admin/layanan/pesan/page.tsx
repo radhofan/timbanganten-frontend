@@ -73,21 +73,21 @@ export default function Pemesanan() {
     return validMonths;
   };
 
-  // Update valid days when month or year changes
-  useEffect(() => {
-    const validDays = getValidDays(masaAktif.month, masaAktif.year);
-    if (validDays.length > 0 && !validDays.includes(masaAktif.day)) {
-      setMasaAktif(prev => ({ ...prev, day: validDays[0] }));
-    }
-  }, [masaAktif.month, masaAktif.year,]);
+  // // Update valid days when month or year changes
+  // useEffect(() => {
+  //   const validDays = getValidDays(masaAktif.month, masaAktif.year);
+  //   if (validDays.length > 0 && !validDays.includes(masaAktif.day)) {
+  //     setMasaAktif(prev => ({ ...prev, day: validDays[0] }));
+  //   }
+  // }, [masaAktif.month, masaAktif.year,]);
 
-  // Update valid months when year changes
-  useEffect(() => {
-    const validMonths = getValidMonths(masaAktif.year);
-    if (validMonths.length > 0 && !validMonths.includes(masaAktif.month)) {
-      setMasaAktif(prev => ({ ...prev, month: validMonths[0] }));
-    }
-  }, [masaAktif.year]);
+  // // Update valid months when year changes
+  // useEffect(() => {
+  //   const validMonths = getValidMonths(masaAktif.year);
+  //   if (validMonths.length > 0 && !validMonths.includes(masaAktif.month)) {
+  //     setMasaAktif(prev => ({ ...prev, month: validMonths[0] }));
+  //   }
+  // }, [masaAktif.year]);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -436,9 +436,9 @@ export default function Pemesanan() {
             <div>
               <label className="block mb-1 font-medium">
                 Masa Aktif 
-                <span className="text-sm text-gray-600 ml-2">
+                {/* <span className="text-sm text-gray-600 ml-2">
                   (Minimal 6 bulan dari sekarang)
-                </span>
+                </span> */}
               </label>
               <div className="flex space-x-2">
                 <select
