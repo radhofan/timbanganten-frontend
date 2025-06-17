@@ -10,10 +10,23 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Invalid or missing ID" }, { status: 400 });
     }
 
-    const updated = await prisma.makam.update({
+    const makam = await prisma.makam.findUnique({
       where: { id: parseInt(id, 10) },
+    });
+
+    if (!makam || !makam.masa_aktif) {
+      return NextResponse.json({ error: "Makam not found or masa_aktif missing" }, { status: 404 });
+    }
+
+    // Add 1 year to the current masa_aktif
+    const newMasaAktif = new Date(makam.masa_aktif);
+    newMasaAktif.setFullYear(newMasaAktif.getFullYear() + 1);
+
+    const updated = await prisma.makam.update({
+      where: { id: makam.id },
       data: {
         ext: "PAID",
+        masa_aktif: newMasaAktif,
       },
     });
 
