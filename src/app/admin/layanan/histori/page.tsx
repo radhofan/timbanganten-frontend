@@ -180,7 +180,7 @@ export default function Histori() {
                 {openIndex === idx && (
                   <div className="border-t px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
                     <div>
-                      <h3 className="font-medium text-gray-800 mb-2">Status Makam</h3>
+                      <h3 className="font-medium text-gray-800 mb-2">Makam</h3>
                       {(user.makams ?? []).length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {user.makams.map((m) => (
@@ -200,7 +200,7 @@ export default function Histori() {
                     </div>
 
                     <div>
-                      <h3 className="font-medium text-gray-800 mb-2">Status Makam Pesanan</h3>
+                      <h3 className="font-medium text-gray-800 mb-2">Pesanan Makam</h3>
                       {(user.statuses ?? []).length > 0 ? (
                         <div className="space-y-3">
                           {user.statuses.map((s) => (

@@ -170,7 +170,7 @@ export default function UserDetail() {
 
             {/* Makam Terkait - Centered */}
             <section className="max-w-lg mx-auto w-full">
-                <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Status Makam</h3>
+                <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Makam</h3>
                 <div className="grid grid-cols-1 gap-4">
                 {user.makams && user.makams.length > 0 ? (
                     user.makams.map((m) => (
@@ -191,7 +191,7 @@ export default function UserDetail() {
 
             {/* Status Pesanan Makam - Centered */}
             <section className="max-w-lg mx-auto w-full mb-12">
-                <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Status Pesanan Makam</h3>
+                <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Pesanan Makam</h3>
                 <div className="space-y-3">
                 {user.statuses && user.statuses.length > 0 ? (
                     user.statuses.map((s) => (
