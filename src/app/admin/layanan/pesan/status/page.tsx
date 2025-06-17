@@ -165,7 +165,8 @@ export default function Status() {
               href={`/admin/layanan/pesan/status/${item.id}`}
               className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] cursor-pointer"
               style={{
-                borderColor: item.approved === "APPROVED" ? "#22c55e" : "#facc15",
+                // borderColor: item.approved === "APPROVED" ? "#22c55e" : "#facc15",
+                borderColor: "#facc15",
               }}
             >
               <div className="flex justify-between items-start mb-1">
