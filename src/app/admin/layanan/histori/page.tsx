@@ -11,8 +11,6 @@ export default function Histori() {
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Semua");
-  const [filterByNameOnly, setFilterByNameOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
   const router = useRouter();
@@ -46,12 +44,9 @@ export default function Histori() {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const filteredData = users.filter((user) => {
-    const matchName = user.name.toLowerCase().includes(search.toLowerCase());
-    if (filterByNameOnly) return matchName;
-    const matchStatus = statusFilter === "Semua" || user.status === statusFilter;
-    return matchName && matchStatus;
-  });
+  const filteredData = users.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filteredData.length / usersPerPage) || 1;
   const startIndex = (currentPage - 1) * usersPerPage;
@@ -61,7 +56,7 @@ export default function Histori() {
   useEffect(() => {
     setCurrentPage(1);
     setOpenIndex(null);
-  }, [search, statusFilter, filterByNameOnly]);
+  }, [search]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -119,30 +114,6 @@ export default function Histori() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-
-          <div className="flex items-center gap-2">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              disabled={filterByNameOnly}
-              className="px-4 py-2 rounded border border-gray-300"
-            >
-              <option value="Semua">Semua Status</option>
-              <option value="AKTIF">Aktif</option>
-              <option value="TIDAK AKTIF">Tidak Aktif</option>
-              <option value="PESAN">Pemesanan</option>
-            </select>
-
-            <label className="flex items-center text-sm gap-2">
-              <input
-                type="checkbox"
-                checked={filterByNameOnly}
-                onChange={() => setFilterByNameOnly(!filterByNameOnly)}
-                className="form-checkbox"
-              />
-              Hanya cari nama
-            </label>
-          </div>
         </div>
 
         {!loading && (
