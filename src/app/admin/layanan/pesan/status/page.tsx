@@ -36,7 +36,7 @@ export default function Status() {
   const filteredData = data.filter((item) => {
     const query = searchName.toLowerCase();
     const matchNama = item.nama.toLowerCase().includes(query);
-    const matchId = item.id.toString().includes(query);
+    // const matchId = item.id.toString().includes(query);
     const matchPenanggungJawab = item.nama_penanggung_jawab.toLowerCase().includes(query);
     const matchBlok = item.blok?.toLowerCase().includes(query); // optional chaining just in case
 
@@ -52,7 +52,7 @@ export default function Status() {
     // }
 
     // return (matchNama || matchId || matchPenanggungJawab || matchBlok) && matchDate;
-    return matchNama || matchId || matchPenanggungJawab || matchBlok;
+    return matchNama || matchPenanggungJawab || matchBlok;
   });
 
   // Pagination calculations
@@ -116,7 +116,7 @@ export default function Status() {
         {/* Filters */}
         <div className="w-full max-w-2xl mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Cari Nama Jenazah / PJ / Blok / ID</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Cari Nama Jenazah / Nama PJ / Blok</label>
             <input
               type="text"
               placeholder="Contoh: John Doe, Blok A, atau 123"
