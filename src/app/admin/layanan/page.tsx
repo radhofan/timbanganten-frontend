@@ -34,12 +34,12 @@ export default function Layanan() {
       description: "Lihat denah lokasi pemakaman untuk memilih lokasi yang sesuai.",
       link: "/admin/layanan/denah",
     },
-    {
-      title: "Perpanjangan",
-      imgSrc: "/images/perpanjangan1.png",
-      description: "Perpanjang masa aktif lokasi makam yang telah dipesan.",
-      link: "/admin/layanan/perpanjangan",
-    },
+    // {
+    //   title: "Perpanjangan",
+    //   imgSrc: "/images/perpanjangan1.png",
+    //   description: "Perpanjang masa aktif lokasi makam yang telah dipesan.",
+    //   link: "/admin/layanan/perpanjangan",
+    // },
     {
       title: "Histori Pengguna",
       imgSrc: "/images/history pengguna.png",

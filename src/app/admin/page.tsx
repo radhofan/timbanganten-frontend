@@ -28,11 +28,11 @@ export default function Admin() {
       imgSrc: "/images/denah makam1.png",
       href: "/admin/layanan/denah",
     },
-    {
-      title: "Perpanjangan",
-      imgSrc: "/images/perpanjangan1.png",
-      href: "/admin/layanan/pesan/status",
-    },
+    // {
+    //   title: "Perpanjangan",
+    //   imgSrc: "/images/perpanjangan1.png",
+    //   href: "/admin/layanan/pesan/status",
+    // },
     {
       title: "Histori Pengguna",
       imgSrc: "/images/history pengguna.png",
@@ -190,27 +190,34 @@ export default function Admin() {
       <main className="flex-1 p-24 relative bg-white">
         <div className="mx-auto w-full max-w-4xl px-4 mt-12 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
-            {cards.map(({ title, imgSrc, href }, i) => (
-              <Link key={i} href={href} className="w-full max-w-sm mx-auto">
-                <div
-                  className="bg-white rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-6 w-full h-full"
-                  style={{
-                    boxShadow: "-6px 6px 20px rgba(34, 61, 60, 0.2)",
-                  }}
+            {cards.map(({ title, imgSrc, href }, i) => {
+              const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
+              return (
+                <Link
+                  key={i}
+                  href={href}
+                  className={`w-full max-w-sm mx-auto ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""}`}
                 >
-                  <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
-                    <Image
-                      src={imgSrc}
-                      alt={title}
-                      fill
-                      className="object-contain"
-                      priority
-                    />
+                  <div
+                    className="bg-white rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-6 w-full h-full"
+                    style={{
+                      boxShadow: "-6px 6px 20px rgba(34, 61, 60, 0.2)",
+                    }}
+                  >
+                    <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
+                      <Image
+                        src={imgSrc}
+                        alt={title}
+                        fill
+                        className="object-contain"
+                        priority
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold text-center">{title}</h3>
                   </div>
-                  <h3 className="text-lg font-semibold text-center">{title}</h3>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </main>
