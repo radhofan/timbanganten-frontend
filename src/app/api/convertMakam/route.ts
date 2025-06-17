@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const id = parseInt(body.id, 10); 
+    const id = parseInt(body.id, 10);
 
     if (isNaN(id)) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
@@ -21,28 +21,42 @@ export async function POST(request: Request) {
 
     // Create the new Makam entry
     const newMakam = await prisma.makam.create({
-        data: {
-            blok: status.blok,
-            nama: status.nama,
-            lokasi: status.lokasi,
-            silsilah: status.silsilah,
-            ext: "PAID",
-            masa_aktif: status.masa_aktif,
-            nama_penanggung_jawab: status.nama_penanggung_jawab,
-            kontak_penanggung_jawab: status.kontak_penanggung_jawab,
-            description: status.description,
-            payment: "PAID",
-            approved: "APPROVED",
-            userId: status.userId,
-        },
+      data: {
+        blok: status.blok,
+        nama: status.nama,
+        lokasi: status.lokasi,
+        silsilah: status.silsilah,
+        ext: "PAID",
+        masa_aktif: status.masa_aktif,
+        nama_penanggung_jawab: status.nama_penanggung_jawab,
+        kontak_penanggung_jawab: status.kontak_penanggung_jawab,
+        description: status.description,
+        payment: "PAID",
+        approved: "APPROVED",
+        userId: status.userId,
+      },
     });
 
     // Delete from makamStatus
     await prisma.makamStatus.delete({ where: { id } });
 
-    return NextResponse.json({ message: "Berhasil disetujui", makam: newMakam });
+    // Update related user's status to "AKTIF"
+    if (status.userId) {
+      await prisma.user.update({
+        where: { id: status.userId },
+        data: { status: "AKTIF" },
+      });
+    }
+
+    return NextResponse.json({
+      message: "Berhasil disetujui dan status user diubah menjadi AKTIF",
+      makam: newMakam,
+    });
   } catch (err) {
     console.error("[approveMakam]", err);
-    return NextResponse.json({ error: "Terjadi kesalahan saat menyetujui makam." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat menyetujui makam." },
+      { status: 500 }
+    );
   }
 }
