@@ -8,39 +8,99 @@ import { useRouter } from "next/navigation";
 
 export default function Pemesanan() {
   const today = new Date();
-  const currentYear = today.getFullYear();
-
-  // Minimum date: 6 months from now
-  const minDate = new Date();
+  
+  // Calculate minimum date (6 months from today)
+  const minDate = new Date(today);
   minDate.setMonth(minDate.getMonth() + 6);
-
-  // Maximum date: 5 years after minDate
+  
+  // Calculate maximum date (5 years from minimum date)
   const maxDate = new Date(minDate);
   maxDate.setFullYear(maxDate.getFullYear() + 5);
-
-  // Generate lists for day, month, year
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  const years = Array.from(
-    { length: maxDate.getFullYear() - minDate.getFullYear() + 1 },
-    (_, i) => minDate.getFullYear() + i
-  ); // e.g., [2024, 2025, ..., 2029] if minDate is in 2024
+  
+  // Generate available days, months, and years based on min/max dates
+  // const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  // const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const years = Array.from({ length: maxDate.getFullYear() - minDate.getFullYear() + 1 }, 
+    (_, i) => minDate.getFullYear() + i);
   
   const [masaAktif, setMasaAktif] = useState({
-    day: today.getDate(),
-    month: today.getMonth() + 1,
-    year: currentYear,
+    day: minDate.getDate(),
+    month: minDate.getMonth() + 1,
+    year: minDate.getFullYear(),
   });
 
-
-
   const router = useRouter();
+
+  // Function to validate if selected date is within allowed range
+  const isDateValid = (day: number, month: number, year: number) => {
+    const selectedDate = new Date(year, month - 1, day);
+    return selectedDate >= minDate && selectedDate <= maxDate;
+  };
+
+  // Function to get valid days for selected month/year
+  const getValidDays = (month: number, year: number) => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const validDays = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      if (isDateValid(day, month, year)) {
+        validDays.push(day);
+      }
+    }
+    return validDays;
+  };
+
+  // Function to get valid months for selected year
+  const getValidMonths = (year: number) => {
+    const validMonths = [];
+    
+    for (let month = 1; month <= 12; month++) {
+      // Check if any day in this month is valid
+      const daysInMonth = new Date(year, month, 0).getDate();
+      let hasValidDay = false;
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        if (isDateValid(day, month, year)) {
+          hasValidDay = true;
+          break;
+        }
+      }
+      
+      if (hasValidDay) {
+        validMonths.push(month);
+      }
+    }
+    return validMonths;
+  };
+
+  // Update valid days when month or year changes
+  useEffect(() => {
+    const validDays = getValidDays(masaAktif.month, masaAktif.year);
+    if (validDays.length > 0 && !validDays.includes(masaAktif.day)) {
+      setMasaAktif(prev => ({ ...prev, day: validDays[0] }));
+    }
+  }, [masaAktif.month, masaAktif.year,]);
+
+  // Update valid months when year changes
+  useEffect(() => {
+    const validMonths = getValidMonths(masaAktif.year);
+    if (validMonths.length > 0 && !validMonths.includes(masaAktif.month)) {
+      setMasaAktif(prev => ({ ...prev, month: validMonths[0] }));
+    }
+  }, [masaAktif.year]);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+
+    // Validate selected date is within allowed range
+    const selectedDate = new Date(masaAktif.year, masaAktif.month - 1, masaAktif.day);
+    if (selectedDate < minDate || selectedDate > maxDate) {
+      alert(`Masa aktif harus antara ${minDate.toLocaleDateString('id-ID')} dan ${maxDate.toLocaleDateString('id-ID')}`);
+      return;
+    }
 
     // ✅ Custom validation block
     const requiredFields = [
@@ -126,9 +186,7 @@ export default function Pemesanan() {
       }
 
       const newUser = await newUserRes.json();
-      // console.log(newUser); 
       pjId = newUser.id;
-      // console.log("Assigned pjId:", pjId); 
     }
 
     const payload = {
@@ -376,7 +434,12 @@ export default function Pemesanan() {
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Masa Aktif</label>
+              <label className="block mb-1 font-medium">
+                Masa Aktif 
+                <span className="text-sm text-gray-600 ml-2">
+                  (Minimal 6 bulan dari sekarang)
+                </span>
+              </label>
               <div className="flex space-x-2">
                 <select
                   value={masaAktif.day}
@@ -385,7 +448,7 @@ export default function Pemesanan() {
                   }
                   className="border border-gray-300 rounded px-2 py-2"
                 >
-                  {days.map((day) => (
+                  {getValidDays(masaAktif.month, masaAktif.year).map((day) => (
                     <option key={day} value={day}>
                       {day}
                     </option>
@@ -398,7 +461,7 @@ export default function Pemesanan() {
                   }
                   className="border border-gray-300 rounded px-2 py-2"
                 >
-                  {months.map((month) => (
+                  {getValidMonths(masaAktif.year).map((month) => (
                     <option key={month} value={month}>
                       {month}
                     </option>
