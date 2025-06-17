@@ -52,7 +52,7 @@ function Input({
 }
 
 // Reusable StatusCard
-function StatusCard({ title, status, onResolve }: {
+function StatusCard({ title, status }: {
   title: string;
   status: string;
   onResolve: () => void;
@@ -71,7 +71,7 @@ function StatusCard({ title, status, onResolve }: {
         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
           {status}
         </span>
-        {status === 'RESOLVING' && (
+        {/* {status === 'RESOLVING' && (
           <button
             type="button"
             onClick={onResolve}
@@ -79,7 +79,7 @@ function StatusCard({ title, status, onResolve }: {
           >
             Mark as Resolved
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );
