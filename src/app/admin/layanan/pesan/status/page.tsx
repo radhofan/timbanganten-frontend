@@ -11,8 +11,8 @@ export default function Status() {
   const [data, setData] = useState<Makam[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  // const [fromDate, setFromDate] = useState("");
+  // const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -37,18 +37,19 @@ export default function Status() {
     const matchName = item.nama.toLowerCase().includes(searchName.toLowerCase()) ||
                       item.id.toString().includes(searchName);
     
-    let matchDate = true;
-    if (fromDate || toDate) {
-      const itemDate = new Date(item.masa_aktif);
-      if (fromDate) {
-        matchDate = matchDate && itemDate >= new Date(fromDate);
-      }
-      if (toDate) {
-        matchDate = matchDate && itemDate <= new Date(toDate);
-      }
-    }
+    // let matchDate = true;
+    // if (fromDate || toDate) {
+    //   const itemDate = new Date(item.masa_aktif);
+    //   if (fromDate) {
+    //     matchDate = matchDate && itemDate >= new Date(fromDate);
+    //   }
+    //   if (toDate) {
+    //     matchDate = matchDate && itemDate <= new Date(toDate);
+    //   }
+    // }
 
-    return matchName && matchDate;
+    // return matchName && matchDate;
+    return matchName;
   });
 
   // Pagination calculations
@@ -60,7 +61,7 @@ export default function Status() {
   // Reset to first page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchName, fromDate, toDate]);
+  }, [searchName]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -122,7 +123,7 @@ export default function Status() {
               className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
+          {/* <div className="flex flex-col sm:flex-row gap-2">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Dari Tanggal</label>
               <input 
@@ -141,7 +142,7 @@ export default function Status() {
                 className="px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300" 
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Results Info */}
