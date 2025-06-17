@@ -79,26 +79,22 @@ export default function UserDetail() {
   //   );
   // }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Pengguna tidak ditemukan.</p>
-      </div>
-    );
-  }
+  // if (!user) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <p className="text-gray-500">Pengguna tidak ditemukan.</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header hideBanner />
 
     <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24 mb-24">
-      {loading ? (
+      {loading && !user ? (
         <div className="min-h-[50vh] flex items-center justify-center">
           <p className="text-gray-500">Memuat data pengguna...</p>
-        </div>
-      ) : !user ? (
-        <div className="min-h-[50vh] flex items-center justify-center">
-          <p className="text-gray-500">Pengguna tidak ditemukan.</p>
         </div>
       ) : (
         <>
