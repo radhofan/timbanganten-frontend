@@ -178,7 +178,7 @@ export default function UserDetail() {
             <section className="max-w-lg mx-auto w-full">
               <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Makam</h3>
               <div className="grid grid-cols-1 gap-4">
-                {user.makams && user.makams.length > 0 ? (
+                {user?.makams && user.makams.length > 0 ? (
                   user.makams.map((m) => (
                     <button
                       key={m.id}
@@ -199,7 +199,7 @@ export default function UserDetail() {
             <section className="max-w-lg mx-auto w-full mb-12">
               <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Pesanan Makam</h3>
               <div className="space-y-3">
-                {user.statuses && user.statuses.length > 0 ? (
+                {user?.statuses && user.statuses.length > 0 ? (
                   user.statuses.map((s) => (
                     <button
                       key={s.id}
