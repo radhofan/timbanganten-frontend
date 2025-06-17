@@ -150,7 +150,7 @@ export default function UserDetail() {
                 <button
                   type="button"
                   onClick={() => router.push("/admin/layanan/histori")}
-                  className="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition transform hover:scale-105 active:scale-95"
+                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition transform hover:scale-105 active:scale-95"
                 >
                   Batal
                 </button>
