@@ -395,6 +395,23 @@ export default function MakamStatus() {
                   >
                     Edit
                   </button>
+
+                  {/* ✅ Tombol Approve Makam */}
+                  {formData.payment === "PAID" &&
+                    formData.ext === "PAID" &&
+                    formData.approved === "APPROVED" && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const success = await approveMakam(id as string);
+                          if (success) router.push("/admin/layanan/makam");
+                        }}
+                        className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
+                      >
+                        Approve Makam
+                      </button>
+                  )}
+                  
                 </div>
               )}
 
