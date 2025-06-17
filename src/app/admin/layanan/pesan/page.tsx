@@ -9,17 +9,33 @@ import { useRouter } from "next/navigation";
 export default function Pemesanan() {
   const today = new Date();
   const currentYear = today.getFullYear();
+
+  // Minimum date: 6 months from now
+  const minDate = new Date();
+  minDate.setMonth(minDate.getMonth() + 6);
+
+  // Maximum date: 5 years after minDate
+  const maxDate = new Date(minDate);
+  maxDate.setFullYear(maxDate.getFullYear() + 5);
+
+  // Generate lists for day, month, year
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  const years = Array.from({ length: 6 }, (_, i) => currentYear + i); // e.g., 2024-2029
-  const router = useRouter();
-
+  const years = Array.from(
+    { length: maxDate.getFullYear() - minDate.getFullYear() + 1 },
+    (_, i) => minDate.getFullYear() + i
+  ); // e.g., [2024, 2025, ..., 2029] if minDate is in 2024
+  
   const [masaAktif, setMasaAktif] = useState({
     day: today.getDate(),
     month: today.getMonth() + 1,
     year: currentYear,
   });
 
+
+
+  const router = useRouter();
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
