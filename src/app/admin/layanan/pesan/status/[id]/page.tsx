@@ -262,7 +262,7 @@ export default function MakamStatus() {
 
   const markAsResolving = async (id: string) => {
     await fetch("/api/resolving", {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify({ id }),
     });
     fetchData();
@@ -270,7 +270,7 @@ export default function MakamStatus() {
 
   const markAsResolved = async (id: string) => {
     await fetch("/api/resolved", {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify({ id }),
     });
     fetchData();
