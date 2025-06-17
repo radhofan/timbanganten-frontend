@@ -234,6 +234,22 @@ export default function MakamStatus() {
     }
   };
 
+  const markAsResolving = async (id: string) => {
+    await fetch("/api/makam-status/mark-resolving", {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
+    // refresh data, e.g., call fetchMakamStatus()
+  };
+
+  const markAsResolved = async (id: string) => {
+    await fetch("/api/makam-status/mark-resolved", {
+      method: "POST",
+      body: JSON.stringify({ id }),
+    });
+    // refresh data, e.g., call fetchMakamStatus()
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
@@ -324,12 +340,36 @@ export default function MakamStatus() {
               </button>
 
               {role === "admin" && (
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-                >
-                  Submit
-                </button>
+                <div className="space-x-2">
+                  {/* Tombol Mark as Resolving */}
+                  {formData.payment === "PENDING" && (
+                    <button
+                      type="button"
+                      onClick={() => markAsResolving(id as string)}
+                      className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
+                    >
+                      Mark as Resolving
+                    </button>
+                  )}
+
+                  {/* Tombol Mark as Resolved */}
+                  {formData.payment === "RESOLVING" && (
+                    <button
+                      type="button"
+                      onClick={() => markAsResolved(id as string)}
+                      className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                    >
+                      Mark as Resolved
+                    </button>
+                  )}
+                  {/* Tombol Edit */}
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+                  >
+                    Edit
+                  </button>
+                </div>
               )}
 
               {role === "approver" && (
