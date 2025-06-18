@@ -116,6 +116,77 @@ export default function Edit() {
   const router = useRouter();
   const { role } = useAuthStore();
 
+  const fetchData = async () => {
+    try {
+      setLoading(true); // Start loading
+
+      const res = await fetch(`/api/${type}?id=${id}`);
+      const data = await res.json();
+
+      setFormData({
+        namapj: data.nama_penanggung_jawab || "",
+        kontak: data.kontak_penanggung_jawab || "",
+        namajenazah: data.nama || "",
+        silsilah: data.silsilah || "",
+        lokasi: data.lokasi || "",
+        notes: data.description || "",
+        payment: data.payment || "",
+        ext: data.ext || "",
+        approved: data.approved,
+        blok: data.blok,
+        userId: data.userId,
+      });
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
+  async function convertMakam(id: string): Promise<boolean> {
+    try {
+      const res = await fetch("/api/convertMakam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error?.error || "Konversi makam gagal");
+      }
+
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Convert error:", err);
+        alert("Gagal mengaktifkan makam: " + err.message);
+      } else {
+        console.error("Unknown error:", err);
+        alert("Terjadi kesalahan tidak dikenal.");
+      }
+      return false;
+    }
+  }
+
+  const markAsResolving = async (id: string) => {
+    await fetch("/api/resolvingMakam", {
+      method: "PUT",
+      body: JSON.stringify({ id }),
+    });
+    fetchData();
+  };
+
+  const markAsResolved = async (id: string) => {
+    await fetch("/api/resolvedMakam", {
+      method: "PUT",
+      body: JSON.stringify({ id }),
+    });
+    fetchData();
+  };
+
 
   useEffect(() => {
     if (!id) return;
@@ -334,13 +405,62 @@ export default function Edit() {
               </button>
 
               {role === "admin" && (
+              <div className="space-x-2">
+                
+                {/* ✅ Only show these when type === "makamStatus" */}
+                {type === "makamStatus" && (
+                  <>
+                    {/* Tombol Mark as Resolving */}
+                    {formData.payment === "PENDING" && (
+                      <button
+                        type="button"
+                        onClick={() => markAsResolving(id as string)}
+                        className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
+                      >
+                        Mark as Resolving
+                      </button>
+                    )}
+
+                    {/* Tombol Mark as Resolved */}
+                    {formData.payment === "RESOLVING" && (
+                      <button
+                        type="button"
+                        onClick={() => markAsResolved(id as string)}
+                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                      >
+                        Mark as Resolved
+                      </button>
+                    )}
+
+                    {/* Tombol Aktifkan Makam */}
+                    {formData.payment === "PAID" &&
+                      formData.ext === "PAID" &&
+                      formData.approved === "APPROVED" && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const success = await convertMakam(id as string);
+                            if (success) router.push("/admin/layanan/makam");
+                          }}
+                          className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
+                        >
+                          Aktifkan Makam
+                        </button>
+                    )}
+                  </>
+                )}
+
+                {/* Tombol Edit */}
                 <button
                   type="submit"
                   className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
                 >
-                  Submit
+                  Edit
                 </button>
-              )}
+                
+              </div>
+            )}
+
 
               {role === "approver" && (
                 <button
