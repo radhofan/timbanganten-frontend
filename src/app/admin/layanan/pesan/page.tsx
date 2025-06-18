@@ -114,7 +114,7 @@ export default function Pemesanan() {
           name: selectedUser.name,
           contact: selectedUser.contact,
           email: selectedUser.email,
-          status: "AKTIF/PESAN"
+          status: selectedUser.status === "AKTIF"? "AKTIF/PESAN" : "PESAN",
         })
       });
     } else {
