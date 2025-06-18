@@ -4,8 +4,11 @@ import Footer from "@/components/Footer";
 import { User } from "@/components/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function Pemesanan() {
+  const { role } = useAuthStore();
+
   const today = new Date();
   // Calculate minimum date (6 months from today)
   const minDate = new Date(today);
@@ -445,6 +448,7 @@ export default function Pemesanan() {
           </div>
 
           {/* Buttons */}
+          {role === "admin" && (
           <div className="flex justify-end space-x-4 mt-6">
             <button
               onClick={() => router.push("/admin")}
@@ -459,7 +463,7 @@ export default function Pemesanan() {
             >
               Submit
             </button>
-          </div>
+          </div> )}
         </form>
       </main>
       <Footer />
