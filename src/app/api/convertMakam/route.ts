@@ -40,16 +40,22 @@ export async function POST(request: Request) {
     // Delete from makamStatus
     await prisma.makamStatus.delete({ where: { id } });
 
-    // Update related user's status to "AKTIF"
+    // Optional user status update
     if (status.userId) {
+      const remainingStatusCount = await prisma.makamStatus.count({
+        where: { userId: status.userId },
+      });
+
+      const newStatus = remainingStatusCount > 0 ? "AKTIF/PESAN" : "AKTIF";
+
       await prisma.user.update({
         where: { id: status.userId },
-        data: { status: "AKTIF" },
+        data: { status: newStatus },
       });
     }
 
     return NextResponse.json({
-      message: "Berhasil disetujui dan status user diubah menjadi AKTIF",
+      message: "Berhasil disetujui dan status user diupdate",
       makam: newMakam,
     });
   } catch (err) {
