@@ -355,6 +355,15 @@ export default function Edit() {
                       Mark as Resolving
                     </button>
                   )}
+                  {formData.ext === "PENDING" && (
+                    <button
+                      type="button"
+                      onClick={() => markAsResolved(id as string)}
+                      className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                    >
+                      Approve Payment
+                    </button>
+                  )}
                   {formData.ext === "RESOLVING" && (
                     <button
                       type="button"
