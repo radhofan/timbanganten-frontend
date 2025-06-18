@@ -462,7 +462,7 @@ export default function Edit() {
             )}
 
 
-              {role === "approver" && (
+              {role === "approver" && formData.approved !== "APPROVED" && (
                 <button
                   type="button"
                   onClick={async () => {
