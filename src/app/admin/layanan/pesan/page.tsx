@@ -448,15 +448,15 @@ export default function Pemesanan() {
           </div>
 
           {/* Buttons */}
+          <button
+            onClick={() => router.push("/admin")}
+            type="reset"
+            className="px-6 py-2 rounded bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+          >
+            Cancel
+          </button>
           {role === "admin" && (
           <div className="flex justify-end space-x-4 mt-6">
-            <button
-              onClick={() => router.push("/admin")}
-              type="reset"
-              className="px-6 py-2 rounded bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-            >
-              Cancel
-            </button>
             <button
               type="submit"
               className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
