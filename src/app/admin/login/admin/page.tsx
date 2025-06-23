@@ -13,7 +13,7 @@ export default function LoginAdmin() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/removeCookie', { method: 'POST' });
+    // fetch('/api/removeCookie', { method: 'POST' });
     useAuthStore.getState().logout();
   }, []);
 
@@ -50,9 +50,10 @@ export default function LoginAdmin() {
     }
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestLogin =  async () => {
+    await fetch('/api/removeCookie', { method: 'POST' }); 
     useAuthStore.getState().setAuth("guest", "Guest");
-    router.push("/admin");
+    router.push("/admin"); 
   };
 
   return (
