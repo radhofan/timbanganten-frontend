@@ -45,6 +45,11 @@ export default function LoginApprover() {
     }
   };
 
+  const handleGuestLogin = () => {
+    useAuthStore.getState().setAuth("", "guest", "Guest");
+    router.push("/admin");
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-[url('/images/login.jpg')] bg-cover bg-center bg-no-repeat">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -121,6 +126,14 @@ export default function LoginApprover() {
             {isLoading ? "Logging in..." : "Log In"}
           </button>
         </form>
+
+        {/* Masuk sebagai guest */}
+        <button
+          onClick={handleGuestLogin}
+          className="mt-4 w-full px-4 py-2 rounded-md border border-gray-400 text-gray-800 bg-white shadow-sm hover:bg-gray-50 hover:border-gray-600 hover:text-black transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Masuk sebagai guest
+        </button>
       </div>
     </div>
   );

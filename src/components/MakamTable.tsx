@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Makam } from "@/components/types";
 import Link from "next/link";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function MakamTable() {
   const [data, setData] = useState<Makam[]>([]);
@@ -11,6 +12,9 @@ export default function MakamTable() {
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLocation, setSelectedLocation] = useState("Semua");
+
+  const role = useAuthStore((state) => state.role);
+  const isGuest = role === "guest";
 
   useEffect(() => {
     fetch("/api/makam")
@@ -91,22 +95,16 @@ export default function MakamTable() {
       <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
         <thead className="bg-gray-50 border-b border-gray-300">
           <tr>
-            {[
-              "Blok Makam",
-              "Nama Jenazah",
-              "Lokasi",
-              "Nama PJ",
-              "Hubungan",
-              "No. Kontak PJ",
-              "Perpanjangan",
-              "Masa Aktif",
-              "Penjelasan",
-              "Edit",
-            ].map((header) => (
-              <th key={header} className="px-4 py-3 font-semibold text-center">
-                {header}
-              </th>
-            ))}
+            <th className="px-4 py-3 font-semibold text-center">Blok Makam</th>
+            <th className="px-4 py-3 font-semibold text-center">Nama Jenazah</th>
+            <th className="px-4 py-3 font-semibold text-center">Lokasi</th>
+            <th className="px-4 py-3 font-semibold text-center">Nama PJ</th>
+            <th className="px-4 py-3 font-semibold text-center">Hubungan</th>
+            {!isGuest && <th className="px-4 py-3 font-semibold text-center">No. Kontak PJ</th>}
+            {!isGuest && <th className="px-4 py-3 font-semibold text-center">Perpanjangan</th>}
+            {!isGuest && <th className="px-4 py-3 font-semibold text-center">Masa Aktif</th>}
+            {!isGuest && <th className="px-4 py-3 font-semibold text-center">Penjelasan</th>}
+            {!isGuest && <th className="px-4 py-3 font-semibold text-center">Edit</th>}
           </tr>
         </thead>
         <tbody>
@@ -133,79 +131,87 @@ export default function MakamTable() {
                 <td className="px-4 py-3 text-center">{item.lokasi}</td>
                 <td className="px-4 py-3 text-center">{item.nama_penanggung_jawab}</td>
                 <td className="px-4 py-3 text-center">{item.silsilah}</td>
-                <td className="px-4 py-3 text-center">{item.kontak_penanggung_jawab}</td>
-                <td className="px-4 py-3 text-center">
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                      item.ext === "PAID"
-                        ? "bg-green-100 text-green-800"
-                        : ["PENDING", "VERIFICATION", "RESOLVING"].includes(item.ext ?? "")
-                        ? "bg-yellow-100 text-yellow-800"
-                        : item.ext === "LEWAT BATAS"
-                        ? "bg-red-100 text-red-800"
-                        : item.ext === "BELUM AKTIF"
-                        ? "bg-gray-300 text-gray-700"
-                        : ""
-                    }`}
-                  >
-                    {item.ext}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                      item.ext === "BELUM AKTIF"
-                        ? "bg-gray-300 text-gray-700"
-                        : (() => {
-                            if (!item.masa_aktif) return "";
-                            const masaAktifDate = new Date(item.masa_aktif);
-                            const today = new Date();
-                            today.setHours(0, 0, 0, 0);
-                            return masaAktifDate >= today
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800";
-                          })()
-                    }`}
-                  >
-                    {new Date(item.masa_aktif).toLocaleDateString("id-ID")}
-                  </span>
-                </td>
-                <td className="px-4 py-3 max-w-xs break-words text-center">
-                  {item.description && item.description.trim() !== "" ? (
-                    <details className="group cursor-pointer">
-                      <summary className="text-black underline underline-offset-2 list-none [&::-webkit-details-marker]:hidden">
-                        <span className="group-open:hidden">Lihat Detail</span>
-                        <span className="hidden group-open:inline">Tutup</span>
-                      </summary>
-                      <p className="mt-1 text-gray-800">{item.description}</p>
-                    </details>
-                  ) : (
-                    <span className="text-gray-400 italic">Tidak ada penjelasan</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <Link
-                    href={`/admin/layanan/makam/${item.id}`}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    aria-label={`Edit ${item.nama}`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
+                {!isGuest && <td className="px-4 py-3 text-center">{item.kontak_penanggung_jawab}</td>}
+                {!isGuest && (
+                  <td className="px-4 py-3 text-center">
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        item.ext === "PAID"
+                          ? "bg-green-100 text-green-800"
+                          : ["PENDING", "VERIFICATION", "RESOLVING"].includes(item.ext ?? "")
+                          ? "bg-yellow-100 text-yellow-800"
+                          : item.ext === "LEWAT BATAS"
+                          ? "bg-red-100 text-red-800"
+                          : item.ext === "BELUM AKTIF"
+                          ? "bg-gray-300 text-gray-700"
+                          : ""
+                      }`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"
-                      />
-                    </svg>
-                    Edit
-                  </Link>
-                </td>
+                      {item.ext}
+                    </span>
+                  </td>
+                )}
+                {!isGuest && (
+                  <td className="px-4 py-3 text-center">
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        item.ext === "BELUM AKTIF"
+                          ? "bg-gray-300 text-gray-700"
+                          : (() => {
+                              if (!item.masa_aktif) return "";
+                              const masaAktifDate = new Date(item.masa_aktif);
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return masaAktifDate >= today
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800";
+                            })()
+                      }`}
+                    >
+                      {new Date(item.masa_aktif).toLocaleDateString("id-ID")}
+                    </span>
+                  </td>
+                )}
+                {!isGuest && (
+                  <td className="px-4 py-3 max-w-xs break-words text-center">
+                    {item.description && item.description.trim() !== "" ? (
+                      <details className="group cursor-pointer">
+                        <summary className="text-black underline underline-offset-2 list-none [&::-webkit-details-marker]:hidden">
+                          <span className="group-open:hidden">Lihat Detail</span>
+                          <span className="hidden group-open:inline">Tutup</span>
+                        </summary>
+                        <p className="mt-1 text-gray-800">{item.description}</p>
+                      </details>
+                    ) : (
+                      <span className="text-gray-400 italic">Tidak ada penjelasan</span>
+                    )}
+                  </td>
+                )}
+                {!isGuest && (
+                  <td className="px-4 py-3 text-center">
+                    <Link
+                      href={`/admin/layanan/makam/${item.id}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      aria-label={`Edit ${item.nama}`}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"
+                        />
+                      </svg>
+                      Edit
+                    </Link>
+                  </td>
+                )}
               </tr>
             ))
           )}

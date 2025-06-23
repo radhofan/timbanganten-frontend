@@ -54,7 +54,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           </Link>
           <div className="flex flex-col items-end justify-center text-right">
             <span className="text-lg font-semibold">
-              {name || "No Name"}
+              {name || "Guest"}
             </span>
             <span className="text-sm text-gray-600">
               {role ? role.charAt(0).toUpperCase() + role.slice(1) : "Guest"}

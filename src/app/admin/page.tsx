@@ -3,10 +3,20 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
-import { FiCreditCard, FiRefreshCcw, FiAlertTriangle, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import Link from "next/link";
+import {
+  FiCreditCard,
+  FiRefreshCcw,
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function Admin() {
+  // const name = useAuthStore((state) => state.name);
+  const role = useAuthStore((state) => state.role);
+
   const cards = [
     {
       title: "Pemesanan",
@@ -104,7 +114,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="mn-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       <div className="text-center text-gray-700">
@@ -116,76 +126,78 @@ export default function Admin() {
         </p>
       </div>
 
-      {/* Notification Container */}
-      <div className="w-[900px] mx-auto px-4 mt-8">
-        <div className="bg-[#223D3C] text-white rounded-t-lg px-6 py-4 flex items-center">
-          <svg
-            className="w-6 h-6 mr-2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-          </svg>
-          <h2 className="text-xl font-semibold">Pemberitahuan</h2>
-        </div>
-
-        <section
-          className="bg-cover bg-center bg-white rounded-b-lg shadow-md p-6 border-x-1 border-b-1 border-black"
-          style={{ backgroundImage: `url('/images/18930348_rm435-030-1.png')` }}
-        >
-          <div className="space-y-4 min-h-[300px] max-h-[400px] overflow-y-auto pr-4">
-            {notifications.map((notif) => (
-              <div
-                key={notif.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-gray-300/70 hover:bg-gray-500/80 transition"
-              >
-                <div className="flex items-center space-x-3 flex-1 min-w-0">
-                  <div className="w-6 h-6 text-gray-700 flex-shrink-0">
-                    {notif.type === "pembayaran" && <FiCreditCard size={24} />}
-                    {notif.type === "perpanjangan" && <FiRefreshCcw size={24} />}
-                    {["lewat-pembayaran", "lewat-perpanjangan"].includes(notif.type) && (
-                      <FiAlertTriangle size={24} className="text-red-600" />
-                    )}
-                    {notif.type === "approved" && (
-                      <FiCheckCircle size={24} className="text-green-600" />
-                    )}
-                    {notif.type === "tidak-approved" && (
-                      <FiXCircle size={24} className="text-red-600" />
-                    )}
-                    {![
-                      "pembayaran",
-                      "perpanjangan",
-                      "lewat-pembayaran",
-                      "lewat-perpanjangan",
-                      "approved",
-                      "tidak-approved",
-                    ].includes(notif.type) && <FiCreditCard size={24} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{notif.user}</p>
-                    <p className="text-sm text-gray-600">{notif.message}</p>
-                  </div>
-                  <span className="text-xs text-gray-500 whitespace-nowrap">{notif.time}</span>
-                </div>
-
-                <button
-                  onClick={() => handleMarkAsRead(notif.id)}
-                  className="ml-4 px-3 py-1 text-sm rounded-md border border-gray-600 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors cursor-pointer"
-                  aria-label="Mark notification as read"
-                >
-                  Mark as read
-                </button>
-              </div>
-            ))}
+      {/* Notification Container (only for non-guest users) */}
+      {role !== "guest" && (
+        <div className="w-[900px] mx-auto px-4 mt-8">
+          <div className="bg-[#223D3C] text-white rounded-t-lg px-6 py-4 flex items-center">
+            <svg
+              className="w-6 h-6 mr-2"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              />
+            </svg>
+            <h2 className="text-xl font-semibold">Pemberitahuan</h2>
           </div>
-        </section>
-      </div>
+
+          <section
+            className="bg-cover bg-center bg-white rounded-b-lg shadow-md p-6 border-x-1 border-b-1 border-black"
+            style={{ backgroundImage: `url('/images/18930348_rm435-030-1.png')` }}
+          >
+            <div className="space-y-4 min-h-[300px] max-h-[400px] overflow-y-auto pr-4">
+              {notifications.map((notif) => (
+                <div
+                  key={notif.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-300/70 hover:bg-gray-500/80 transition"
+                >
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                    <div className="w-6 h-6 text-gray-700 flex-shrink-0">
+                      {notif.type === "pembayaran" && <FiCreditCard size={24} />}
+                      {notif.type === "perpanjangan" && <FiRefreshCcw size={24} />}
+                      {["lewat-pembayaran", "lewat-perpanjangan"].includes(notif.type) && (
+                        <FiAlertTriangle size={24} className="text-red-600" />
+                      )}
+                      {notif.type === "approved" && (
+                        <FiCheckCircle size={24} className="text-green-600" />
+                      )}
+                      {notif.type === "tidak-approved" && (
+                        <FiXCircle size={24} className="text-red-600" />
+                      )}
+                      {![
+                        "pembayaran",
+                        "perpanjangan",
+                        "lewat-pembayaran",
+                        "lewat-perpanjangan",
+                        "approved",
+                        "tidak-approved",
+                      ].includes(notif.type) && <FiCreditCard size={24} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{notif.user}</p>
+                      <p className="text-sm text-gray-600">{notif.message}</p>
+                    </div>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">{notif.time}</span>
+                  </div>
+
+                  <button
+                    onClick={() => handleMarkAsRead(notif.id)}
+                    className="ml-4 px-3 py-1 text-sm rounded-md border border-gray-600 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors cursor-pointer"
+                    aria-label="Mark notification as read"
+                  >
+                    Mark as read
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
 
       <main className="flex-1 p-24 relative bg-white">
         <div className="mx-auto w-full max-w-4xl px-4 mt-12 relative z-10">

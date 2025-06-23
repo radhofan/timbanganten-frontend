@@ -9,7 +9,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!token) {
+
+  const protectedRoutes = [
+    '/admin/layanan/pesan',
+    '/admin/layanan/histori',
+  ];
+
+  const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
+
+  if (isProtected && !token) {
     return NextResponse.redirect(new URL('/admin/login/admin', request.url));
   }
 
@@ -17,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*']
+  matcher: ['/admin/:path*'],
 };

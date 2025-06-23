@@ -33,7 +33,6 @@ export default function LoginPengawas() {
       }
 
       if (data.token) {
-        // ✅ Use Zustand store instead of raw localStorage
         useAuthStore.getState().setAuth(data.token, data.pengawas.role, data.pengawas.name);
         console.log("Setting auth:", data.token, data.pengawas.role, data.pengawas.name);
       }
@@ -44,6 +43,11 @@ export default function LoginPengawas() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGuestLogin = () => {
+    useAuthStore.getState().setAuth("", "guest", "Guest");
+    router.push("/admin");
   };
 
   return (
@@ -122,6 +126,14 @@ export default function LoginPengawas() {
             {isLoading ? "Logging in..." : "Log In"}
           </button>
         </form>
+
+        {/* Masuk sebagai guest */}
+        <button
+          onClick={handleGuestLogin}
+          className="mt-4 w-full px-4 py-2 rounded-md border border-gray-400 text-gray-800 bg-white shadow-sm hover:bg-gray-50 hover:border-gray-600 hover:text-black transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Masuk sebagai guest
+        </button>
       </div>
     </div>
   );
