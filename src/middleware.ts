@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  if (isProtected && (token === '' || token === null)) {
+  if (isProtected && !token) {
     return NextResponse.redirect(new URL('/admin/login/admin', request.url));
   }
 
