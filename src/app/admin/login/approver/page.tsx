@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -11,6 +11,10 @@ export default function LoginApprover() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    useAuthStore.getState().logout();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
