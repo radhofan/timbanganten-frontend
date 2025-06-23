@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
-  const role = request.cookies.get('role')?.value; // ✅ get role from cookies
+  // const role = request.cookies.get('role')?.value; 
 
   if (pathname.startsWith('/admin/login')) {
     return NextResponse.next();
@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  if (isProtected && (!token || role === 'guest')) {
+  if (isProtected && token === '') {
     return NextResponse.redirect(new URL('/admin/login/admin', request.url));
   }
 
