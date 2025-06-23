@@ -13,6 +13,7 @@ export default function LoginAdmin() {
   const router = useRouter();
 
   useEffect(() => {
+    fetch('/api/removeCookie', { method: 'POST' });
     useAuthStore.getState().logout();
   }, []);
 
@@ -37,8 +38,8 @@ export default function LoginAdmin() {
       }
 
       if (data.token) {
-        useAuthStore.getState().setAuth(data.token, data.admin.role, data.admin.name);
-        console.log("Setting auth:", data.token, data.admin.role, data.admin.name);
+        useAuthStore.getState().setAuth(data.admin.role, data.admin.name);
+        console.log("Setting auth:", data.admin.role, data.admin.name);
       }
 
       router.push("/admin");
@@ -50,7 +51,7 @@ export default function LoginAdmin() {
   };
 
   const handleGuestLogin = () => {
-    useAuthStore.getState().setAuth("", "guest", "Guest");
+    useAuthStore.getState().setAuth("guest", "Guest");
     router.push("/admin");
   };
 

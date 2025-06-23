@@ -49,7 +49,6 @@ export async function POST(request: Request) {
     // ✅ Create the response object
     const response = NextResponse.json({
       message: 'Login successful',
-      token,
       admin: {
         id: admin.id,
         email: admin.email,

@@ -13,6 +13,7 @@ export default function LoginApprover() {
   const router = useRouter();
 
   useEffect(() => {
+    fetch('/api/removeCookie', { method: 'POST' });
     useAuthStore.getState().logout();
   }, []);
 
@@ -37,8 +38,8 @@ export default function LoginApprover() {
       }
 
       if (data.token) {
-        useAuthStore.getState().setAuth(data.token, data.approver.role, data.approver.name);
-        console.log("Setting auth:", data.token, data.approver.role, data.approver.name);
+        useAuthStore.getState().setAuth(data.approver.role, data.approver.name);
+        console.log("Setting auth:", data.approver.role, data.approver.name);
       }
 
       router.push("/admin");
@@ -50,7 +51,7 @@ export default function LoginApprover() {
   };
 
   const handleGuestLogin = () => {
-    useAuthStore.getState().setAuth("", "guest", "Guest");
+    useAuthStore.getState().setAuth("guest", "Guest");
     router.push("/admin");
   };
 

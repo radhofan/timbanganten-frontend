@@ -13,6 +13,7 @@ export default function LoginPengawas() {
   const router = useRouter();
 
   useEffect(() => {
+    fetch('/api/removeCookie', { method: 'POST' });
     useAuthStore.getState().logout();
   }, []);
 
@@ -37,8 +38,8 @@ export default function LoginPengawas() {
       }
 
       if (data.token) {
-        useAuthStore.getState().setAuth(data.token, data.pengawas.role, data.pengawas.name);
-        console.log("Setting auth:", data.token, data.pengawas.role, data.pengawas.name);
+        useAuthStore.getState().setAuth(data.pengawas.role, data.pengawas.name);
+        console.log("Setting auth:", data.pengawas.role, data.pengawas.name);
       }
 
       router.push("/admin");
@@ -50,7 +51,7 @@ export default function LoginPengawas() {
   };
 
   const handleGuestLogin = () => {
-    useAuthStore.getState().setAuth("", "guest", "Guest");
+    useAuthStore.getState().setAuth("guest", "Guest");
     router.push("/admin");
   };
 
