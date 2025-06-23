@@ -32,11 +32,8 @@ export default function LoginAdmin() {
         throw new Error(data.error || "Login failed");
       }
 
-      if (data.token) {
-        useAuthStore.getState().setAuth(data.admin.role, data.admin.name);
-        console.log("Setting auth:", data.admin.role, data.admin.name);
-      }
-
+      useAuthStore.getState().setAuth(data.admin.role, data.admin.name);
+      console.log("Setting auth:", data.admin.role, data.admin.name);
       router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");

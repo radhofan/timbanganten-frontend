@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -11,11 +11,6 @@ export default function LoginPengawas() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    fetch('/api/removeCookie', { method: 'POST' });
-    useAuthStore.getState().logout();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,10 +32,9 @@ export default function LoginPengawas() {
         throw new Error(data.error || "Login failed");
       }
 
-      if (data.token) {
-        useAuthStore.getState().setAuth(data.pengawas.role, data.pengawas.name);
-        console.log("Setting auth:", data.pengawas.role, data.pengawas.name);
-      }
+      useAuthStore.getState().setAuth(data.pengawas.role, data.pengawas.name);
+      console.log("Setting auth:", data.pengawas.role, data.pengawas.name);
+      
 
       router.push("/admin");
     } catch (err) {
@@ -50,9 +44,11 @@ export default function LoginPengawas() {
     }
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestLogin =  async () => {
+    await fetch('/api/removeCookie', { method: 'POST' }); 
+    useAuthStore.getState().logout();
     useAuthStore.getState().setAuth("guest", "Guest");
-    router.push("/admin");
+    router.push("/admin"); 
   };
 
   return (
