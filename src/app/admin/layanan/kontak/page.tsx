@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function AdminTable() {
   const data = [
@@ -21,6 +23,8 @@ export default function AdminTable() {
 
   return (
     <div className="p-4">
+      <Header />
+        
       <div className="text-3xl font-bold text-center mb-8">Admin User Table</div>
 
       <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
@@ -68,6 +72,8 @@ export default function AdminTable() {
           ))}
         </tbody>
       </table>
+      
+      <Footer />
     </div>
   );
 }
