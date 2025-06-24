@@ -38,15 +38,15 @@ export default function Admin() {
       imgSrc: "/images/denah makam1.png",
       href: "/admin/layanan/denah",
     },
-    // {
-    //   title: "Perpanjangan",
-    //   imgSrc: "/images/perpanjangan1.png",
-    //   href: "/admin/layanan/pesan/status",
-    // },
     {
       title: "Histori Pengguna",
       imgSrc: "/images/history pengguna.png",
       href: "/admin/layanan/histori",
+    },
+    {
+      title: "Kontak Admin",
+      imgSrc: "/images/kontak.png",
+      href: "/admin/layanan/kontak",
     },
   ];
 
