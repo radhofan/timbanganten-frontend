@@ -23,10 +23,10 @@ export default function AdminTable() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header hideBanner />
+        <Header hideBanner />
 
-      <main className="flex-1 p-12">  
-        <div className="text-3xl font-bold text-center mb-8">Admin User Table</div>
+        <main className="flex-1 p-12">  
+        <div className="text-3xl font-bold text-center mb-8">Daftar Kontak</div>
 
         <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
             <thead className="bg-gray-50 border-b border-gray-300">
