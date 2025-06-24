@@ -15,6 +15,7 @@ export default function KontakDetailPage() {
     name: "",
     email: "",
     contact: "",
+    password: "",
   });
 
   const [success, setSuccess] = useState(false);
@@ -25,6 +26,7 @@ export default function KontakDetailPage() {
       name: "Radho Ramdhani",
       email: "radho@example.com",
       contact: "081234567890",
+      password: "",
     });
   }, [id]);
 
@@ -37,8 +39,11 @@ export default function KontakDetailPage() {
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
+    // Simulate update
     setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
+    setTimeout(() => {
+      setSuccess(false);
+    }, 3000);
   };
 
   return (
@@ -91,6 +96,20 @@ export default function KontakDetailPage() {
                 name="contact"
                 type="text"
                 value={formData.contact}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
               />
