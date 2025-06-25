@@ -68,7 +68,9 @@ export default function AdminTable() {
                   className="even:bg-gray-50 hover:bg-gray-100 transition-colors"
                 >
                   <td className="px-4 py-3 text-center">{user.name}</td>
-                  <td className="px-4 py-3 text-center">-</td>
+                  <td className="px-4 py-3 text-center">
+                    {user.contact ?? "-"}
+                  </td>
                   <td className="px-4 py-3 text-center">{user.email}</td>
                   <td className="px-4 py-3 text-center">
                     <Link
