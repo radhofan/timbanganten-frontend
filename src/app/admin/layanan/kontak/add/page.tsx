@@ -26,14 +26,30 @@ export default function AddKontakPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate saving
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      router.push("/admin/layanan/kontak");
-    }, 2000);
+    try {
+      const res = await fetch("/api/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal menambahkan kontak");
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        router.push("/admin/layanan/kontak");
+      }, 2000);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Terjadi kesalahan saat menambahkan kontak.");
+    }
   };
 
   return (

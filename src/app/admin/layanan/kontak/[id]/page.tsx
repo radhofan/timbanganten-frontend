@@ -59,17 +59,23 @@ export default function KontakDetailPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Build request payload
+      const payload: Record<string, string> = {
+        name: formData.name,
+        email: formData.email,
+        contact: formData.contact,
+      };
+
+      if (formData.password.trim() !== "") {
+        payload.password = formData.password;
+      }
+
       const res = await fetch(`/api/admin?id=${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          contact: formData.contact,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Failed to update admin");

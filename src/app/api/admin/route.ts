@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import bcrypt from "bcrypt";
 
 // GET admin(s)
 export async function GET(request: Request) {
@@ -71,29 +72,55 @@ export async function POST(request: Request) {
 // PUT update admin
 export async function PUT(request: Request) {
   const url = new URL(request.url);
-  const id = url.searchParams.get('id');
+  const id = url.searchParams.get("id");
 
   if (!id) {
-    return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+    return NextResponse.json({ error: "Missing ID" }, { status: 400 });
   }
 
   const body = await request.json();
-  const { name, email, password } = body;
+  const { name, email, contact, password } = body;
+
+  // Validate required fields
+  if (!name || !email || contact === undefined) {
+    return NextResponse.json(
+      { error: "Name, email, and contact are required" },
+      { status: 400 }
+    );
+  }
 
   const existingAdmin = await prisma.admin.findUnique({
     where: { id: Number(id) },
   });
 
   if (!existingAdmin) {
-    return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
+    return NextResponse.json({ error: "Admin not found" }, { status: 404 });
+  }
+
+  const updatedData: {
+    name: string;
+    email: string;
+    contact: string;
+    password?: string;
+  } = {
+    name,
+    email,
+    contact,
+  };
+
+  if (password && password.trim() !== "") {
+    updatedData.password = await bcrypt.hash(password, 10);
   }
 
   const updatedAdmin = await prisma.admin.update({
     where: { id: Number(id) },
-    data: { name, email, password },
+    data: updatedData,
   });
 
-  return NextResponse.json(updatedAdmin);
+  // Strip password before returning
+  const { ...safeAdmin } = updatedAdmin;
+
+  return NextResponse.json(safeAdmin);
 }
 
 // DELETE admin
