@@ -56,21 +56,10 @@ export async function GET(request: Request) {
   return NextResponse.json(admins);
 }
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  const { name, email, password, contact } = body;
-
-  const newAdmin = await prisma.admin.create({
-    data: { name, email, password, contact },
-  });
-
-  return NextResponse.json(newAdmin, { status: 201 });
-}
-
 // POST create new admin
 export async function POST(request: Request) {
   const body = await request.json();
-  const { name, email, password } = body;
+  const { name, email, password, contact } = body;
 
   const newAdmin = await prisma.admin.create({
     data: { name, email, password, contact },
