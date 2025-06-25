@@ -68,6 +68,7 @@ export default function KontakDetailPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          contact: formData.contact,
         }),
       });
 

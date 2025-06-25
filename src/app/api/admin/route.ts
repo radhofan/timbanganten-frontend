@@ -4,16 +4,22 @@ import { NextResponse } from 'next/server';
 // GET admin(s)
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const id = url.searchParams.get('id');
-  const query = url.searchParams.get('query');
+  const id = url.searchParams.get("id");
+  const query = url.searchParams.get("query");
 
   if (id) {
     const admin = await prisma.admin.findUnique({
       where: { id: Number(id) },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        contact: true,
+      },
     });
 
     if (!admin) {
-      return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
+      return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
     return NextResponse.json(admin);
@@ -25,24 +31,49 @@ export async function GET(request: Request) {
     admins = await prisma.admin.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { email: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: "insensitive" } },
+          { email: { contains: query, mode: "insensitive" } },
         ],
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        contact: true,
       },
     });
   } else {
-    admins = await prisma.admin.findMany();
+    admins = await prisma.admin.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        contact: true,
+      },
+    });
   }
 
   return NextResponse.json(admins);
 }
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { name, email, password, contact } = body;
+
+  const newAdmin = await prisma.admin.create({
+    data: { name, email, password, contact },
+  });
+
+  return NextResponse.json(newAdmin, { status: 201 });
+}
+
 // POST create new admin
 export async function POST(request: Request) {
   const body = await request.json();
   const { name, email, password } = body;
 
   const newAdmin = await prisma.admin.create({
-    data: { name, email, password },
+    data: { name, email, password, contact },
   });
 
   return NextResponse.json(newAdmin, { status: 201 });
