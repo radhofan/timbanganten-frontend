@@ -72,7 +72,7 @@ export default function AdminTable() {
                   <td className="px-4 py-3 text-center">{user.email}</td>
                   <td className="px-4 py-3 text-center">
                     <Link
-                      href={`/admin/users/${user.id}`}
+                      href={`/admin/layanan/kontak/${user.id}`}
                       className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                       aria-label={`Edit ${user.name}`}
                     >

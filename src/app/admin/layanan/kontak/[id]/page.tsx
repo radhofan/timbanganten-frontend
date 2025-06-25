@@ -14,20 +14,39 @@ export default function KontakDetailPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    contact: "",
+    contact: "", // optional frontend-only field
     password: "",
   });
 
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Dummy data loading
-    setFormData({
-      name: "Radho Ramdhani",
-      email: "radho@example.com",
-      contact: "081234567890",
-      password: "",
-    });
+    const fetchAdmin = async () => {
+      try {
+        const res = await fetch(`/api/admin?id=${id}`);
+        if (!res.ok) throw new Error("Failed to fetch admin data");
+        const admin = await res.json();
+
+        setFormData({
+          name: admin.name || "",
+          email: admin.email || "",
+          contact: "", // your DB doesn't store contact, so keep it blank
+          password: "",
+        });
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Unknown error occurred");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchAdmin();
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,14 +56,32 @@ export default function KontakDetailPage() {
     }));
   };
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate update
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-    }, 3000);
+    try {
+      const res = await fetch(`/api/admin?id=${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update admin");
+
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center text-red-600 mt-10">{error}</p>;
 
   return (
     <div className="min-h-screen bg-white flex flex-col">

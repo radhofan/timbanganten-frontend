@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
+  const query = url.searchParams.get('query');
 
   if (id) {
     const admin = await prisma.admin.findUnique({
@@ -18,10 +19,23 @@ export async function GET(request: Request) {
     return NextResponse.json(admin);
   }
 
-  const admins = await prisma.admin.findMany();
+  let admins;
+
+  if (query) {
+    admins = await prisma.admin.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+    });
+  } else {
+    admins = await prisma.admin.findMany();
+  }
+
   return NextResponse.json(admins);
 }
-
 // POST create new admin
 export async function POST(request: Request) {
   const body = await request.json();
