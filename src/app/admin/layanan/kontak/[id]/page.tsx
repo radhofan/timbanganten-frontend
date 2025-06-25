@@ -14,7 +14,7 @@ export default function KontakDetailPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    contact: "", // optional frontend-only field
+    contact: "", // frontend-only
     password: "",
   });
 
@@ -32,7 +32,7 @@ export default function KontakDetailPage() {
         setFormData({
           name: admin.name || "",
           email: admin.email || "",
-          contact: "", // your DB doesn't store contact, so keep it blank
+          contact: "", // your DB doesn't store contact
           password: "",
         });
       } catch (err) {
@@ -80,9 +80,6 @@ export default function KontakDetailPage() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (error) return <p className="text-center text-red-600 mt-10">{error}</p>;
-
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header hideBanner />
@@ -92,94 +89,100 @@ export default function KontakDetailPage() {
           Edit Kontak
         </h1>
 
-        <div className="bg-white shadow-xl rounded-lg p-8 max-w-5xl mx-auto">
-          <form onSubmit={handleUpdate} className="space-y-6 max-w-lg mx-auto">
-            <div>
-              <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
-                Nama
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                required
-              />
-            </div>
+        {loading ? (
+          <p className="text-center text-gray-500">Memuat data admin...</p>
+        ) : error ? (
+          <p className="text-center text-red-600">{error}</p>
+        ) : (
+          <div className="bg-white shadow-xl rounded-lg p-8 max-w-5xl mx-auto">
+            <form onSubmit={handleUpdate} className="space-y-6 max-w-lg mx-auto">
+              <div>
+                <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+                  Nama
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                required
-              />
-            </div>
+              <div>
+                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="contact" className="block text-gray-700 font-medium mb-2">
-                Kontak
-              </label>
-              <input
-                id="contact"
-                name="contact"
-                type="text"
-                value={formData.contact}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              />
-            </div>
+              <div>
+                <label htmlFor="contact" className="block text-gray-700 font-medium mb-2">
+                  Kontak
+                </label>
+                <input
+                  id="contact"
+                  name="contact"
+                  type="text"
+                  value={formData.contact}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-              />
-            </div>
+              <div>
+                <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                />
+              </div>
 
-            <div className="flex justify-center gap-4 mt-6">
-              <button
-                type="button"
-                onClick={() => router.push("/admin/layanan/kontak")}
-                className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition transform hover:scale-105 active:scale-95"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                disabled={role !== "admin"}
-                className={`px-6 py-3 font-semibold rounded-lg transition transform active:scale-95 ${
-                  role === "admin"
-                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Simpan Perubahan
-              </button>
-            </div>
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => router.push("/admin/layanan/kontak")}
+                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition transform hover:scale-105 active:scale-95"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={role !== "admin"}
+                  className={`px-6 py-3 font-semibold rounded-lg transition transform active:scale-95 ${
+                    role === "admin"
+                      ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
 
-            {success && (
-              <p className="text-green-600 text-center text-sm mt-2 animate-fade-in-down">
-                ✔ Kontak berhasil diperbarui!
-              </p>
-            )}
-          </form>
-        </div>
+              {success && (
+                <p className="text-green-600 text-center text-sm mt-2 animate-fade-in-down">
+                  ✔ Kontak berhasil diperbarui!
+                </p>
+              )}
+            </form>
+          </div>
+        )}
       </main>
 
       <Footer />
