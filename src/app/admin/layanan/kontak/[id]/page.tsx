@@ -14,7 +14,7 @@ export default function KontakDetailPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    contact: "", // frontend-only
+    contact: "", 
     password: "",
   });
 
@@ -32,7 +32,7 @@ export default function KontakDetailPage() {
         setFormData({
           name: admin.name || "",
           email: admin.email || "",
-          contact: "", // your DB doesn't store contact
+          contact: admin.contact || "", 
           password: "",
         });
       } catch (err) {
