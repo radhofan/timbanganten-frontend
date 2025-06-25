@@ -81,7 +81,10 @@ export default function KontakDetailPage() {
       if (!res.ok) throw new Error("Failed to update admin");
 
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => {
+        setSuccess(false);
+        router.push("/admin/layanan/kontak");
+      }, 2000);
     } catch (err) {
       console.error(err);
     }
