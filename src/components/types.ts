@@ -24,3 +24,11 @@ export type User = {
     makams: Makam[];
     statuses: Makam[];
 };
+
+
+export type Admin = {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+};
