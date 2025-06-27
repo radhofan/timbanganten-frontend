@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Admin } from "@/components/types";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function AdminTable() {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useAuthStore();
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -39,12 +41,14 @@ export default function AdminTable() {
       <main className="flex-1 p-12">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Daftar Kontak</h1>
-          <Link
-            href="/admin/layanan/kontak/add"
-            className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition transform hover:scale-105 active:scale-95 font-medium"
-          >
-            + Tambah Kontak Baru
-          </Link>
+          {role === "admin" && (
+            <Link
+              href="/admin/layanan/kontak/add"
+              className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition transform hover:scale-105 active:scale-95 font-medium"
+            >
+              + Tambah Kontak Baru
+            </Link>
+          )}
         </div>
 
         {loading ? (
@@ -58,7 +62,9 @@ export default function AdminTable() {
                 <th className="px-4 py-3 font-semibold text-center">Nama</th>
                 <th className="px-4 py-3 font-semibold text-center">Kontak</th>
                 <th className="px-4 py-3 font-semibold text-center">Email</th>
-                <th className="px-4 py-3 font-semibold text-center">Edit</th>
+                {role === "admin" && (
+                  <th className="px-4 py-3 font-semibold text-center">Edit</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -72,29 +78,31 @@ export default function AdminTable() {
                     {user.contact ?? "-"}
                   </td>
                   <td className="px-4 py-3 text-center">{user.email}</td>
-                  <td className="px-4 py-3 text-center">
-                    <Link
-                      href={`/admin/layanan/kontak/${user.id}`}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      aria-label={`Edit ${user.name}`}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+                  {role === "admin" && (
+                    <td className="px-4 py-3 text-center">
+                      <Link
+                        href={`/admin/layanan/kontak/${user.id}`}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        aria-label={`Edit ${user.name}`}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"
-                        />
-                      </svg>
-                      Edit
-                    </Link>
-                  </td>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"
+                          />
+                        </svg>
+                        Edit
+                      </Link>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
