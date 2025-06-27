@@ -52,7 +52,9 @@ export default function AdminTable() {
         </div>
 
         {loading ? (
-          <p>Loading...</p>
+          <div className="flex justify-center items-center h-64">
+            <p className="text-gray-600 text-lg font-medium">Loading...</p>
+          </div>
         ) : error ? (
           <p className="text-red-600">{error}</p>
         ) : (
