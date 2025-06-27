@@ -64,7 +64,6 @@ export default function AdminTable() {
                 Untuk informasi terkait pemesanan, perpanjangan, atau lainnya silakan hubungi admin yang tertera:
               </p>
             </div>
-
             {/* Table */}
             <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
               <thead className="bg-gray-50 border-b border-gray-300">
