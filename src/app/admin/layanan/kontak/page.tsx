@@ -56,57 +56,69 @@ export default function AdminTable() {
         ) : error ? (
           <p className="text-red-600">{error}</p>
         ) : (
-          <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
-            <thead className="bg-gray-50 border-b border-gray-300">
-              <tr>
-                <th className="px-4 py-3 font-semibold text-center">Nama</th>
-                <th className="px-4 py-3 font-semibold text-center">Kontak</th>
-                <th className="px-4 py-3 font-semibold text-center">Email</th>
-                {role === "admin" && (
-                  <th className="px-4 py-3 font-semibold text-center">Edit</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {admins.map((user) => (
-                <tr
-                  key={user.id}
-                  className="even:bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <td className="px-4 py-3 text-center">{user.name}</td>
-                  <td className="px-4 py-3 text-center">
-                    {user.contact ?? "-"}
-                  </td>
-                  <td className="px-4 py-3 text-center">{user.email}</td>
+          <>
+            <div className="mb-6 text-sm text-gray-700">
+              <p className="font-medium">
+                Untuk informasi terkait pemesanan, perpanjangan, atau lainnya silakan hubungi:
+              </p>
+              <p className="text-gray-600">
+                Email: info@example.com | Telepon: 0812-3456-7890
+              </p>
+            </div>
+
+            {/* Table */}
+            <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
+              <thead className="bg-gray-50 border-b border-gray-300">
+                <tr>
+                  <th className="px-4 py-3 font-semibold text-center">Nama</th>
+                  <th className="px-4 py-3 font-semibold text-center">Kontak</th>
+                  <th className="px-4 py-3 font-semibold text-center">Email</th>
                   {role === "admin" && (
-                    <td className="px-4 py-3 text-center">
-                      <Link
-                        href={`/admin/layanan/kontak/${user.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        aria-label={`Edit ${user.name}`}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"
-                          />
-                        </svg>
-                        Edit
-                      </Link>
-                    </td>
+                    <th className="px-4 py-3 font-semibold text-center">Edit</th>
                   )}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {admins.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="even:bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-center">{user.name}</td>
+                    <td className="px-4 py-3 text-center">
+                      {user.contact ?? "-"}
+                    </td>
+                    <td className="px-4 py-3 text-center">{user.email}</td>
+                    {role === "admin" && (
+                      <td className="px-4 py-3 text-center">
+                        <Link
+                          href={`/admin/layanan/kontak/${user.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          aria-label={`Edit ${user.name}`}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"
+                            />
+                          </svg>
+                          Edit
+                        </Link>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </main>
 
