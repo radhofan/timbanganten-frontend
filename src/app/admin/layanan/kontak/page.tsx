@@ -61,10 +61,7 @@ export default function AdminTable() {
           <>
             <div className="mb-6 text-sm text-gray-700">
               <p className="font-medium">
-                Untuk informasi terkait pemesanan, perpanjangan, atau lainnya silakan hubungi:
-              </p>
-              <p className="text-gray-600">
-                Email: info@example.com | Telepon: 0812-3456-7890
+                Untuk informasi terkait pemesanan, perpanjangan, atau lainnya silakan hubungi admin yang tertera:
               </p>
             </div>
 
