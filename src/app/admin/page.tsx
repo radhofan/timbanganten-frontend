@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
@@ -112,6 +112,14 @@ export default function Admin() {
   const handleMarkAsRead = (id: number) => {
     setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
+
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) return null;
 
   return (
     <div className="min-h-screen flex flex-col">
