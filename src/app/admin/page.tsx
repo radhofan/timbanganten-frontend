@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
@@ -11,11 +11,13 @@ import {
   FiCheckCircle,
   FiXCircle,
 } from "react-icons/fi";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore, } from "@/stores/useAuthStore";
 
 export default function Admin() {
-  // const name = useAuthStore((state) => state.name);
-  const role = useAuthStore((state) => state.role);
+  const { role, hydrated } = useAuthStore((state) => ({
+    role: state.role,
+    hydrated: state.hydrated,
+  }));
 
   const cards = [
     {
@@ -112,12 +114,6 @@ export default function Admin() {
   const handleMarkAsRead = (id: number) => {
     setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
-
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   if (!hydrated) return null;
 

@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function Pemesanan() {
-  const { role } = useAuthStore();
+  const { role, hydrated } = useAuthStore((state) => ({
+    role: state.role,
+    hydrated: state.hydrated,
+  }));
 
   const today = new Date();
   // Calculate minimum date (6 months from today)
@@ -199,6 +202,8 @@ export default function Pemesanan() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
+
+  if (!hydrated) return null;
 
   return (
     <div className="min-h-screen flex flex-col">
