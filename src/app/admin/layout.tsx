@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         setMounted(true);
     }, []);
 
-    if (!mounted || !hydrated) return null; // 💥 skip until both are true
+    if (!mounted || !hydrated) return null; 
 
     return <>{children}</>;
 }
