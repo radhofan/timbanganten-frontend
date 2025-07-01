@@ -405,8 +405,39 @@ export default function Edit() {
               </button>
 
               {role === "admin" && (
-              <div className="space-x-2">
-                
+                <div className="space-x-2">
+                  {type === "makam" && (
+                    <>
+                      {formData.ext === "PENDING" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolving(id as string)}
+                          className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
+                        >
+                          Mark as Resolving
+                        </button>
+                      )}
+                      {formData.ext === "PENDING" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolved(id as string)}
+                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                        >
+                          Approve Payment
+                        </button>
+                      )}
+                      {formData.ext === "RESOLVING" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolved(id as string)}
+                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                        >
+                          Mark as Resolved
+                        </button>
+                      )}
+                  </>
+                )}
+
                 {/* ✅ Only show these when type === "makamStatus" */}
                 {type === "makamStatus" && (
                   <>
