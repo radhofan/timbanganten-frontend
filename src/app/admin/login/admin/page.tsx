@@ -34,6 +34,7 @@ export default function LoginAdmin() {
       }
 
       useAuthStore.getState().setAuth(data.admin.role, data.admin.name);
+      await new Promise(resolve => setTimeout(resolve, 0));
       router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
