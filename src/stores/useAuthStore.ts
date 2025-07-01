@@ -32,7 +32,6 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// Initialize hydration on client side
 if (typeof window !== 'undefined') {
   useAuthStore.persist.rehydrate();
 }
