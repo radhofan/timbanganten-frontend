@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 type Role = 'admin' | 'pengawas' | 'approver' | 'guest';
 
@@ -24,10 +24,15 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      skipHydration: false,
+      storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true); 
+        state?.setHydrated(true);
       },
     }
   )
 );
+
+// Initialize hydration on client side
+if (typeof window !== 'undefined') {
+  useAuthStore.persist.rehydrate();
+}
