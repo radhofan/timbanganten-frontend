@@ -34,7 +34,6 @@ export default function LoginAdmin() {
       }
 
       useAuthStore.getState().setAuth(data.admin.role, data.admin.name);
-      await new Promise(resolve => setTimeout(resolve, 0));
       router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -47,7 +46,6 @@ export default function LoginAdmin() {
     await fetch('/api/removeCookie', { method: 'POST' }); 
     useAuthStore.getState().logout();
     useAuthStore.getState().setAuth("guest", "Guest");
-    await new Promise(resolve => setTimeout(resolve, 0));
     router.push("/admin"); 
   };
 
