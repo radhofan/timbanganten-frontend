@@ -14,10 +14,8 @@ import {
 import { useAuthStore, } from "@/stores/useAuthStore";
 
 export default function Admin() {
-  const { role, hydrated } = useAuthStore((state) => ({
-    role: state.role,
-    hydrated: state.hydrated,
-  }));
+  const role = useAuthStore((state) => state.role);
+
 
   const cards = [
     {
@@ -114,8 +112,6 @@ export default function Admin() {
   const handleMarkAsRead = (id: number) => {
     setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
-
-  if (!hydrated) return null;
 
   return (
     <div className="min-h-screen flex flex-col">
