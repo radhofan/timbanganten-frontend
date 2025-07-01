@@ -396,7 +396,7 @@ export default function MakamStatus() {
               {role === "admin" && (
                 <div className="space-x-2">
                   {/* Tombol Mark as Resolving */}
-                  {formData.payment === "PENDING" && (
+                  {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
                       onClick={() => markAsResolving(id as string)}
@@ -406,7 +406,7 @@ export default function MakamStatus() {
                     </button>
                   )}
 
-                  {formData.payment === "PENDING" && (
+                  {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
                       onClick={() => markAsResolved(id as string)}
@@ -417,7 +417,7 @@ export default function MakamStatus() {
                   )}
 
                   {/* Tombol Mark as Resolved */}
-                  {formData.payment === "RESOLVING" && (
+                  {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
                       onClick={() => markAsResolved(id as string)}
