@@ -55,7 +55,6 @@ function Input({
 function StatusCard({
   title,
   status,
-  onResolve,
 }: {
   title: string;
   status: string;
@@ -78,16 +77,6 @@ function StatusCard({
         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
           {status}
         </span>
-
-        {status === 'RESOLVING' && (
-          <button
-            type="button"
-            onClick={onResolve}
-            className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-100 transition whitespace-nowrap"
-          >
-            Mark as Resolved
-          </button>
-        )}
       </div>
     </div>
   );
