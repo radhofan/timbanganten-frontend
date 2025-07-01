@@ -247,6 +247,14 @@ export default function Edit() {
     fetchData();
   };
 
+  const ext = async (id: string) => {
+    await fetch("/api/resolvedMakam", {
+      method: "PUT",
+      body: JSON.stringify({ id }),
+    });
+    fetchData();
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
@@ -355,13 +363,13 @@ export default function Edit() {
                       Mark as Resolving
                     </button>
                   )}
-                  {formData.ext === "PENDING" && (
+                  {(formData.ext === "PENDING" || formData.ext === "RESOLVED") && (
                     <button
                       type="button"
-                      onClick={() => markAsResolved(id as string)}
+                      onClick={() => ext(id as string)}
                       className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                     >
-                      Approve Payment
+                      Approve Extension
                     </button>
                   )}
                   {formData.ext === "RESOLVING" && (
