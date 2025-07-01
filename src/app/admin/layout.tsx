@@ -4,17 +4,17 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
+// Move protected routes outside component to avoid recreation
+const PROTECTED_ROUTES = [
+  '/admin/layanan/pesan',
+  '/admin/layanan/histori',
+];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { role, hydrated } = useAuthStore();
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
-  // Protected routes that require authentication
-  const protectedRoutes = [
-    '/admin/layanan/pesan',
-    '/admin/layanan/histori',
-  ];
 
   useEffect(() => {
     setIsClient(true);
@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     // Wait for both client-side mounting and store hydration
     if (isClient && hydrated) {
-      const isProtectedRoute = protectedRoutes.some(route => 
+      const isProtectedRoute = PROTECTED_ROUTES.some(route => 
         pathname.startsWith(route)
       );
 
