@@ -47,6 +47,7 @@ export default function LoginAdmin() {
     await fetch('/api/removeCookie', { method: 'POST' }); 
     useAuthStore.getState().logout();
     useAuthStore.getState().setAuth("guest", "Guest");
+    await new Promise(resolve => setTimeout(resolve, 0));
     router.push("/admin"); 
   };
 
