@@ -25,14 +25,8 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       skipHydration: false,
-      onRehydrateStorage: () => {
-        return (state, error) => {
-          if (error) {
-            console.error('Hydration failed:', error);
-          }
-          // Use set to force reactive update
-          state?.setHydrated(true);
-        };
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true); 
       },
     }
   )
