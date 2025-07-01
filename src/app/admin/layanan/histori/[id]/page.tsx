@@ -411,7 +411,7 @@ export default function Edit() {
                 {type === "makamStatus" && (
                   <>
                     {/* Tombol Mark as Resolving */}
-                    {formData.payment === "PENDING" && (
+                    {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
                         onClick={() => markAsResolving(id as string)}
@@ -420,9 +420,17 @@ export default function Edit() {
                         Mark as Resolving
                       </button>
                     )}
-
+                    {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
+                      <button
+                        type="button"
+                        onClick={() => markAsResolved(id as string)}
+                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                      >
+                        Approve Payment
+                      </button>
+                    )}
                     {/* Tombol Mark as Resolved */}
-                    {formData.payment === "RESOLVING" && (
+                    {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
                         onClick={() => markAsResolved(id as string)}
