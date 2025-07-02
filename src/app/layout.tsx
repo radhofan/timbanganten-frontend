@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TIMGRAVID",
   description: "Sistem Layanan Pemakamam Timbanganten",
+  icons: {
+    icon: "/images/logo.png", 
+  },
 };
 
 export default function RootLayout({
