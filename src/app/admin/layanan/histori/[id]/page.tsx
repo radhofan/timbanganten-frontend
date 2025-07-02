@@ -509,7 +509,7 @@ export default function Edit() {
                   type="button"
                   onClick={async () => {
                     const success = await approveMakam(id as string);
-                    if (success) router.push("/admin/layanan/makam");
+                    if (success) router.push("/admin/layanan/pesan/status");
                   }}
                   className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                 >
