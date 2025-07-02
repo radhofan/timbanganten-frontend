@@ -416,7 +416,7 @@ export default function Edit() {
                     {formData.ext === "PENDING" && (
                       <button
                         type="button"
-                        onClick={() => markAsResolvingMakamStatus(id as string)}
+                        onClick={() => markAsResolvingMakam(id as string)}
                         className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
                       >
                         Mark as Resolving
@@ -425,7 +425,7 @@ export default function Edit() {
                     {formData.ext === "PENDING" && (
                       <button
                         type="button"
-                        onClick={() => markAsResolvedMakamStatus(id as string)}
+                        onClick={() => markAsResolvedMakam(id as string)}
                         className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                       >
                         Approve Payment
@@ -434,7 +434,7 @@ export default function Edit() {
                     {formData.ext === "RESOLVING" && (
                       <button
                         type="button"
-                        onClick={() => markAsResolvedMakamStatus(id as string)}
+                        onClick={() => markAsResolvedMakam(id as string)}
                         className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                       >
                         Mark as Resolved
@@ -448,7 +448,7 @@ export default function Edit() {
                     {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
-                        onClick={() => markAsResolvingMakam(id as string)}
+                        onClick={() => markAsResolvingMakamStatus(id as string)}
                         className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
                       >
                         Mark as Resolving
@@ -457,7 +457,7 @@ export default function Edit() {
                     {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
-                        onClick={() => markAsResolvedMakam(id as string)}
+                        onClick={() => markAsResolvedMakamStatus(id as string)}
                         className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                       >
                         Approve Payment
@@ -467,7 +467,7 @@ export default function Edit() {
                     {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
-                        onClick={() => markAsResolvedMakam(id as string)}
+                        onClick={() => markAsResolvedMakamStatus(id as string)}
                         className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                       >
                         Mark as Resolved
