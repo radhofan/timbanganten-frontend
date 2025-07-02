@@ -9,19 +9,25 @@ import { useAuthStore } from "@/stores/useAuthStore";
 export default function Pemesanan() {
   const role = useAuthStore((state) => state.role);
 
-  const today = new Date();
-  // Calculate minimum date (6 months from today)
-  const minDate = new Date(today);
-  minDate.setMonth(minDate.getMonth() + 6);
-  // Calculate maximum date (5 years from minimum date)
-  const maxDate = new Date(minDate);
-  maxDate.setFullYear(maxDate.getFullYear() + 5);
+  const normalizeDate = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
+  const today = normalizeDate(new Date());
+
+  // ✅ Don't mutate dates with setMonth / setFullYear
+  const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
+  const fiveYearsLater = new Date(sixMonthsLater.getFullYear() + 5, sixMonthsLater.getMonth(), sixMonthsLater.getDate());
+
+  const minDate = normalizeDate(sixMonthsLater);
+  const maxDate = normalizeDate(fiveYearsLater);
 
   const years = Array.from(
     { length: maxDate.getFullYear() - minDate.getFullYear() + 1 },
     (_, i) => minDate.getFullYear() + i
   );
 
+  // ✅ Set default masaAktif to minDate safely
   const [masaAktif, setMasaAktif] = useState({
     day: minDate.getDate(),
     month: minDate.getMonth() + 1,
@@ -30,16 +36,13 @@ export default function Pemesanan() {
 
   const router = useRouter();
 
-  const normalizeDate = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  };
-
+  // ✅ Use normalized date for comparison
   const isDateValid = (day: number, month: number, year: number) => {
     const selectedDate = normalizeDate(new Date(year, month - 1, day));
-    return selectedDate >= normalizeDate(minDate) && selectedDate <= normalizeDate(maxDate);
+    return selectedDate >= minDate && selectedDate <= maxDate;
   };
 
-  // Function to get valid days for selected month/year
+  // ✅ Only return valid days in selected month/year
   const getValidDays = (month: number, year: number) => {
     const daysInMonth = new Date(year, month, 0).getDate();
     const validDays = [];
