@@ -30,10 +30,13 @@ export default function Pemesanan() {
 
   const router = useRouter();
 
-  // Function to validate if selected date is within allowed range
+  const normalizeDate = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
   const isDateValid = (day: number, month: number, year: number) => {
-    const selectedDate = new Date(year, month - 1, day);
-    return selectedDate >= minDate && selectedDate <= maxDate;
+    const selectedDate = normalizeDate(new Date(year, month - 1, day));
+    return selectedDate >= normalizeDate(minDate) && selectedDate <= normalizeDate(maxDate);
   };
 
   // Function to get valid days for selected month/year
