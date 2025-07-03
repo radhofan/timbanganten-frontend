@@ -70,13 +70,9 @@ export async function PUT(req: Request) {
         nama: body.nama,
         lokasi: body.lokasi,
         silsilah: body.silsilah,
-        // ext: body.ext ?? null,
-        // masa_aktif: new Date(body.masa_aktif),
         nama_penanggung_jawab: body.nama_penanggung_jawab,
         kontak_penanggung_jawab: body.kontak_penanggung_jawab,
         description: body.description,
-        // payment: body.payment,
-        // approved: body.approved,
       },
     });
 

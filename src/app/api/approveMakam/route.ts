@@ -10,7 +10,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
 
-    // Update the approval status
     const updated = await prisma.makamStatus.update({
       where: { id },
       data: { approved: "APPROVED" },
