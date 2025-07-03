@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "TIMGRAVID",
   description: "Sistem Layanan Pemakamam Timbanganten",
   icons: {
-    icon: "/images/logo.png", 
+    icon: "/images/logo2.png", 
   },
 };
 
