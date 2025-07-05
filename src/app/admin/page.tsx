@@ -199,7 +199,7 @@ export default function Admin() {
 
 
       <main className="flex-1 p-24 relative bg-white">
-        <div className="mx-auto w-full max-w-4xl px-4 mt-8 relative z-10">
+        <div className="mx-auto w-full max-w-4xl px-4 mt-4 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
             {cards.map(({ title, imgSrc, href }, i) => {
               const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
