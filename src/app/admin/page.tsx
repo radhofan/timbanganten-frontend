@@ -199,15 +199,15 @@ export default function Admin() {
 
 
       <main className="flex-1 p-24 relative bg-white">
-        <div className="mx-auto w-full max-w-4xl px-4 mt-4 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
+        <div className="w-full px-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
             {cards.map(({ title, imgSrc, href }, i) => {
               const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
               return (
               <Link
                   key={i}
                   href={href}
-                  className={`w-full ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""} sm:max-w-sm mx-auto`}
+                  className={`w-full ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""}`}
                 >
                   <div
                     className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-6 w-full h-full"
