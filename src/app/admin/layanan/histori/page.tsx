@@ -134,14 +134,14 @@ export default function Histori() {
               <div key={user.id} className="bg-white shadow rounded-xl transition w-full">
                 <button
                   onClick={() => toggleAccordion(idx)}
-                  className="w-full px-4 sm:px-6 py-4 flex justify-between items-center text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
+                  className="w-full px-4 sm:px-6 py-4 flex flex-wrap justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
                 >
                   <div>
                     <div className="text-lg font-semibold text-gray-400">{user.name}</div>
                     <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
                   </div>
                   <span
-                    className={`text-gray-500 transform transition-transform duration-300 ${
+                    className={`shrink-0 text-gray-500 transform transition-transform duration-300 ${
                       openIndex === idx ? "rotate-180" : ""
                     }`}
                   >
