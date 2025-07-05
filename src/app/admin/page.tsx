@@ -145,7 +145,7 @@ export default function Admin() {
           </div>
 
           <section
-            className="bg-cover bg-center bg-white rounded-b-lg shadow-md p-6 border-x-1 border-b-1 border-black"
+            className="bg-cover bg-center bg-white rounded-b-lg p-6 border-x-1 border-b-1 border-black"
             style={{ backgroundImage: `url('/images/18930348_rm435-030-1.png')` }}
           >
             <div className="space-y-4 min-h-[300px] max-h-[400px] overflow-y-auto pr-4">
@@ -198,7 +198,7 @@ export default function Admin() {
       )}
 
       <main className="flex-1 p-24 relative bg-white">
-        <div className="mx-auto w-full max-w-4xl px-4 mt-12 relative z-10">
+        <div className="mx-auto w-full max-w-4xl px-4 mt-8 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
             {cards.map(({ title, imgSrc, href }, i) => {
               const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
