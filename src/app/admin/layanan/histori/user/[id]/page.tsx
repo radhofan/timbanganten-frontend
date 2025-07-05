@@ -86,7 +86,7 @@ export default function UserDetail() {
             Detail Pengguna
           </h1>
 
-          <div className="bg-white shadow-xl rounded-lg p-8 max-w-5xl mx-auto space-y-10">
+          <div className="bg-white p-8 max-w-5xl mx-auto space-y-10">
             <form onSubmit={handleUpdate} className="space-y-6 max-w-lg mx-auto">
               <div>
                 <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
@@ -157,45 +157,47 @@ export default function UserDetail() {
               )}
             </form>
 
-            <section className="max-w-lg mx-auto w-full">
-              <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Makam</h3>
-              <div className="grid grid-cols-1 gap-4">
-                {user?.makams && user.makams.length > 0 ? (
-                  user.makams.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => router.push(`/admin/layanan/histori/${m.id}?type=makam`)}
-                      className="p-5 border border-gray-400 rounded-lg hover:border-blue-400 hover:bg-blue-50 text-left shadow-sm transition-all w-full"
-                    >
-                      <div className="font-semibold text-gray-800">{m.nama}</div>
-                      <div className="text-sm text-gray-600 mt-1">{m.lokasi}</div>
-                    </button>
-                  ))
+            <section className="max-w-lg mx-auto w-full mb-12">
+              <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Daftar Makam</h3>
+              <div className="space-y-3">
+                {((user?.makams?.length ?? 0) > 0 || (user?.statuses?.length ?? 0) > 0) ? (
+                  <>
+                    {/* AKTIF Makam */}
+                    {user?.makams?.map((m) => (
+                      <button
+                        key={`aktif-${m.id}`}
+                        onClick={() => router.push(`/admin/layanan/histori/${m.id}?type=makam`)}
+                        className="relative w-full p-5 border border-gray-400 rounded-lg hover:border-blue-400 hover:bg-blue-50 text-left shadow-sm transition-all"
+                      >
+                        <div className="font-semibold text-gray-800">{m.nama}</div>
+                        <div className="text-sm text-gray-600 mt-1">{m.lokasi}</div>
+                        <div className="absolute top-2 right-3 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                          AKTIF
+                        </div>
+                      </button>
+                    ))}
+
+                    {/* PESAN Makam */}
+                    {user?.statuses?.map((s) => (
+                      <button
+                        key={`pesan-${s.id}`}
+                        onClick={() => router.push(`/admin/layanan/histori/${s.id}?type=makamStatus`)}
+                        className="relative w-full p-5 border border-gray-400 rounded-lg hover:border-green-400 hover:bg-green-50 text-left shadow-sm transition-all"
+                      >
+                        <div className="font-medium text-gray-800">{s.nama}</div>
+                        <div className="text-sm text-gray-600 mt-1">{s.lokasi}</div>
+                        <div className="absolute top-2 right-3 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
+                          PESAN
+                        </div>
+                      </button>
+                    ))}
+                  </>
                 ) : (
-                  <p className="text-gray-500 italic text-center">Tidak ada makam aktif.</p>
+                  <p className="text-gray-500 italic text-center">Tidak ada makam atau pesanan berlangsung.</p>
                 )}
               </div>
             </section>
 
-            <section className="max-w-lg mx-auto w-full mb-12">
-              <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Pesanan Makam</h3>
-              <div className="space-y-3">
-                {user?.statuses && user.statuses.length > 0 ? (
-                  user.statuses.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => router.push(`/admin/layanan/histori/${s.id}?type=makamStatus`)}
-                      className="w-full p-4 border border-gray-400 rounded-lg hover:border-green-400 hover:bg-green-50 text-left shadow-sm transition-all"
-                    >
-                      <div className="font-medium text-gray-800">{s.nama}</div>
-                      <div className="text-sm text-gray-600 mt-1">{s.lokasi}</div>
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-gray-500 italic text-center">Tidak ada pesanan berlangsung.</p>
-                )}
-              </div>
-            </section>
           </div>
         </>
       )}
