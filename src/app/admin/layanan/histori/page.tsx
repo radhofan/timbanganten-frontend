@@ -107,18 +107,18 @@ export default function Histori() {
       <main className="flex-1 px-6 py-12 bg-white max-w-6xl mx-auto border border-gray-300 rounded-xl mb-24 flex flex-col min-h-[70vh] mt-4">
         <h1 className="text-3xl font-bold text-center mb-8">Histori Pengguna</h1>
 
-        <div className="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="mb-8 flex justify-center">
           <input
             type="text"
             placeholder="Cari nama pengguna..."
-            className="w-full md:w-1/2 px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            className="w-full max-w-md px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {!loading && (
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-4 text-sm text-gray-600 flex justify-center">
             Menampilkan {currentUsers.length} dari {filteredData.length} pengguna
             {filteredData.length !== users.length && ` (difilter dari ${users.length} total)`}
           </div>
@@ -139,23 +139,6 @@ export default function Histori() {
                   <div>
                     <div className="text-lg font-semibold text-gray-400">{user.name}</div>
                     <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {/* {user.status.split("/").map((status, index) => (
-                        <div
-                          key={index}
-                          className={`text-sm font-medium inline-block px-2 py-0.5 rounded-full
-                            ${
-                              status === "AKTIF"
-                                ? "bg-green-100 text-green-700"
-                                : status === "TIDAK AKTIF"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-600"
-                            }`}
-                        >
-                          {status}
-                        </div>
-                      ))} */}
-                    </div>
                   </div>
                   <span
                     className={`text-gray-500 transform transition-transform duration-300 ${
@@ -169,46 +152,6 @@ export default function Histori() {
                 {openIndex === idx && (
 
                   <div className="border-t px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
-
-                    {/* <div>
-                      <h3 className="font-medium text-gray-800 mb-2">Makam</h3>
-                      {(user.makams ?? []).length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {user.makams.map((m) => (
-                            <button
-                              type="button"
-                              key={m.id}
-                              className="text-left p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition"
-                            >
-                              <div className="font-medium text-gray-800 truncate">{m.nama}</div>
-                              <div className="text-sm text-gray-600">{m.lokasi}</div>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500">Tidak ada data pemakaman.</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <h3 className="font-medium text-gray-800 mb-2">Pesanan Makam</h3>
-                      {(user.statuses ?? []).length > 0 ? (
-                        <div className="space-y-3">
-                          {user.statuses.map((s) => (
-                            <button
-                              type="button"
-                              key={s.id}
-                              className="text-left p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition"
-                            >
-                              <div className="font-medium text-gray-800 truncate">{s.nama}</div>
-                              <div className="text-sm text-gray-600">{s.lokasi}</div>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500">Tidak ada pesanan berlangsung.</p>
-                      )}
-                    </div> */}
 
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
