@@ -165,15 +165,15 @@ export default function Histori() {
                               key={`aktif-${m.id}`}
                               className="w-full flex justify-between items-start text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
                             >
+                            <div className="flex flex-wrap justify-between items-start gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-gray-800 truncate">{m.nama}</div>
                                 <div className="text-sm text-gray-600">{m.lokasi}</div>
                               </div>
-                              <div
-                                className="ml-4 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700"
-                              >
+                              <div className="shrink-0 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                                 AKTIF
                               </div>
+                            </div>
                             </button>
                           ))}
 
@@ -184,15 +184,15 @@ export default function Histori() {
                               key={`pesan-${s.id}`}
                               className="w-full flex justify-between items-start text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
                             >
+                            <div className="flex flex-wrap justify-between items-start gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-gray-800 truncate">{s.nama}</div>
                                 <div className="text-sm text-gray-600">{s.lokasi}</div>
                               </div>
-                              <div
-                                className="ml-4 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600"
-                              >
+                              <div className="shrink-0 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
                                 PESAN
                               </div>
+                            </div>
                             </button>
                           ))}
                         </div>
