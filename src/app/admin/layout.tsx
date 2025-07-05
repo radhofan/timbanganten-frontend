@@ -25,6 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         pathname.startsWith(route)
       );
 
+      // Redirect guests from protected routes
       if (isProtectedRoute && role === 'guest') {
         router.push('/admin/login/admin');
         return;
