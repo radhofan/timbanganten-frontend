@@ -131,7 +131,7 @@ export default function Histori() {
             <div className="text-center text-gray-500 italic">Tidak ada pengguna ditemukan.</div>
           ) : (
             currentUsers.map((user, idx) => (
-              <div key={user.id} className="bg-white shadow rounded-xl transition w-full max-w-full overflow-x-auto">
+              <div key={user.id} className="bg-white shadow rounded-xl transition w-full">
                 <button
                   onClick={() => toggleAccordion(idx)}
                   className="w-full px-4 sm:px-6 py-4 flex justify-between items-center text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
