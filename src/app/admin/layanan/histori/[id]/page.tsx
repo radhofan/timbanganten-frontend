@@ -318,7 +318,7 @@ export default function Edit() {
           </div>
         ) : (
           <form
-            className="bg-white rounded-2xl shadow-md p-6 md:p-10 w-full max-w-4xl space-y-8"
+            className="bg-white border border-gray-400 p-6 md:p-10 w-full max-w-4xl space-y-8"
             onSubmit={handleSubmit}
           >
             <h2 className="text-2xl font-semibold text-center text-gray-800">Status Pemesanan Makam</h2>
