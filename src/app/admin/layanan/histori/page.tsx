@@ -137,6 +137,7 @@ export default function Histori() {
                 >
                   <div>
                     <div className="text-lg font-semibold text-gray-400">{user.name}</div>
+                    <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {user.status.split("/").map((status, index) => (
                         <div
