@@ -131,10 +131,10 @@ export default function Histori() {
             <div className="text-center text-gray-500 italic">Tidak ada pengguna ditemukan.</div>
           ) : (
             currentUsers.map((user, idx) => (
-              <div key={user.id} className="bg-white shadow rounded-xl transition">
+              <div key={user.id} className="bg-white shadow rounded-xl transition w-full max-w-full overflow-x-auto">
                 <button
                   onClick={() => toggleAccordion(idx)}
-                  className="w-full px-6 py-4 flex justify-between items-center text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
+                  className="w-full px-4 sm:px-6 py-4 flex justify-between items-center text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
                 >
                   <div>
                     <div className="text-lg font-semibold text-gray-400">{user.name}</div>
@@ -151,7 +151,7 @@ export default function Histori() {
 
                 {openIndex === idx && (
 
-                  <div className="border-t px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
+                  <div className="border-t px-4 sm:px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
 
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
