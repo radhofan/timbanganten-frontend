@@ -198,20 +198,18 @@ export default function Admin() {
       )}
 
 
-      <main className="flex-1 p-24 relative bg-white">
-        <div className="w-full px-4 mt-4">
+      <main className="flex-1 p-4 sm:p-8 lg:p-24 relative bg-white">
+        <div className="w-full px-2 sm:px-4 mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
             {cards.map(({ title, imgSrc, href }, i) => {
               const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
               return (
-              <Link
+                <Link
                   key={i}
                   href={href}
                   className={`w-full ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""}`}
                 >
-                  <div
-                    className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-6 w-full h-full"
-                  >
+                  <div className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-4 sm:p-6 w-full h-full">
                     <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
                       <Image
                         src={imgSrc}
