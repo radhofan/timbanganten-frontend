@@ -27,7 +27,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
 
   return (
     <>
-      <header className="flex items-center justify-between p-4 bg-white relative border-b">
+      <header className="flex items-center justify-between p-4 bg-white relative">
         <Link href="/admin">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 relative">
