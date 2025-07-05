@@ -204,10 +204,10 @@ export default function Admin() {
             {cards.map(({ title, imgSrc, href }, i) => {
               const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
               return (
-                <Link
+              <Link
                   key={i}
                   href={href}
-                  className={`w-full max-w-sm mx-auto ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""}`}
+                  className={`w-full ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""} sm:max-w-sm mx-auto`}
                 >
                   <div
                     className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-6 w-full h-full"
