@@ -71,22 +71,6 @@ export default function UserDetail() {
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <p className="text-gray-500">Memuat data pengguna...</p>
-  //     </div>
-  //   );
-  // }
-
-  // if (!user) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <p className="text-gray-500">Pengguna tidak ditemukan.</p>
-  //     </div>
-  //   );
-  // }
-
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header hideBanner />
@@ -103,7 +87,6 @@ export default function UserDetail() {
           </h1>
 
           <div className="bg-white shadow-xl rounded-lg p-8 max-w-5xl mx-auto space-y-10">
-            {/* Edit Form */}
             <form onSubmit={handleUpdate} className="space-y-6 max-w-lg mx-auto">
               <div>
                 <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
@@ -174,7 +157,6 @@ export default function UserDetail() {
               )}
             </form>
 
-            {/* Makam Terkait */}
             <section className="max-w-lg mx-auto w-full">
               <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Makam</h3>
               <div className="grid grid-cols-1 gap-4">
@@ -195,7 +177,6 @@ export default function UserDetail() {
               </div>
             </section>
 
-            {/* Status Pesanan Makam */}
             <section className="max-w-lg mx-auto w-full mb-12">
               <h3 className="font-bold text-gray-800 text-xl mb-4 text-center">Pesanan Makam</h3>
               <div className="space-y-3">

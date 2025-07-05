@@ -18,7 +18,6 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Makam not found or masa_aktif missing" }, { status: 404 });
     }
 
-    // Add 1 year to the current masa_aktif
     const newMasaAktif = new Date(makam.masa_aktif);
     newMasaAktif.setFullYear(newMasaAktif.getFullYear() + 1);
 

@@ -11,8 +11,6 @@ export default function Status() {
   const [data, setData] = useState<Makam[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
-  // const [fromDate, setFromDate] = useState("");
-  // const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -32,36 +30,19 @@ export default function Status() {
     fetchMakam();
   }, []);
 
-  // Filter data based on search criteria
   const filteredData = data.filter((item) => {
     const query = searchName.toLowerCase();
     const matchNama = item.nama.toLowerCase().includes(query);
-    // const matchId = item.id.toString().includes(query);
     const matchPenanggungJawab = item.nama_penanggung_jawab.toLowerCase().includes(query);
-    const matchBlok = item.blok?.toLowerCase().includes(query); // optional chaining just in case
-
-    // let matchDate = true;
-    // if (fromDate || toDate) {
-    //   const itemDate = new Date(item.masa_aktif);
-    //   if (fromDate) {
-    //     matchDate = matchDate && itemDate >= new Date(fromDate);
-    //   }
-    //   if (toDate) {
-    //     matchDate = matchDate && itemDate <= new Date(toDate);
-    //   }
-    // }
-
-    // return (matchNama || matchId || matchPenanggungJawab || matchBlok) && matchDate;
+    const matchBlok = item.blok?.toLowerCase().includes(query); 
     return matchNama || matchPenanggungJawab || matchBlok;
   });
 
-  // Pagination calculations
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = filteredData.slice(startIndex, endIndex);
 
-  // Reset to first page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchName]);
@@ -125,29 +106,8 @@ export default function Status() {
               className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
-          {/* <div className="flex flex-col sm:flex-row gap-2">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Dari Tanggal</label>
-              <input 
-                type="date" 
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300" 
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Sampai Tanggal</label>
-              <input 
-                type="date" 
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300" 
-              />
-            </div>
-          </div> */}
         </div>
 
-        {/* Results Info */}
         {!loading && (
           <div className="w-full max-w-2xl mb-2 text-sm text-gray-600">
             Menampilkan {currentItems.length} dari {filteredData.length} pemesanan
@@ -155,7 +115,6 @@ export default function Status() {
           </div>
         )}
 
-        {/* Data List */}
         <div className="w-full max-w-2xl space-y-4 mb-6">
           {loading ? (
             <p className="text-center text-gray-500">Loading...</p>
@@ -169,7 +128,6 @@ export default function Status() {
                 className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] cursor-pointer"
                 style={{
                   borderColor: item.approved === "APPROVED" && item.payment === "PAID" && item.ext === "PAID" ? "#22c55e" : "#facc15",
-                  // borderColor: "#facc15",
                 }}
               >
                 <div className="flex justify-between items-start mb-1">
@@ -220,7 +178,6 @@ export default function Status() {
           )}
         </div>
 
-        {/* Pagination */}
         {!loading && filteredData.length > 0 && (
           <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow mb-12">
             <div className="text-sm text-gray-700">

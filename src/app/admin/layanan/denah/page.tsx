@@ -15,7 +15,7 @@ const generateGraves = (): Grave[] => {
     for (let i = 1; i <= 20; i++) {
       graves.push({
         id: `${row}${i}`,
-        occupied: Math.random() < 0.3, // Random 30% filled
+        occupied: Math.random() < 0.3,
       });
     }
   }
@@ -38,9 +38,7 @@ export default function Denah() {
       </div>
       <main className="flex-grow container mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold mb-6 text-left">Pilih Kavling</h1>
-        {/* Container with flex for dropdown + legend */}
         <div className="flex justify-between items-center mb-6">
-          {/* Dropdown on left */}
           <div>
             <label htmlFor="graveyard-select" className="mr-2 font-semibold">
               Pilih Daerah:
@@ -56,7 +54,6 @@ export default function Denah() {
             </select>
           </div>
 
-          {/* Legend on right */}
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <div className="w-6 h-6 rounded bg-green-600"></div>
@@ -88,7 +85,6 @@ export default function Denah() {
               ))}
           </div>
 
-          {/* Overlay */}
           {selectedGrave && (
             <div
               onClick={() => setSelectedGrave(null)}
@@ -96,11 +92,9 @@ export default function Denah() {
             />
           )}
 
-          {/* Slide-in sidebar */}
           {selectedGrave && (
             <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 transition-transform transform translate-x-0 flex flex-col">
               
-              {/* Header */}
               <div className="p-4 border-b flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Detail Kavling</h2>
                 <button
@@ -111,28 +105,12 @@ export default function Denah() {
                 </button>
               </div>
 
-              {/* Content Scrollable */}
               <div className="p-4 overflow-y-auto flex-1 space-y-6">
-                {/* Grave Info */}
                 <div className="bg-white rounded-lg shadow-md p-5 space-y-4 text-gray-800 text-sm">
                   <p><span className="font-semibold">ID:</span> 16</p>
                   <p><span className="font-semibold">Nama Jenazah:</span> John Doe</p>
                   <p><span className="font-semibold">Lokasi:</span> Karang Anyar</p>
                   <p><span className="font-semibold">Silsilah:</span> Father</p>
-
-                  {/* Status Pembayaran with badge */}
-                  {/* <p>
-                    <span className="font-semibold">Status Pembayaran:</span>{" "}
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        "PAID" === "PAID" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      PAID
-                    </span>
-                  </p> */}
-
-                  {/* Masa Aktif with conditional color */}
                   <p>
                     <span className="font-semibold">Masa Aktif:</span>{" "}
                     <span
@@ -146,7 +124,6 @@ export default function Denah() {
 
                   <p><span className="font-semibold">Penanggung Jawab:</span> Michael Doe</p>
                   <p><span className="font-semibold">Kontak:</span> 081234567890</p>
-                  {/* <p><span className="font-semibold">Approved:</span> YES</p> */}
 
                   <div>
                     <p className="font-semibold mb-1">Deskripsi:</p>
@@ -157,7 +134,6 @@ export default function Denah() {
                 </div>
               </div>
 
-              {/* Edit Button */}
               <div className="p-4 border-t">
                 <button
                   className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"

@@ -87,7 +87,6 @@ export default function LoginApprover() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Email Input */}
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
               Email
@@ -103,7 +102,6 @@ export default function LoginApprover() {
             />
           </div>
 
-          {/* Password Input */}
           <div className="mb-4 relative">
             <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
               Password
@@ -119,7 +117,6 @@ export default function LoginApprover() {
             />
           </div>
 
-          {/* Log In Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -129,7 +126,6 @@ export default function LoginApprover() {
           </button>
         </form>
 
-        {/* Masuk sebagai guest */}
         <button
           onClick={handleGuestLogin}
           className="mt-4 w-full px-4 py-2 rounded-md border border-gray-400 text-gray-800 bg-white shadow-sm hover:bg-gray-50 hover:border-gray-600 hover:text-black transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

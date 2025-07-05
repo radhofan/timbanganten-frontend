@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-// Reusable Input component
 function Input({
   label,
   id,
@@ -51,7 +50,6 @@ function Input({
   );
 }
 
-// Reusable StatusCard
 function StatusCard({ title, status }: {
   title: string;
   status: string;
@@ -71,15 +69,6 @@ function StatusCard({ title, status }: {
         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
           {status}
         </span>
-        {/* {status === 'RESOLVING' && (
-          <button
-            type="button"
-            onClick={onResolve}
-            className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
-          >
-            Mark as Resolved
-          </button>
-        )} */}
       </div>
     </div>
   );
@@ -101,7 +90,6 @@ export default function MakamStatus() {
     blok: "",
   });
 
-  // utils/approveMakam.ts or just inline above the component
   async function approveMakam(id: string): Promise<boolean> {
     try {
       const res = await fetch("/api/approveMakam", {
@@ -166,7 +154,7 @@ export default function MakamStatus() {
 
     const fetchData = async () => {
       try {
-        setLoading(true); // Start loading
+        setLoading(true); 
 
         const res = await fetch(`/api/makamStatus?id=${id}`);
         const data = await res.json();
@@ -195,7 +183,7 @@ export default function MakamStatus() {
 
   const fetchData = async () => {
     try {
-      setLoading(true); // Start loading
+      setLoading(true); 
 
       const res = await fetch(`/api/makamStatus?id=${id}`);
       const data = await res.json();
@@ -215,17 +203,9 @@ export default function MakamStatus() {
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false); 
     }
   };
-
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <p className="text-gray-500">Memuat data makam...</p>
-  //     </div>
-  //   );
-  // }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -320,7 +300,6 @@ export default function MakamStatus() {
           >
             <h2 className="text-2xl font-semibold text-center text-gray-800">Status Pemesanan Makam</h2>
 
-            {/* Informasi Dasar */}
             <section>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -349,7 +328,6 @@ export default function MakamStatus() {
               </div>
             </section>
 
-            {/* Penjelasan */}
             <section>
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Penjelasan</label>
               <textarea
@@ -364,7 +342,6 @@ export default function MakamStatus() {
               />
             </section>
 
-            {/* Status Section */}
             <section className="flex flex-wrap gap-6">
               <StatusCard
                 title="Status Approval"
@@ -383,7 +360,6 @@ export default function MakamStatus() {
               />
             </section>
 
-            {/* Action Buttons */}
             <div className="flex justify-end gap-3 pt-6 border-t">
               <button
                 type="button"
@@ -395,7 +371,7 @@ export default function MakamStatus() {
 
               {role === "admin" && (
                 <div className="space-x-2">
-                  {/* Tombol Mark as Resolving */}
+
                   {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
@@ -416,7 +392,6 @@ export default function MakamStatus() {
                     </button>
                   )}
 
-                  {/* Tombol Mark as Resolved */}
                   {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
@@ -426,7 +401,7 @@ export default function MakamStatus() {
                       Mark as Resolved
                     </button>
                   )}
-                  {/* Tombol Edit */}
+
                   <button
                     type="submit"
                     className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
@@ -434,7 +409,7 @@ export default function MakamStatus() {
                     Edit
                   </button>
 
-                  {/* ✅ Tombol Approve Makam */}
+
                   {formData.payment === "PAID" &&
                     formData.ext === "PAID" &&
                     formData.approved === "APPROVED" && (

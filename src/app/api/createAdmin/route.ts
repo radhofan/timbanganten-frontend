@@ -6,7 +6,6 @@ export async function POST(request: Request) {
   try {
     const { name, email, password, contact } = await request.json();
 
-    // Validate input
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "Name, email, and password are required" },
@@ -14,7 +13,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if admin already exists
     const existingAdmin = await prisma.admin.findUnique({
       where: {
         email: email.toLowerCase(),
@@ -24,14 +22,12 @@ export async function POST(request: Request) {
     if (existingAdmin) {
       return NextResponse.json(
         { error: "Admin with this email already exists" },
-        { status: 409 } // Conflict
+        { status: 409 } 
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create admin with optional contact
     const admin = await prisma.admin.create({
       data: {
         name,
@@ -41,7 +37,6 @@ export async function POST(request: Request) {
       },
     });
 
-    // Remove password before sending back
     const { ...adminData } = admin;
 
     return NextResponse.json(

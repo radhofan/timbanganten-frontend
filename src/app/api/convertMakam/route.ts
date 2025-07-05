@@ -10,7 +10,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
 
-    // Find the status record
     const status = await prisma.makamStatus.findUnique({
       where: { id },
     });
@@ -19,7 +18,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Makam status tidak ditemukan" }, { status: 404 });
     }
 
-    // Create the new Makam entry
     const newMakam = await prisma.makam.create({
       data: {
         blok: status.blok,
@@ -37,10 +35,8 @@ export async function POST(request: Request) {
       },
     });
 
-    // Delete from makamStatus
     await prisma.makamStatus.delete({ where: { id } });
 
-    // Optional user status update
     if (status.userId) {
       const remainingStatusCount = await prisma.makamStatus.count({
         where: { userId: status.userId },

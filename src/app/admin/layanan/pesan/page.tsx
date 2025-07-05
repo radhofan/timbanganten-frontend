@@ -15,7 +15,6 @@ export default function Pemesanan() {
 
   const today = normalizeDate(new Date());
 
-  // ✅ Don't mutate dates with setMonth / setFullYear
   const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
   const fiveYearsLater = new Date(sixMonthsLater.getFullYear() + 5, sixMonthsLater.getMonth(), sixMonthsLater.getDate());
 
@@ -27,7 +26,6 @@ export default function Pemesanan() {
     (_, i) => minDate.getFullYear() + i
   );
 
-  // ✅ Set default masaAktif to minDate safely
   const [masaAktif, setMasaAktif] = useState({
     day: minDate.getDate(),
     month: minDate.getMonth() + 1,
@@ -36,13 +34,11 @@ export default function Pemesanan() {
 
   const router = useRouter();
 
-  // ✅ Use normalized date for comparison
   const isDateValid = (day: number, month: number, year: number) => {
     const selectedDate = normalizeDate(new Date(year, month - 1, day));
     return selectedDate >= minDate && selectedDate <= maxDate;
   };
 
-  // ✅ Only return valid days in selected month/year
   const getValidDays = (month: number, year: number) => {
     const daysInMonth = new Date(year, month, 0).getDate();
     const validDays = [];
@@ -190,18 +186,17 @@ export default function Pemesanan() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // Fetch users with debounce
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       const endpoint = searchTerm.trim()
         ? `/api/user?query=${encodeURIComponent(searchTerm)}`
-        : "/api/user"; // Fetch all users when search term is empty
+        : "/api/user"; 
 
       fetch(endpoint)
         .then((res) => res.json())
         .then((data) => setUsers(data))
         .catch((err) => console.error(err));
-    }, 300); // Debounce 300ms
+    }, 300); 
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
@@ -216,10 +211,8 @@ export default function Pemesanan() {
         >
           <h2 className="text-2xl font-semibold mb-4">Form Pemesanan</h2>
 
-          {/* Penanggung Jawab Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium border-b pb-2">Penanggung Jawab</h3>
-            {/* Toggle Option */}
             <div className="flex items-center space-x-4 mb-4">
               <label className="inline-flex items-center">
                 <input
@@ -243,7 +236,6 @@ export default function Pemesanan() {
               </label>
             </div>
 
-            {/* Conditional Rendering */}
             {useExisting ? (
               <div className="relative">
                 <label htmlFor="userSearch" className="block mb-1 font-medium">
@@ -255,13 +247,12 @@ export default function Pemesanan() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => {
-                    if (!searchTerm) setSearchTerm(""); // trigger fetch on focus
+                    if (!searchTerm) setSearchTerm(""); 
                   }}
                   placeholder="Ketik nama atau kontak..."
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
-                {/* Dropdown Results */}
                 <ul className="border border-gray-300 mt-1 rounded bg-white max-h-60 overflow-y-auto z-10 absolute w-full md:w-96 shadow-md">
                   {users.length > 0 ? (
                     users.map((user) => (
@@ -326,7 +317,6 @@ export default function Pemesanan() {
             )}
           </div>
 
-          {/* Jenazah Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium border-b pb-2">Data Jenazah</h3>
             <div>
@@ -370,7 +360,6 @@ export default function Pemesanan() {
             </div>
           </div>
 
-          {/* Other Fields */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium border-b pb-2">Data Lainnya</h3>
             <div>
@@ -453,7 +442,6 @@ export default function Pemesanan() {
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end space-x-4 mt-6">
             <button
               onClick={() => router.push("/admin")}

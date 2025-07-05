@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-// Move protected routes outside component to avoid recreation
 const PROTECTED_ROUTES = [
   '/admin/layanan/pesan',
   '/admin/layanan/histori',
@@ -21,13 +20,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    // Wait for both client-side mounting and store hydration
     if (isClient && hydrated) {
       const isProtectedRoute = PROTECTED_ROUTES.some(route => 
         pathname.startsWith(route)
       );
 
-      // Redirect guests from protected routes
       if (isProtectedRoute && role === 'guest') {
         router.push('/admin/login/admin');
         return;
@@ -35,7 +32,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isClient, hydrated, role, pathname, router]);
 
-  // Don't render anything until both client-side and store are ready
   if (!isClient || !hydrated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">

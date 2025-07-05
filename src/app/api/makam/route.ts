@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-// GET all makam records
+// GET 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
@@ -23,12 +23,11 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   }
 
-  // No ID — return all
   const data = await prisma.makam.findMany();
   return NextResponse.json(data);
 }
 
-// POST new makam record
+// POST 
 export async function POST(req: Request) {
     const body = await req.json();
 
@@ -51,7 +50,7 @@ export async function POST(req: Request) {
     return NextResponse.json(newEntry, { status: 201 });
 }
 
-// PUT update existing makam record
+// PUT 
 export async function PUT(req: Request) {
   const body = await req.json();
   const id = body.id;

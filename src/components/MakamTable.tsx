@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function MakamTable() {
   const [data, setData] = useState<Makam[]>([]);
-  const [loading, setLoading] = useState(true); // 👈 Add loading state
+  const [loading, setLoading] = useState(true); 
   const [search, setSearch] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +21,7 @@ export default function MakamTable() {
       .then((res) => res.json())
       .then((data) => {
         setData(data);
-        setLoading(false); // 👈 Stop loading when data is received
+        setLoading(false); 
       });
   }, []);
 

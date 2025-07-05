@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-// Move Input component outside to prevent recreation on every render
 function Input({
   label,
   id,
@@ -51,7 +50,6 @@ function Input({
   );
 }
 
-// Move StatusCard component outside as well
 function StatusCard({
   title,
   status,
@@ -69,10 +67,8 @@ function StatusCard({
 
   return (
     <div className="space-y-2">
-      {/* Title */}
       <label className="block text-sm font-medium text-gray-700">{title}</label>
 
-      {/* Status Badge + Button */}
       <div className="flex items-center justify-center gap-3">
         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
           {status}
@@ -128,7 +124,7 @@ export default function Edit() {
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false); 
     }
   };
 
@@ -198,7 +194,7 @@ export default function Edit() {
 
     const fetchData = async () => {
       try {
-        setLoading(true); // Start loading
+        setLoading(true); 
 
         const res = await fetch(`/api/${type}?id=${id}`);
         const data = await res.json();
@@ -219,22 +215,13 @@ export default function Edit() {
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
-        setLoading(false); // End loading
+        setLoading(false); 
       }
     };
 
     fetchData();
   }, [id, type]);
 
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <p className="text-gray-500">Memuat data makam...</p>
-  //     </div>
-  //   );
-  // }
-
-  // utils/approveMakam.ts or just inline above the component
   async function approveMakam(id: string): Promise<boolean> {
     try {
       const res = await fetch("/api/approveMakam", {
@@ -336,7 +323,6 @@ export default function Edit() {
           >
             <h2 className="text-2xl font-semibold text-center text-gray-800">Status Pemesanan Makam</h2>
 
-            {/* Informasi Dasar */}
             <section>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -365,7 +351,6 @@ export default function Edit() {
               </div>
             </section>
 
-            {/* Penjelasan */}
             <section>
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Penjelasan</label>
               <textarea
@@ -380,26 +365,24 @@ export default function Edit() {
               />
             </section>
 
-            {/* Status */}
             <section className="flex flex-wrap gap-6">
               <StatusCard
                 title="Status Approval"
                 status={formData.approved}
-                onResolve={() => {}} // implement later
+                onResolve={() => {}} 
               />
               <StatusCard
                 title="Status Pembayaran"
                 status={formData.payment}
-                onResolve={() => {}} // implement later
+                onResolve={() => {}} 
               />
               <StatusCard
                 title="Status Perpanjangan"
                 status={formData.ext}
-                onResolve={() => {}} // implement later
+                onResolve={() => {}} 
               />
             </section>
 
-            {/* Action Buttons */}
             <div className="flex justify-end gap-3 pt-6 border-t">
               <button
                 type="button"
@@ -444,7 +427,7 @@ export default function Edit() {
                 )}
                 {type === "makamStatus" && (
                   <>
-                    {/* Tombol Mark as Resolving */}
+
                     {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
@@ -454,6 +437,7 @@ export default function Edit() {
                         Mark as Resolving
                       </button>
                     )}
+
                     {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
@@ -463,7 +447,7 @@ export default function Edit() {
                         Approve Payment
                       </button>
                     )}
-                    {/* Tombol Mark as Resolved */}
+
                     {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
                       <button
                         type="button"
@@ -474,7 +458,6 @@ export default function Edit() {
                       </button>
                     )}
 
-                    {/* Tombol Aktifkan Makam */}
                     {formData.payment === "PAID" &&
                       formData.ext === "PAID" &&
                       formData.approved === "APPROVED" && (
@@ -492,7 +475,6 @@ export default function Edit() {
                   </>
                 )}
 
-                {/* Tombol Edit */}
                 <button
                   type="submit"
                   className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"

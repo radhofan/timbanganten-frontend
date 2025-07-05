@@ -125,7 +125,6 @@ export default function Admin() {
         </p>
       </div>
 
-      {/* Notification Container (only for non-guest users) */}
       {role !== "guest" && (
         <div className="w-[900px] mx-auto px-4 mt-8">
           <div className="bg-[#223D3C] text-white rounded-t-lg px-6 py-4 flex items-center">

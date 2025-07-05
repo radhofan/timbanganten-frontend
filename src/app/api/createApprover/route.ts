@@ -6,7 +6,6 @@ export async function POST(request: Request) {
   try {
     const { name, email, password } = await request.json();
 
-    // Validate input
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Name, email, and password are required' },
@@ -14,7 +13,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if approver already exists
     const existingApprover = await prisma.approver.findUnique({
       where: {
         email: email.toLowerCase()
@@ -28,10 +26,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create approver
     const approver = await prisma.approver.create({
       data: {
         name,
@@ -40,7 +36,6 @@ export async function POST(request: Request) {
       }
     });
 
-    // Return approver data (excluding password)
     const { ...approverData } = approver;
 
     return NextResponse.json({

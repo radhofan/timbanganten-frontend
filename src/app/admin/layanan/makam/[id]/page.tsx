@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-// Move Input component outside to prevent recreation on every render
 function Input({
   label,
   id,
@@ -51,7 +50,6 @@ function Input({
   );
 }
 
-// Move StatusCard component outside as well
 function StatusCard({ title, status }: {
   title: string;
   status: string;
@@ -71,15 +69,6 @@ function StatusCard({ title, status }: {
         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
           {status}
         </span>
-        {/* {status === 'RESOLVING' && (
-          <button
-            type="button"
-            onClick={onResolve}
-            className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
-          >
-            Mark as Resolved
-          </button>
-        )} */}
       </div>
     </div>
   );
@@ -109,7 +98,7 @@ export default function Edit() {
 
     const fetchData = async () => {
       try {
-        setLoading(true); // start loading
+        setLoading(true); 
 
         const res = await fetch(`/api/makam?id=${id}`);
         const data = await res.json();
@@ -129,7 +118,7 @@ export default function Edit() {
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
-        setLoading(false); // stop loading
+        setLoading(false); 
       }
     };
 
@@ -138,7 +127,7 @@ export default function Edit() {
 
   const fetchData = async () => {
     try {
-      setLoading(true); // start loading
+      setLoading(true); 
 
       const res = await fetch(`/api/makam?id=${id}`);
       const data = await res.json();
@@ -158,17 +147,9 @@ export default function Edit() {
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false); 
     }
   };
-
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <p className="text-gray-500">Memuat data makam...</p>
-  //     </div>
-  //   );
-  // }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -393,9 +374,7 @@ export default function Edit() {
         </form>
       )}
     </main>
-
-
-      <Footer />
+    <Footer />
     </div>
   );
 }

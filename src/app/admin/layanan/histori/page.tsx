@@ -220,7 +220,6 @@ export default function Histori() {
           )}
         </div>
 
-        {/* Pagination */}
         <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow">
           <div className="text-sm text-gray-700">
             Halaman {currentPage} dari {totalPages}

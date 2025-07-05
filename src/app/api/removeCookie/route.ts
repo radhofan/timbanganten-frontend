@@ -5,7 +5,7 @@ export async function POST() {
 
     res.cookies.set('token', '', {
         path: '/',
-        maxAge: 0, // 💀 delete immediately
+        maxAge: 0,
     });
 
     return res;

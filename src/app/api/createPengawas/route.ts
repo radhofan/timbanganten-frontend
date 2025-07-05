@@ -6,7 +6,6 @@ export async function POST(request: Request) {
   try {
     const { name, email, password } = await request.json();
 
-    // Validate input
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Name, email, and password are required' },
@@ -14,7 +13,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if pengawas already exists
     const existingPengawas = await prisma.pengawas.findUnique({
       where: {
         email: email.toLowerCase()
@@ -24,14 +22,12 @@ export async function POST(request: Request) {
     if (existingPengawas) {
       return NextResponse.json(
         { error: 'Pengawas with this email already exists' },
-        { status: 409 } // Conflict
+        { status: 409 } 
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create pengawas
     const pengawas = await prisma.pengawas.create({
       data: {
         name,
@@ -40,7 +36,6 @@ export async function POST(request: Request) {
       }
     });
 
-    // Return pengawas data
     const { ...pengawasData } = pengawas;
 
     return NextResponse.json({

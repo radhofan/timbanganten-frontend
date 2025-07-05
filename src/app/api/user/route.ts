@@ -49,7 +49,7 @@ export async function GET(request: Request) {
   return NextResponse.json(users);
 }
 
-// POST new makam record
+// POST 
 export async function POST(request: Request) {
   const body = await request.json();
 
@@ -60,14 +60,14 @@ export async function POST(request: Request) {
       name,
       contact,
       email,
-      status: status || 'PESAN', // default to PESAN
+      status: status || 'PESAN',
     },
   });
 
   return NextResponse.json(newUser, { status: 201 });
 }
 
-// PUT update user
+// PUT 
 export async function PUT(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -103,7 +103,6 @@ export async function PUT(request: Request) {
     },
   });
 
-  // 2. Update all related `makam` entries with new PJ info
   await prisma.makam.updateMany({
     where: { userId },
     data: {
@@ -112,7 +111,6 @@ export async function PUT(request: Request) {
     },
   });
 
-  // 3. Update all related `makamStatus` entries as well
   await prisma.makamStatus.updateMany({
     where: { userId },
     data: {
@@ -121,7 +119,6 @@ export async function PUT(request: Request) {
     },
   });
 
-  // 4. Return updated user + fresh related data
   const finalUser = await prisma.user.findUnique({
     where: { id: userId },
     include: {

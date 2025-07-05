@@ -7,7 +7,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function Layanan() {
-  const [selectedCard, setSelectedCard] = useState(0); // Track selected card index
+  const [selectedCard, setSelectedCard] = useState(0); 
 
   const cards = [
     {
@@ -34,12 +34,6 @@ export default function Layanan() {
       description: "Lihat denah lokasi pemakaman untuk memilih lokasi yang sesuai.",
       link: "/admin/layanan/denah",
     },
-    // {
-    //   title: "Perpanjangan",
-    //   imgSrc: "/images/perpanjangan1.png",
-    //   description: "Perpanjang masa aktif lokasi makam yang telah dipesan.",
-    //   link: "/admin/layanan/perpanjangan",
-    // },
     {
       title: "Histori Pengguna",
       imgSrc: "/images/history pengguna.png",
@@ -86,7 +80,6 @@ export default function Layanan() {
                 ))}
             </div>
 
-            {/* Right Side - Description */}
             <Link href={cards[selectedCard].link} className="w-full md:w-2/3">
               <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl cursor-pointer h-full">
                 <div className="flex flex-col h-full">

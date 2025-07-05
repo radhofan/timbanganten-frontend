@@ -28,7 +28,6 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
   return (
     <>
       <header className="flex items-center justify-between p-4 bg-white relative ml-16">
-        {/* Left side: logo + "Timbanganten" */}
         <Link href="/admin">
         <div className="flex items-center space-x-3">
           <div className="w-16 h-16 relative">
@@ -44,7 +43,6 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
         </div>
         </Link>
 
-        {/* Right-side navigation */}
         <nav className="flex items-center space-x-8 ml-auto mr-16" ref={wrapperRef}>
           <Link href="/admin">
             <h1 className="text-xl font-bold cursor-pointer">Home</h1>
@@ -62,7 +60,6 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           </div>
 
           <div className="w-px h-8 bg-white justify-center items-center" />
-          {/* Profile icon */}
           <button
             onClick={() => setShowDropdown(!showDropdown)}
             className="hover:text-green-600 focus:outline-none"
@@ -70,7 +67,6 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
             <UserCircle className="w-8 h-8" />
           </button>
           
-          {/* Dropdown Menu */}
           {showDropdown && (
             <div className="absolute top-14 -right-2 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg z-50">
               <ul className="py-2">
@@ -107,37 +103,31 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
         </nav>
       </header>
 
-    {!hideBanner && (
-      <div
-        className="w-full relative mb-12 overflow-hidden"
-        style={{
-          height: "800px",
-          clipPath: "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-          WebkitClipPath: "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-        }}
-      >
-        <Image
-          src="/images/makam-1.png"
-          alt="Banner image"
-          fill
-          style={{ objectFit: "cover" }}
-          priority
-        />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black opacity-60 pointer-events-none"></div>
-        {/* Centered text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 z-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Sistem Layanan Pemakaman Timbanganten</h1>
-          <div className="text-lg md:text-xl max-w-2xl">
-            Your supporting text or description goes here. You can customize this content.
+      {!hideBanner && (
+        <div
+          className="w-full relative mb-12 overflow-hidden"
+          style={{
+            height: "800px",
+            clipPath: "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
+            WebkitClipPath: "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
+          }}
+        >
+          <Image
+            src="/images/makam-1.png"
+            alt="Banner image"
+            fill
+            style={{ objectFit: "cover" }}
+            priority
+          />
+          <div className="absolute inset-0 bg-black opacity-60 pointer-events-none"></div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 z-10">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Sistem Layanan Pemakaman Timbanganten</h1>
+            <div className="text-lg md:text-xl max-w-2xl">
+              Your supporting text or description goes here. You can customize this content.
+            </div>
           </div>
         </div>
-      </div>
-    )}
-
-
-
-
+      )}
     </>
   );
 }

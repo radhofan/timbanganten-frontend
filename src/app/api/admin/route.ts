@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from "bcrypt";
 
-// GET admin(s)
+// GET 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
   return NextResponse.json(admins);
 }
 
-// POST create new admin
+// POST 
 export async function POST(request: Request) {
   const body = await request.json();
   const { name, email, password, contact } = body;
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   return NextResponse.json(newAdmin, { status: 201 });
 }
 
-// PUT update admin
+// PUT 
 export async function PUT(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -81,7 +81,6 @@ export async function PUT(request: Request) {
   const body = await request.json();
   const { name, email, contact, password } = body;
 
-  // Validate required fields
   if (!name || !email || contact === undefined) {
     return NextResponse.json(
       { error: "Name, email, and contact are required" },
@@ -117,13 +116,12 @@ export async function PUT(request: Request) {
     data: updatedData,
   });
 
-  // Strip password before returning
   const { ...safeAdmin } = updatedAdmin;
 
   return NextResponse.json(safeAdmin);
 }
 
-// DELETE admin
+// DELETE 
 export async function DELETE(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');

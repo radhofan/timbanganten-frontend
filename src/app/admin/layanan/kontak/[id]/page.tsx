@@ -59,7 +59,6 @@ export default function KontakDetailPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Build request payload
       const payload: Record<string, string> = {
         name: formData.name,
         email: formData.email,
