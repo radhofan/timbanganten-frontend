@@ -103,7 +103,7 @@ export default function KontakDetailPage() {
         ) : error ? (
           <p className="text-center text-red-600">{error}</p>
         ) : (
-          <div className="bg-white shadow-xl rounded-lg p-8 max-w-5xl mx-auto">
+          <div className="bg-white border border-gray-400 rounded-lg p-8 max-w-5xl mx-auto">
             <form onSubmit={handleUpdate} className="space-y-6 max-w-lg mx-auto">
               <div>
                 <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
