@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User } from "@/components/types";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Histori() {
@@ -24,6 +24,7 @@ export default function Histori() {
         const formattedData = data.map((user: User) => ({
           id: user.id,
           name: user.name,
+          contact: user.contact,
           status: user.status,
           makams: user.makams,
           statuses: user.statuses,
@@ -139,7 +140,7 @@ export default function Histori() {
                     <div className="text-lg font-semibold text-gray-400">{user.name}</div>
                     <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {user.status.split("/").map((status, index) => (
+                      {/* {user.status.split("/").map((status, index) => (
                         <div
                           key={index}
                           className={`text-sm font-medium inline-block px-2 py-0.5 rounded-full
@@ -153,7 +154,7 @@ export default function Histori() {
                         >
                           {status}
                         </div>
-                      ))}
+                      ))} */}
                     </div>
                   </div>
                   <span
@@ -166,8 +167,10 @@ export default function Histori() {
                 </button>
 
                 {openIndex === idx && (
+
                   <div className="border-t px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
-                    <div>
+
+                    {/* <div>
                       <h3 className="font-medium text-gray-800 mb-2">Makam</h3>
                       {(user.makams ?? []).length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -204,6 +207,54 @@ export default function Histori() {
                         </div>
                       ) : (
                         <p className="text-sm text-gray-500">Tidak ada pesanan berlangsung.</p>
+                      )}
+                    </div> */}
+
+                    <div>
+                      <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
+
+                      {((user.makams ?? []).length > 0 || (user.statuses ?? []).length > 0) ? (
+                        <div className="space-y-3">
+                          {/* Aktif Makam */}
+                          {(user.makams ?? []).map((m) => (
+                            <button
+                              type="button"
+                              key={`aktif-${m.id}`}
+                              className="w-full flex justify-between items-start text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-800 truncate">{m.nama}</div>
+                                <div className="text-sm text-gray-600">{m.lokasi}</div>
+                              </div>
+                              <div
+                                className="ml-4 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700"
+                              >
+                                AKTIF
+                              </div>
+                            </button>
+                          ))}
+
+                          {/* Pesanan Makam */}
+                          {(user.statuses ?? []).map((s) => (
+                            <button
+                              type="button"
+                              key={`pesan-${s.id}`}
+                              className="w-full flex justify-between items-start text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-800 truncate">{s.nama}</div>
+                                <div className="text-sm text-gray-600">{s.lokasi}</div>
+                              </div>
+                              <div
+                                className="ml-4 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600"
+                              >
+                                PESAN
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">Tidak ada data pemakaman atau pesanan berlangsung.</p>
                       )}
                     </div>
 
