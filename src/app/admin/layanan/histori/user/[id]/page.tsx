@@ -171,7 +171,7 @@ export default function UserDetail() {
                       >
                         <div className="font-semibold text-gray-800">{m.nama}</div>
                         <div className="text-sm text-gray-600 mt-1">{m.lokasi}</div>
-                        <div className="absolute top-2 right-3 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                           AKTIF
                         </div>
                       </button>
@@ -186,7 +186,7 @@ export default function UserDetail() {
                       >
                         <div className="font-medium text-gray-800">{s.nama}</div>
                         <div className="text-sm text-gray-600 mt-1">{s.lokasi}</div>
-                        <div className="absolute top-2 right-3 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
                           PESAN
                         </div>
                       </button>
