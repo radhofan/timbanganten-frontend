@@ -17,11 +17,15 @@ export default function Denah() {
 
     const elements = svgRef.current.querySelectorAll("*");
     elements.forEach((el) => {
-    const id = el.id || "";
-      if (!id.startsWith("line")) {
+      const id = el.id || "";
+
+      if (!id.startsWith("Line")) {
         el.setAttribute("stroke", "black");
         el.setAttribute("stroke-width", "1");
         el.setAttribute("cursor", "pointer");
+      } else if (id.startsWith("Line")) {
+        el.setAttribute("stroke", "black");
+        el.setAttribute("stroke-width", "1");
       }
     });
   }, []);
@@ -51,12 +55,13 @@ export default function Denah() {
           </div>
         </div>
 
-        <div onClick={handleClick} className="overflow-auto max-w-full border border-gray-300">
-          <DenahSVG
-            ref={svgRef}
-            className="w-full h-auto"
-            preserveAspectRatio="xMidYMid meet"
-          />
+        <div onClick={handleClick} className="overflow-auto max-h-[80vh]">
+          <div className="min-w-[800px] w-full">
+            <DenahSVG
+              ref={svgRef}
+              className="w-full h-auto"
+            />
+          </div>
         </div>
       </main>
       <Footer />
