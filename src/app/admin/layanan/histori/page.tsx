@@ -124,24 +124,24 @@ export default function Histori() {
           </div>
         )}
 
-        <div className="space-y-4 mb-8 w-full max-w-full overflow-x-hidden">
+        <div className="space-y-4 mb-8 w-full">
           {loading ? (
             <div className="text-center text-gray-500 italic">Memuat data...</div>
           ) : filteredData.length === 0 ? (
             <div className="text-center text-gray-500 italic">Tidak ada pengguna ditemukan.</div>
           ) : (
             currentUsers.map((user, idx) => (
-              <div key={user.id} className="bg-white shadow rounded-xl transition w-full">
+              <div key={user.id} className="bg-white shadow rounded-xl w-full min-w-0">
                 <button
                   onClick={() => toggleAccordion(idx)}
-                  className="w-full px-4 sm:px-6 py-4 flex flex-wrap justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
+                  className="w-full px-4 sm:px-6 py-4 flex justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl min-w-0"
                 >
-                  <div>
-                    <div className="text-lg font-semibold text-gray-400">{user.name}</div>
-                    <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
+                  <div className="flex-1 min-w-0 pr-4">
+                    <div className="text-lg font-semibold text-gray-400 truncate">{user.name}</div>
+                    <div className="text-sm font-semibold text-gray-400 truncate">{user.contact}</div>
                   </div>
                   <span
-                    className={`shrink-0 text-gray-500 transform transition-transform duration-300 ${
+                    className={`flex-shrink-0 text-gray-500 transform transition-transform duration-300 ${
                       openIndex === idx ? "rotate-180" : ""
                     }`}
                   >
@@ -150,9 +150,7 @@ export default function Histori() {
                 </button>
 
                 {openIndex === idx && (
-
                   <div className="border-t px-4 sm:px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
-
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
 
@@ -163,17 +161,17 @@ export default function Histori() {
                             <button
                               type="button"
                               key={`aktif-${m.id}`}
-                              className="w-full flex justify-between items-start text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition min-w-0"
                             >
-                            <div className="flex flex-wrap justify-between items-start gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-gray-800 truncate">{m.nama}</div>
-                                <div className="text-sm text-gray-600">{m.lokasi}</div>
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-800 truncate">{m.nama}</div>
+                                  <div className="text-sm text-gray-600 truncate">{m.lokasi}</div>
+                                </div>
+                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 whitespace-nowrap">
+                                  AKTIF
+                                </div>
                               </div>
-                              <div className="shrink-0 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                                AKTIF
-                              </div>
-                            </div>
                             </button>
                           ))}
 
@@ -182,17 +180,17 @@ export default function Histori() {
                             <button
                               type="button"
                               key={`pesan-${s.id}`}
-                              className="w-full flex justify-between items-start text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition min-w-0"
                             >
-                            <div className="flex flex-wrap justify-between items-start gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-gray-800 truncate">{s.nama}</div>
-                                <div className="text-sm text-gray-600">{s.lokasi}</div>
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-800 truncate">{s.nama}</div>
+                                  <div className="text-sm text-gray-600 truncate">{s.lokasi}</div>
+                                </div>
+                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 whitespace-nowrap">
+                                  PESAN
+                                </div>
                               </div>
-                              <div className="shrink-0 text-sm font-medium inline-block px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
-                                PESAN
-                              </div>
-                            </div>
                             </button>
                           ))}
                         </div>
@@ -247,7 +245,7 @@ export default function Histori() {
                       ? "text-gray-400 cursor-default"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   }`}
-                >
+                  >
                   {page}
                 </button>
               ))}
