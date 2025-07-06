@@ -360,7 +360,7 @@ export default function MakamStatus() {
               />
             </section>
 
-            <div className="flex justify-end gap-3 pt-6 border-t">
+            <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
               <button
                 type="button"
                 className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
@@ -370,7 +370,7 @@ export default function MakamStatus() {
               </button>
 
               {role === "admin" && (
-                <div className="space-x-2">
+                <div className="flex flex-col sm:flex-row gap-3">
 
                   {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
@@ -442,6 +442,7 @@ export default function MakamStatus() {
               )}
 
             </div>
+
           </form>
         )}
       </main>
