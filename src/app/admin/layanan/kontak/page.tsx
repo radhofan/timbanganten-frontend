@@ -34,38 +34,40 @@ export default function AdminTable() {
     fetchAdmins();
   }, []);
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header hideBanner />
+ return (
+  <div className="min-h-screen flex flex-col">
+    <Header hideBanner />
 
-      <main className="flex-1 p-12">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Daftar Kontak</h1>
-          {role === "admin" && (
-            <Link
-              href="/admin/layanan/kontak/add"
-              className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition transform hover:scale-105 active:scale-95 font-medium"
-            >
-              + Tambah Kontak Baru
-            </Link>
-          )}
+    <main className="flex-1 p-6 sm:p-12">
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">Daftar Kontak</h1>
+        {role === "admin" && (
+          <Link
+            href="/admin/layanan/kontak/add"
+            className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition transform hover:scale-105 active:scale-95 font-medium"
+          >
+            + Tambah Kontak Baru
+          </Link>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-600 text-lg font-medium">Loading...</p>
         </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <p className="text-gray-600 text-lg font-medium">Loading...</p>
+      ) : error ? (
+        <p className="text-red-600">{error}</p>
+      ) : (
+        <>
+          <div className="mb-6 text-sm text-gray-700">
+            <p className="font-medium">
+              Untuk informasi terkait pemesanan, perpanjangan, atau lainnya silakan hubungi admin yang tertera:
+            </p>
           </div>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : (
-          <>
-            <div className="mb-6 text-sm text-gray-700">
-              <p className="font-medium">
-                Untuk informasi terkait pemesanan, perpanjangan, atau lainnya silakan hubungi admin yang tertera:
-              </p>
-            </div>
-            {/* Table */}
-            <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
+
+          {/* ✅ Table Wrapper to Prevent Overflow */}
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
               <thead className="bg-gray-50 border-b border-gray-300">
                 <tr>
                   <th className="px-4 py-3 font-semibold text-center">Nama</th>
@@ -82,11 +84,9 @@ export default function AdminTable() {
                     key={user.id}
                     className="even:bg-gray-50 hover:bg-gray-100 transition-colors"
                   >
-                    <td className="px-4 py-3 text-center">{user.name}</td>
-                    <td className="px-4 py-3 text-center">
-                      {user.contact ?? "-"}
-                    </td>
-                    <td className="px-4 py-3 text-center">{user.email}</td>
+                    <td className="px-4 py-3 text-center whitespace-nowrap">{user.name}</td>
+                    <td className="px-4 py-3 text-center whitespace-nowrap">{user.contact ?? "-"}</td>
+                    <td className="px-4 py-3 text-center max-w-[200px] truncate">{user.email}</td>
                     {role === "admin" && (
                       <td className="px-4 py-3 text-center">
                         <Link
@@ -116,11 +116,12 @@ export default function AdminTable() {
                 ))}
               </tbody>
             </table>
-          </>
-        )}
-      </main>
+          </div>
+        </>
+      )}
+    </main>
 
-      <Footer />
-    </div>
-  );
+    <Footer />
+  </div>
+);
 }
