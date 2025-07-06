@@ -1,9 +1,17 @@
 import type { NextConfig } from "next";
+import type { Configuration } from "webpack";
 
 const nextConfig: NextConfig = {
   env: {
     JWT_SECRET: process.env.JWT_SECRET,
-    // JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d'
+  },
+  webpack(config: Configuration) {
+    config.module?.rules?.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ["@svgr/webpack"],
+    });
+    return config;
   },
 };
 
