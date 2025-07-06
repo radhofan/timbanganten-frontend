@@ -1,23 +1,27 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DenahSVG from "@/assets/Denah.inline.svg";
 
 export default function Denah() {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
   const handleClick = (e: React.MouseEvent) => {
     const id = (e.target as HTMLElement).id;
     if (id) console.log("Clicked ID:", id);
   };
 
   useEffect(() => {
-    const allRects = document.querySelectorAll("svg rect");
+    if (!svgRef.current) return;
 
-    allRects.forEach((rect) => {
-      const id = rect.id;
+    const elements = svgRef.current.querySelectorAll("*");
+    elements.forEach((el) => {
+    const id = el.id || "";
       if (!id.startsWith("line")) {
-        rect.setAttribute("stroke", "black");
-        rect.setAttribute("stroke-width", "1");
+        el.setAttribute("stroke", "black");
+        el.setAttribute("stroke-width", "1");
+        el.setAttribute("cursor", "pointer");
       }
     });
   }, []);
@@ -47,8 +51,12 @@ export default function Denah() {
           </div>
         </div>
 
-        <div onClick={handleClick}>
-          <DenahSVG className="w-full h-auto" />
+        <div onClick={handleClick} className="overflow-auto max-w-full border border-gray-300">
+          <DenahSVG
+            ref={svgRef}
+            className="w-full h-auto"
+            preserveAspectRatio="xMidYMid meet"
+          />
         </div>
       </main>
       <Footer />
