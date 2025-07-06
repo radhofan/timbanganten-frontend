@@ -92,7 +92,8 @@ export default function MakamTable() {
         </select>
       </div>
 
-      <table className="w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
+      <div className="w-full overflow-x-auto">
+      <table className="min-w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
         <thead className="bg-gray-50 border-b border-gray-300">
           <tr>
             <th className="px-4 py-3 font-semibold text-center">Blok Makam</th>
@@ -217,6 +218,7 @@ export default function MakamTable() {
           )}
         </tbody>
       </table>
+      </div>
 
       <div className="flex justify-between items-center mt-4">
         <button
