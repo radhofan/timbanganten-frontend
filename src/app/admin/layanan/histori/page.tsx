@@ -124,7 +124,7 @@ export default function Histori() {
           </div>
         )}
 
-        <div className="space-y-4 mb-8">
+        <div className="space-y-4 mb-8 w-full max-w-full overflow-x-hidden">
           {loading ? (
             <div className="text-center text-gray-500 italic">Memuat data...</div>
           ) : filteredData.length === 0 ? (
