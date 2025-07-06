@@ -28,7 +28,7 @@ export default function Denah() {
       <div className="text-3xl font-bold text-center mb-4">
         Status Pemakaman
       </div>
-      <main className="flex-grow container mx-auto px-4 py-10">
+      <main className="flex-grow container mx-auto px-4 py-10 mb-8">
         <h1 className="text-2xl font-bold mb-6 text-left">Pilih Kavling</h1>
         <div className="flex justify-between items-center mb-6">
           <div>
