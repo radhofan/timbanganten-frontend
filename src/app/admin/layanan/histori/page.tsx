@@ -104,7 +104,7 @@ export default function Histori() {
     <div className="flex flex-col min-h-screen">
       <Header hideBanner />
 
-      <main className="flex-1 bg-white max-w-6xl mx-auto border border-gray-300 rounded-xl mb-24 mt-4 px-4 sm:px-6 lg:px-8 py-8 flex flex-col min-h-[70vh] overflow-hidden">
+      <main className="flex-1 bg-white w-full max-w-6xl mx-auto border border-gray-300 rounded-xl mb-24 mt-4 px-2 sm:px-4 lg:px-8 py-8 flex flex-col min-h-[70vh]">
         <h1 className="text-3xl font-bold text-center mb-8">Histori Pengguna</h1>
 
         <div className="mb-8 flex justify-center">
@@ -124,21 +124,21 @@ export default function Histori() {
           </div>
         )}
 
-        <div className="space-y-4 mb-8 w-full overflow-hidden">
+        <div className="space-y-4 mb-8">
           {loading ? (
             <div className="text-center text-gray-500 italic">Memuat data...</div>
           ) : filteredData.length === 0 ? (
             <div className="text-center text-gray-500 italic">Tidak ada pengguna ditemukan.</div>
           ) : (
             currentUsers.map((user, idx) => (
-              <div key={user.id} className="bg-white shadow rounded-xl w-full overflow-hidden">
+              <div key={user.id} className="bg-white shadow rounded-xl">
                 <button
                   onClick={() => toggleAccordion(idx)}
-                  className="w-full px-4 sm:px-6 py-4 flex justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl overflow-hidden"
+                  className="w-full px-3 sm:px-6 py-4 flex justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
                 >
-                  <div className="flex-1 pr-4 overflow-hidden">
-                    <div className="text-lg font-semibold text-gray-400 truncate break-all">{user.name}</div>
-                    <div className="text-sm font-semibold text-gray-400 truncate break-all">{user.contact}</div>
+                  <div className="flex-1 pr-3">
+                    <div className="text-lg font-semibold text-gray-400">{user.name}</div>
+                    <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
                   </div>
                   <span
                     className={`flex-shrink-0 text-gray-500 transform transition-transform duration-300 ${
@@ -150,7 +150,7 @@ export default function Histori() {
                 </button>
 
                 {openIndex === idx && (
-                  <div className="border-t px-4 sm:px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out overflow-hidden">
+                  <div className="border-t px-3 sm:px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
 
@@ -161,14 +161,14 @@ export default function Histori() {
                             <button
                               type="button"
                               key={`aktif-${m.id}`}
-                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
+                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
                             >
-                              <div className="flex justify-between items-start gap-2 overflow-hidden">
-                                <div className="flex-1 overflow-hidden">
-                                  <div className="font-medium text-gray-800 truncate break-all">{m.nama}</div>
-                                  <div className="text-sm text-gray-600 truncate break-all">{m.lokasi}</div>
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1">
+                                  <div className="font-medium text-gray-800">{m.nama}</div>
+                                  <div className="text-sm text-gray-600">{m.lokasi}</div>
                                 </div>
-                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 whitespace-nowrap ml-2">
+                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                                   AKTIF
                                 </div>
                               </div>
@@ -180,14 +180,14 @@ export default function Histori() {
                             <button
                               type="button"
                               key={`pesan-${s.id}`}
-                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
+                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
                             >
-                              <div className="flex justify-between items-start gap-2 overflow-hidden">
-                                <div className="flex-1 overflow-hidden">
-                                  <div className="font-medium text-gray-800 truncate break-all">{s.nama}</div>
-                                  <div className="text-sm text-gray-600 truncate break-all">{s.lokasi}</div>
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1">
+                                  <div className="font-medium text-gray-800">{s.nama}</div>
+                                  <div className="text-sm text-gray-600">{s.lokasi}</div>
                                 </div>
-                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 whitespace-nowrap ml-2">
+                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
                                   PESAN
                                 </div>
                               </div>
