@@ -1,13 +1,26 @@
 "use client";
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DenahSVG from "@/public/images/Denah.inline.svg"; // 👈 SVG as component
 
 export default function Denah() {
-
   const handleClick = (e: React.MouseEvent) => {
-    const id = (e.target as HTMLElement).id
-    console.log('Clicked ID:', id)
-  }
+    const id = (e.target as HTMLElement).id;
+    if (id) console.log("Clicked ID:", id);
+  };
+
+  useEffect(() => {
+    const allRects = document.querySelectorAll("svg rect");
+
+    allRects.forEach((rect) => {
+      const id = rect.id;
+      if (!id.startsWith("line")) {
+        rect.setAttribute("stroke", "black");
+        rect.setAttribute("stroke-width", "1");
+      }
+    });
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,16 +46,12 @@ export default function Denah() {
             </select>
           </div>
         </div>
+
         <div onClick={handleClick}>
-        <object
-            data="/images/Denah.svg"
-            type="image/svg+xml"
-            className="w-full h-auto"
-          />
+          <DenahSVG className="w-full h-auto" />
         </div>
       </main>
       <Footer />
     </div>
   );
 }
-
