@@ -324,7 +324,7 @@ export default function Edit() {
           </section>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-6 border-t">
+          <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
             <button
               type="button"
               className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
@@ -334,7 +334,7 @@ export default function Edit() {
             </button>
 
             {role === "admin" && (
-              <div className="space-x-2">
+              <div className="flex flex-col sm:flex-row gap-3">
                   {formData.ext === "PENDING" && (
                     <button
                       type="button"
