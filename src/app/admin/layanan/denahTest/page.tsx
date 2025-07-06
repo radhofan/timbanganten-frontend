@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import DenahSVG from "@/public/images/Denah.inline.svg"; // 👈 SVG as component
+import DenahSVG from "@/assets/Denah.inline.svg";
 
 export default function Denah() {
   const handleClick = (e: React.MouseEvent) => {
