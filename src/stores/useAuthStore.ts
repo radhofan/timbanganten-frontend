@@ -20,17 +20,14 @@ export const useAuthStore = create<AuthState>()(
       hydrated: false,
       setAuth: (role: Role, name: string) => {
         set({ role, name });
-        // Force rerender after state change
-        setTimeout(() => {
-          set({}); // Trigger subscriptions
-        }, 0);
+        document.cookie = `auth-role=${role}; path=/; max-age=86400`; 
+        document.cookie = `auth-name=${name}; path=/; max-age=86400`;
       },
       logout: () => {
         set({ role: 'guest', name: null });
-        // Force rerender after logout
-        setTimeout(() => {
-          set({}); // Trigger subscriptions
-        }, 0);
+        // Clear cookies when logging out
+        document.cookie = 'auth-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+        document.cookie = 'auth-name=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
       },
       setHydrated: (value: boolean) => set({ hydrated: value }),
     }),
@@ -44,10 +41,6 @@ export const useAuthStore = create<AuthState>()(
         }
         if (state) {
           state.setHydrated(true);
-          // Force rerender after hydration
-          setTimeout(() => {
-            state.setHydrated(true); // Trigger again to force update
-          }, 0);
         }
       },
     }

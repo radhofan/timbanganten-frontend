@@ -3,8 +3,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('token')?.value;
-
+  
   if (pathname.startsWith('/admin/login')) {
     return NextResponse.next();
   }
@@ -18,8 +17,12 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  if (isProtected && (!token || token.trim() === '')) {
-    return NextResponse.redirect(new URL('/admin/login/admin', request.url));
+  if (isProtected) {
+    const authRole = request.cookies.get('auth-role')?.value;
+    
+    if (!authRole || authRole === 'guest') {
+      return NextResponse.redirect(new URL('/admin/login/admin', request.url));
+    }
   }
 
   return NextResponse.next();
