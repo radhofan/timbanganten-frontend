@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-type Role = 'admin' | 'pengawas' | 'approver' | 'guest';
+type Role = 'admin' | 'pengurusan' | 'approver' | 'guest';
 
 interface AuthState {
   role: Role;
@@ -18,11 +18,7 @@ export const useAuthStore = create<AuthState>()(
       role: 'guest',
       name: null,
       hydrated: false,
-      setAuth: (role, name) => {
-        set({ role, name });
-        set({ hydrated: false });
-        setTimeout(() => set({ hydrated: true }), 0);
-      },
+      setAuth: (role, name) => set({ role, name }),
       logout: () => set({ role: 'guest', name: null }),
       setHydrated: (value) => set({ hydrated: value }),
     }),
@@ -30,12 +26,10 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true);
+        if (state) {
+          state.setHydrated(true);
+        }
       },
     }
   )
 );
-
-if (typeof window !== 'undefined') {
-  useAuthStore.persist.rehydrate();
-}
