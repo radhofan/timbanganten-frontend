@@ -25,7 +25,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.log('Rehydration error:', error);
+          localStorage.removeItem('auth-storage');
+        }
         if (state) {
           state.setHydrated(true);
         }
@@ -33,3 +37,6 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// Remove the manual rehydrate call - let it happen naturally
+// This was causing race conditions
