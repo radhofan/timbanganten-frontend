@@ -18,7 +18,11 @@ export const useAuthStore = create<AuthState>()(
       role: 'guest',
       name: null,
       hydrated: false,
-      setAuth: (role, name) => set({ role, name }),
+      setAuth: (role, name) => {
+        set({ role, name });
+        set({ hydrated: false });
+        setTimeout(() => set({ hydrated: true }), 0);
+      },
       logout: () => set({ role: 'guest', name: null }),
       setHydrated: (value) => set({ hydrated: value }),
     }),

@@ -20,17 +20,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (isClient && hydrated) {
-      const isProtectedRoute = PROTECTED_ROUTES.some(route => 
-        pathname.startsWith(route)
-      );
+    if (!isClient || !hydrated) return;
 
-      if (isProtectedRoute && role === 'guest') {
-        router.push('/admin/login/admin');
-        return;
-      }
+    const isProtectedRoute = PROTECTED_ROUTES.some(route =>
+      pathname.startsWith(route)
+    );
+
+    if (isProtectedRoute && role === 'guest') {
+      router.push('/admin/login/admin');
     }
   }, [isClient, hydrated, role, pathname, router]);
+
+  useEffect(() => {
+    if (isClient && hydrated && role !== 'guest') {
+      console.log('Role changed to:', role);
+    }
+  }, [role, isClient, hydrated]);
 
   if (!isClient || !hydrated) {
     return (
