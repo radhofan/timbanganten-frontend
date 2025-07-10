@@ -20,7 +20,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    // Only run auth checks when client-side AND hydrated
     if (!isClient || !hydrated) return;
 
     const isProtectedRoute = PROTECTED_ROUTES.some(route =>
@@ -30,9 +29,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isProtectedRoute && role === 'guest') {
       router.push('/admin/login/admin');
     }
-  }, [isClient, hydrated, role, pathname, router]); // Added hydrated to dependencies
+  }, [isClient, hydrated, role, pathname, router]); 
 
-  // Show loading until both client-side AND hydrated
   if (!isClient || !hydrated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">

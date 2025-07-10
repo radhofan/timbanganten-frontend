@@ -25,7 +25,6 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: () => {
         set({ role: 'guest', name: null });
-        // Clear cookies when logging out
         document.cookie = 'auth-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
         document.cookie = 'auth-name=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
       },
