@@ -50,8 +50,8 @@ export default function LoginAdmin() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-[url('/images/login.jpg')] bg-cover bg-center bg-no-repeat">
-      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
+    <div className="min-h-screen flex items-center justify-center bg-[url('/images/login.jpg')] bg-cover bg-center bg-no-repeat px-4">
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md w-full max-w-md">
         <div className="flex items-center mb-6">
           <Image
             src="/images/admin.png"
