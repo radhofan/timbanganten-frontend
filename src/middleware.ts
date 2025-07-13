@@ -39,7 +39,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
- 
+
   if (pathname.startsWith('/admin/login')) {
     return NextResponse.next();
   }
@@ -58,20 +58,20 @@ export function middleware(request: NextRequest) {
   if (isProtected || isOnMainAdmin) {
     const authRole = request.cookies.get('auth-role')?.value;
     const token = request.cookies.get('token')?.value;
-   
+
     if (isProtected && (!authRole || authRole === 'guest' || (authRole === 'admin' && !token))) {
       return NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
     }
-   
+  
     if (isOnMainAdmin && authRole === 'admin' && !token) {
       return NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
     }
-   
+  
     if (token && authRole === 'admin') {
       try {
         const tokenPayload = JSON.parse(atob(token.split('.')[1]));
         const currentTime = Math.floor(Date.now() / 1000);
-       
+      
         if (tokenPayload.exp && tokenPayload.exp < currentTime) {
           const response = NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
           response.cookies.delete('token');

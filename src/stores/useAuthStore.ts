@@ -17,7 +17,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       role: 'guest',
-      name: null,
+      name: 'Guest',
       hydrated: false,
       setAuth: (role: Role, name: string) => {
         set({ role, name });
