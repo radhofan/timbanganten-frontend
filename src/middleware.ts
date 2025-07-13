@@ -4,7 +4,6 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow access to login page
   if (pathname.startsWith('/admin/login')) {
     return NextResponse.next();
   }

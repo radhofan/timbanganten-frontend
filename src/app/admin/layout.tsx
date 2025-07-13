@@ -1,4 +1,3 @@
-// app/admin/layout.tsx
 "use client";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect, useState } from "react";
@@ -10,14 +9,15 @@ const PROTECTED_ROUTES = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { role, hydrated } = useAuthStore();
+  const { role, hydrated, hydrate } = useAuthStore();
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    hydrate(); 
+  }, [hydrate]);
 
   useEffect(() => {
     if (!isClient || !hydrated) return;
