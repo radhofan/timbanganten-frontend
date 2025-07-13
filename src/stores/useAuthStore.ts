@@ -10,7 +10,7 @@ interface AuthState {
   setAuth: (role: Role, name: string) => void;
   logout: () => void;
   setHydrated: (value: boolean) => void;
-  hydrate: () => void; // Add this
+  hydrate: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
