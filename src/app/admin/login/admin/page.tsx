@@ -12,6 +12,7 @@ export default function LoginAdmin() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -44,13 +45,9 @@ export default function LoginAdmin() {
 
   const handleGuestLogin =  async () => {
     await fetch('/api/removeCookie', { method: 'POST' }); 
-    
     useAuthStore.getState().logout();
     useAuthStore.getState().setAuth("guest", "Guest");
-    
     router.push("/admin");
-    
-    // router.push('/api/removeCookie');
   };
 
   return (
