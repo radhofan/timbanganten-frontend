@@ -43,10 +43,14 @@ export default function LoginAdmin() {
   };
 
   const handleGuestLogin =  async () => {
-    await fetch('/api/removeCookie', { method: 'POST' }); 
+    //await fetch('/api/removeCookie', { method: 'POST' }); 
+    
     useAuthStore.getState().logout();
     useAuthStore.getState().setAuth("guest", "Guest");
-    router.push("/admin"); 
+    
+    //router.push("/admin");
+    
+    router.push('/api/removeCookie');
   };
 
   return (
