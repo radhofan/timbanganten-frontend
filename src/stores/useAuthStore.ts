@@ -21,13 +21,13 @@ export const useAuthStore = create<AuthState>()(
       hydrated: false,
       setAuth: (role: Role, name: string) => {
         set({ role, name });
-        document.cookie = `auth-role=${role}; path=/; max-age=86400`;
-        document.cookie = `auth-name=${name}; path=/; max-age=86400`;
+        // document.cookie = `auth-role=${role}; path=/; max-age=86400`;
+        // document.cookie = `auth-name=${name}; path=/; max-age=86400`;
       },
       logout: () => {
         set({ role: 'guest', name: null });
-        document.cookie = 'auth-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-        document.cookie = 'auth-name=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+        // document.cookie = 'auth-role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+        // document.cookie = 'auth-name=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
       },
       setHydrated: (value: boolean) => set({ hydrated: value }),
       hydrate: () => {

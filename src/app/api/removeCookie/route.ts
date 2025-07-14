@@ -8,5 +8,10 @@ export async function POST() {
         maxAge: 0,
     });
 
+    res.cookies.set('auth-role', '', {
+        path: '/',
+        maxAge: 0,
+    });
+
     return res;
 }
