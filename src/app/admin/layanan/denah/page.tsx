@@ -58,7 +58,7 @@ export default function Denah() {
         <div onClick={handleClick} className="overflow-auto max-h-[80vh]">
           <DenahSVG
             ref={svgRef}
-            className="max-w-full h-auto mx-auto block"
+            className="w-full h-auto max-w-full object-contain"
           />
         </div>
       </main>
