@@ -4,10 +4,11 @@ import Footer from "@/components/Footer";
 import { User } from "@/components/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 export default function Pemesanan() {
-  const role = useAuthStore((state) => state.role);
+  const user = useStore(authStore, (s) => s.user);
 
   const normalizeDate = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -16,7 +17,11 @@ export default function Pemesanan() {
   const today = normalizeDate(new Date());
 
   const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
-  const fiveYearsLater = new Date(sixMonthsLater.getFullYear() + 5, sixMonthsLater.getMonth(), sixMonthsLater.getDate());
+  const fiveYearsLater = new Date(
+    sixMonthsLater.getFullYear() + 5,
+    sixMonthsLater.getMonth(),
+    sixMonthsLater.getDate()
+  );
 
   const minDate = normalizeDate(sixMonthsLater);
   const maxDate = normalizeDate(fiveYearsLater);
@@ -57,7 +62,9 @@ export default function Pemesanan() {
 
     const selectedDate = new Date(masaAktif.year, masaAktif.month - 1, masaAktif.day);
     if (selectedDate < minDate || selectedDate > maxDate) {
-      alert(`Masa aktif harus antara ${minDate.toLocaleDateString('id-ID')} dan ${maxDate.toLocaleDateString('id-ID')}`);
+      alert(
+        `Masa aktif harus antara ${minDate.toLocaleDateString("id-ID")} dan ${maxDate.toLocaleDateString("id-ID")}`
+      );
       return;
     }
 
@@ -79,7 +86,7 @@ export default function Pemesanan() {
 
     for (const { key, label } of requiredFields) {
       const value = formData.get(key);
-      if (!value || typeof value === "string" && value.trim() === "") {
+      if (!value || (typeof value === "string" && value.trim() === "")) {
         alert(`Field "${label}" wajib diisi.`);
         return;
       }
@@ -92,9 +99,13 @@ export default function Pemesanan() {
         input.focus();
         input.setCustomValidity("Silakan pilih penanggung jawab yang sudah ada.");
         input.reportValidity();
-        input.addEventListener("input", () => {
-          input.setCustomValidity("");
-        }, { once: true });
+        input.addEventListener(
+          "input",
+          () => {
+            input.setCustomValidity("");
+          },
+          { once: true }
+        );
       }
       return;
     }
@@ -110,27 +121,27 @@ export default function Pemesanan() {
       await fetch(`/api/user?id=${pjId}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: selectedUser.name,
           contact: selectedUser.contact,
           email: selectedUser.email,
-          status: selectedUser.status === "AKTIF"? "AKTIF/PESAN" : "PESAN",
-        })
+          status: selectedUser.status === "AKTIF" ? "AKTIF/PESAN" : "PESAN",
+        }),
       });
     } else {
       const newUserRes = await fetch("/api/user", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: formData.get("namapj"),
           contact: formData.get("kontak"),
           email: formData.get("email"),
-          status: "PESAN"
-        })
+          status: "PESAN",
+        }),
       });
 
       if (!newUserRes.ok) {
@@ -154,16 +165,16 @@ export default function Pemesanan() {
       userId: pjId,
       ext: "PENDING",
       payment: "PENDING",
-      approved: "PENDING"
+      approved: "PENDING",
     };
 
     try {
       const res = await fetch("/api/makamStatus", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -182,7 +193,7 @@ export default function Pemesanan() {
   };
 
   const [useExisting, setUseExisting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -190,13 +201,13 @@ export default function Pemesanan() {
     const delayDebounceFn = setTimeout(() => {
       const endpoint = searchTerm.trim()
         ? `/api/user?query=${encodeURIComponent(searchTerm)}`
-        : "/api/user"; 
+        : "/api/user";
 
       fetch(endpoint)
         .then((res) => res.json())
         .then((data) => setUsers(data))
         .catch((err) => console.error(err));
-    }, 300); 
+    }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
@@ -247,7 +258,7 @@ export default function Pemesanan() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => {
-                    if (!searchTerm) setSearchTerm(""); 
+                    if (!searchTerm) setSearchTerm("");
                   }}
                   placeholder="Ketik nama atau kontak..."
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -382,15 +393,11 @@ export default function Pemesanan() {
               </select>
             </div>
             <div>
-              <label className="block mb-1 font-medium">
-                Masa Aktif
-              </label>
+              <label className="block mb-1 font-medium">Masa Aktif</label>
               <div className="flex space-x-2">
                 <select
                   value={masaAktif.day}
-                  onChange={(e) =>
-                    setMasaAktif({ ...masaAktif, day: parseInt(e.target.value) })
-                  }
+                  onChange={(e) => setMasaAktif({ ...masaAktif, day: parseInt(e.target.value) })}
                   className="border border-gray-300 rounded px-2 py-2"
                 >
                   {getValidDays(masaAktif.month, masaAktif.year).map((day) => (
@@ -401,9 +408,7 @@ export default function Pemesanan() {
                 </select>
                 <select
                   value={masaAktif.month}
-                  onChange={(e) =>
-                    setMasaAktif({ ...masaAktif, month: parseInt(e.target.value) })
-                  }
+                  onChange={(e) => setMasaAktif({ ...masaAktif, month: parseInt(e.target.value) })}
                   className="border border-gray-300 rounded px-2 py-2"
                 >
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
@@ -414,9 +419,7 @@ export default function Pemesanan() {
                 </select>
                 <select
                   value={masaAktif.year}
-                  onChange={(e) =>
-                    setMasaAktif({ ...masaAktif, year: parseInt(e.target.value) })
-                  }
+                  onChange={(e) => setMasaAktif({ ...masaAktif, year: parseInt(e.target.value) })}
                   className="border border-gray-300 rounded px-2 py-2"
                 >
                   {years.map((year) => (
@@ -451,7 +454,7 @@ export default function Pemesanan() {
               Cancel
             </button>
 
-            {role === "admin" && (
+            {user?.role === "admin" && (
               <button
                 type="submit"
                 className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"

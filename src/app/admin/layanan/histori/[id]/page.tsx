@@ -4,7 +4,8 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 function Input({
   label,
@@ -25,10 +26,7 @@ function Input({
 
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
       <input
@@ -50,29 +48,24 @@ function Input({
   );
 }
 
-function StatusCard({
-  title,
-  status,
-}: {
-  title: string;
-  status: string;
-  onResolve: () => void;
-}) {
+function StatusCard({ title, status }: { title: string; status: string; onResolve: () => void }) {
   const color =
-    status === 'YES' ? 'bg-green-100 text-green-700' :
-    status === 'PAID' ? 'bg-green-100 text-green-700' :
-    status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-    status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-    'bg-yellow-100 text-yellow-800';
+    status === "YES"
+      ? "bg-green-100 text-green-700"
+      : status === "PAID"
+        ? "bg-green-100 text-green-700"
+        : status === "APPROVED"
+          ? "bg-green-100 text-green-700"
+          : status === "PENDING"
+            ? "bg-yellow-100 text-yellow-800"
+            : "bg-yellow-100 text-yellow-800";
 
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700">{title}</label>
 
       <div className="flex items-center justify-center gap-3">
-        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
-          {status}
-        </span>
+        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
       </div>
     </div>
   );
@@ -99,7 +92,8 @@ export default function Edit() {
   });
 
   const router = useRouter();
-  const { role } = useAuthStore();
+  const user = useStore(authStore, (s) => s.user);
+  const role = user?.role;
 
   const fetchData = async () => {
     try {
@@ -124,7 +118,7 @@ export default function Edit() {
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -188,13 +182,12 @@ export default function Edit() {
     fetchData();
   };
 
-
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
 
         const res = await fetch(`/api/${type}?id=${id}`);
         const data = await res.json();
@@ -215,7 +208,7 @@ export default function Edit() {
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -250,7 +243,9 @@ export default function Edit() {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -321,17 +316,45 @@ export default function Edit() {
             className="bg-white border border-gray-400 rounded-lg p-6 md:p-10 w-full max-w-4xl space-y-8"
             onSubmit={handleSubmit}
           >
-            <h2 className="text-2xl font-semibold text-center text-gray-800">Status Pemesanan Makam</h2>
+            <h2 className="text-2xl font-semibold text-center text-gray-800">
+              Status Pemesanan Makam
+            </h2>
 
             <section>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Nama Penanggung Jawab" id="namapj" value={formData.namapj} onChange={handleChange} readOnly />
-                <Input label="No. Kontak PJ" id="kontak" value={formData.kontak} onChange={handleChange} readOnly />
-                <Input label="Hubungan Silsilah" id="silsilah" value={formData.silsilah} onChange={handleChange} readOnly={role !== "admin"} />
-                <Input label="Nama Jenazah" id="namajenazah" value={formData.namajenazah} onChange={handleChange} readOnly={role !== "admin"} />
+                <Input
+                  label="Nama Penanggung Jawab"
+                  id="namapj"
+                  value={formData.namapj}
+                  onChange={handleChange}
+                  readOnly
+                />
+                <Input
+                  label="No. Kontak PJ"
+                  id="kontak"
+                  value={formData.kontak}
+                  onChange={handleChange}
+                  readOnly
+                />
+                <Input
+                  label="Hubungan Silsilah"
+                  id="silsilah"
+                  value={formData.silsilah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
+                <Input
+                  label="Nama Jenazah"
+                  id="namajenazah"
+                  value={formData.namajenazah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
                 <div>
-                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">
+                    Lokasi
+                  </label>
                   <select
                     id="lokasi"
                     name="lokasi"
@@ -341,18 +364,28 @@ export default function Edit() {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={role !== "admin"}
                   >
-                    <option value="" disabled>Pilih Lokasi Pemakaman</option>
+                    <option value="" disabled>
+                      Pilih Lokasi Pemakaman
+                    </option>
                     <option value="Karang Anyar">Karang Anyar</option>
                     <option value="Dalem Kaum">Dalem Kaum</option>
                     <option value="Dayeuhkolot">Dayeuhkolot</option>
                   </select>
                 </div>
-                <Input label="Blok Makam" id="blok" value={formData.blok} onChange={handleChange} readOnly={role !== "admin"} />
+                <Input
+                  label="Blok Makam"
+                  id="blok"
+                  value={formData.blok}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
               </div>
             </section>
 
             <section>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Penjelasan</label>
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                Penjelasan
+              </label>
               <textarea
                 id="notes"
                 name="notes"
@@ -366,21 +399,13 @@ export default function Edit() {
             </section>
 
             <section className="flex flex-wrap gap-6">
-              <StatusCard
-                title="Status Approval"
-                status={formData.approved}
-                onResolve={() => {}} 
-              />
+              <StatusCard title="Status Approval" status={formData.approved} onResolve={() => {}} />
               <StatusCard
                 title="Status Pembayaran"
                 status={formData.payment}
-                onResolve={() => {}} 
+                onResolve={() => {}}
               />
-              <StatusCard
-                title="Status Perpanjangan"
-                status={formData.ext}
-                onResolve={() => {}} 
-              />
+              <StatusCard title="Status Perpanjangan" status={formData.ext} onResolve={() => {}} />
             </section>
 
             <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
@@ -394,97 +419,94 @@ export default function Edit() {
 
               {role === "admin" && (
                 <div className="flex flex-col sm:flex-row gap-3">
-                {type === "makam" && (
-                  <>
-                    {formData.ext === "PENDING" && (
-                      <button
-                        type="button"
-                        onClick={() => markAsResolvingMakam(id as string)}
-                        className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
-                      >
-                        Mark as Resolving
-                      </button>
-                    )}
-                    {formData.ext === "PENDING" && (
-                      <button
-                        type="button"
-                        onClick={() => markAsResolvedMakam(id as string)}
-                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                      >
-                        Approve Payment
-                      </button>
-                    )}
-                    {formData.ext === "RESOLVING" && (
-                      <button
-                        type="button"
-                        onClick={() => markAsResolvedMakam(id as string)}
-                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                      >
-                        Mark as Resolved
-                      </button>
-                    )}
-                  </>
-                )}
-                {type === "makamStatus" && (
-                  <>
-
-                    {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
-                      <button
-                        type="button"
-                        onClick={() => markAsResolvingMakamStatus(id as string)}
-                        className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
-                      >
-                        Mark as Resolving
-                      </button>
-                    )}
-
-                    {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
-                      <button
-                        type="button"
-                        onClick={() => markAsResolvedMakamStatus(id as string)}
-                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                      >
-                        Approve Payment
-                      </button>
-                    )}
-
-                    {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
-                      <button
-                        type="button"
-                        onClick={() => markAsResolvedMakamStatus(id as string)}
-                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                      >
-                        Mark as Resolved
-                      </button>
-                    )}
-
-                    {formData.payment === "PAID" &&
-                      formData.ext === "PAID" &&
-                      formData.approved === "APPROVED" && (
+                  {type === "makam" && (
+                    <>
+                      {formData.ext === "PENDING" && (
                         <button
                           type="button"
-                          onClick={async () => {
-                            const success = await convertMakam(id as string);
-                            if (success) router.push("/admin/layanan/makam");
-                          }}
-                          className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
+                          onClick={() => markAsResolvingMakam(id as string)}
+                          className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
                         >
-                          Aktifkan Makam
+                          Mark as Resolving
                         </button>
-                    )}
-                  </>
-                )}
+                      )}
+                      {formData.ext === "PENDING" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolvedMakam(id as string)}
+                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                        >
+                          Approve Payment
+                        </button>
+                      )}
+                      {formData.ext === "RESOLVING" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolvedMakam(id as string)}
+                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                        >
+                          Mark as Resolved
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {type === "makamStatus" && (
+                    <>
+                      {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolvingMakamStatus(id as string)}
+                          className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
+                        >
+                          Mark as Resolving
+                        </button>
+                      )}
 
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-                >
-                  Edit
-                </button>
-                
-              </div>
-            )}
+                      {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolvedMakamStatus(id as string)}
+                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                        >
+                          Approve Payment
+                        </button>
+                      )}
 
+                      {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
+                        <button
+                          type="button"
+                          onClick={() => markAsResolvedMakamStatus(id as string)}
+                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                        >
+                          Mark as Resolved
+                        </button>
+                      )}
+
+                      {formData.payment === "PAID" &&
+                        formData.ext === "PAID" &&
+                        formData.approved === "APPROVED" && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const success = await convertMakam(id as string);
+                              if (success) router.push("/admin/layanan/makam");
+                            }}
+                            className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
+                          >
+                            Aktifkan Makam
+                          </button>
+                        )}
+                    </>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
 
               {role === "approver" && formData.approved !== "APPROVED" && (
                 <button

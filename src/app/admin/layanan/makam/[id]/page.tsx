@@ -4,7 +4,8 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 function Input({
   label,
@@ -25,10 +26,7 @@ function Input({
 
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
       <input
@@ -50,25 +48,23 @@ function Input({
   );
 }
 
-function StatusCard({ title, status }: {
-  title: string;
-  status: string;
-  onResolve: () => void;
-}) {
+function StatusCard({ title, status }: { title: string; status: string; onResolve: () => void }) {
   const color =
-    status === 'YES' ? 'bg-green-100 text-green-700' :
-    status === 'PAID' ? 'bg-green-100 text-green-700' :
-    status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-    status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-    'bg-yellow-100 text-yellow-800';
+    status === "YES"
+      ? "bg-green-100 text-green-700"
+      : status === "PAID"
+        ? "bg-green-100 text-green-700"
+        : status === "APPROVED"
+          ? "bg-green-100 text-green-700"
+          : status === "PENDING"
+            ? "bg-yellow-100 text-yellow-800"
+            : "bg-yellow-100 text-yellow-800";
 
   return (
     <div className="text-center">
       <label className="block text-sm font-medium text-gray-700 mb-1">{title}</label>
       <div className="flex items-center justify-center gap-3">
-        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
-          {status}
-        </span>
+        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
       </div>
     </div>
   );
@@ -90,15 +86,16 @@ export default function Edit() {
     blok: "",
   });
 
-  const router = useRouter(); 
-  const { role } = useAuthStore();
+  const router = useRouter();
+  const user = useStore(authStore, (s) => s.user);
+  const role = user?.role;
 
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
 
         const res = await fetch(`/api/makam?id=${id}`);
         const data = await res.json();
@@ -118,7 +115,7 @@ export default function Edit() {
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -127,7 +124,7 @@ export default function Edit() {
 
   const fetchData = async () => {
     try {
-      setLoading(true); 
+      setLoading(true);
 
       const res = await fetch(`/api/makam?id=${id}`);
       const data = await res.json();
@@ -147,11 +144,13 @@ export default function Edit() {
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -240,101 +239,129 @@ export default function Edit() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-    <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start mb-24">
-      {loading ? (
-        <div className="w-full max-w-4xl text-center py-20">
-          <p className="text-gray-500 text-lg animate-pulse">Memuat data makam...</p>
-        </div>
-      ) : (
-        <form
-          className="bg-white border border-gray-400 rounded-lg p-6 md:p-10 w-full max-w-4xl space-y-8"
-          onSubmit={handleSubmit}
-        >
-          <h2 className="text-2xl font-semibold text-center text-gray-800">Status Makam</h2>
+      <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start mb-24">
+        {loading ? (
+          <div className="w-full max-w-4xl text-center py-20">
+            <p className="text-gray-500 text-lg animate-pulse">Memuat data makam...</p>
+          </div>
+        ) : (
+          <form
+            className="bg-white border border-gray-400 rounded-lg p-6 md:p-10 w-full max-w-4xl space-y-8"
+            onSubmit={handleSubmit}
+          >
+            <h2 className="text-2xl font-semibold text-center text-gray-800">Status Makam</h2>
 
-          {/* Basic Info */}
-          <section>
-            <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input label="Nama Penanggung Jawab" id="namapj" value={formData.namapj} onChange={handleChange} readOnly />
-              <Input label="No. Kontak PJ" id="kontak" value={formData.kontak} onChange={handleChange} readOnly />
-              <Input label="Hubungan Silsilah" id="silsilah" value={formData.silsilah} onChange={handleChange} readOnly={role !== "admin"} />
-              <Input label="Nama Jenazah" id="namajenazah" value={formData.namajenazah} onChange={handleChange} readOnly={role !== "admin"} />
-              <div>
-                <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                <select
-                  id="lokasi"
-                  name="lokasi"
-                  required
-                  value={formData.lokasi}
+            {/* Basic Info */}
+            <section>
+              <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Nama Penanggung Jawab"
+                  id="namapj"
+                  value={formData.namapj}
                   onChange={handleChange}
-                  disabled={role !== "admin"}
-                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
-                    role !== "admin"
-                      ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300"
-                      : "bg-white border-gray-300 focus:ring-blue-500"
-                  }`}
-                >
-                  <option value="" disabled>Pilih Lokasi Pemakaman</option>
-                  <option value="Karang Anyar">Karang Anyar</option>
-                  <option value="Dalem Kaum">Dalem Kaum</option>
-                  <option value="Dayeuhkolot">Dayeuhkolot</option>
-                </select>
+                  readOnly
+                />
+                <Input
+                  label="No. Kontak PJ"
+                  id="kontak"
+                  value={formData.kontak}
+                  onChange={handleChange}
+                  readOnly
+                />
+                <Input
+                  label="Hubungan Silsilah"
+                  id="silsilah"
+                  value={formData.silsilah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
+                <Input
+                  label="Nama Jenazah"
+                  id="namajenazah"
+                  value={formData.namajenazah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
+                <div>
+                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">
+                    Lokasi
+                  </label>
+                  <select
+                    id="lokasi"
+                    name="lokasi"
+                    required
+                    value={formData.lokasi}
+                    onChange={handleChange}
+                    disabled={role !== "admin"}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
+                      role !== "admin"
+                        ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300"
+                        : "bg-white border-gray-300 focus:ring-blue-500"
+                    }`}
+                  >
+                    <option value="" disabled>
+                      Pilih Lokasi Pemakaman
+                    </option>
+                    <option value="Karang Anyar">Karang Anyar</option>
+                    <option value="Dalem Kaum">Dalem Kaum</option>
+                    <option value="Dayeuhkolot">Dayeuhkolot</option>
+                  </select>
+                </div>
+                <Input
+                  label="Blok Makam"
+                  id="blok"
+                  value={formData.blok}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
               </div>
-              <Input label="Blok Makam" id="blok" value={formData.blok} onChange={handleChange} readOnly={role !== "admin"} />
-            </div>
-          </section>
+            </section>
 
-          {/* Notes */}
-          <section>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Penjelasan</label>
-            <textarea
-              id="notes"
-              name="notes"
-              required
-              rows={4}
-              value={formData.notes}
-              onChange={handleChange}
-              className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
-                role !== "admin"
-                  ? "bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed"
-                  : "bg-white border-gray-300 focus:ring-blue-500"
-              }`}
-              readOnly={role !== "admin"}
-            />
-          </section>
+            {/* Notes */}
+            <section>
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                Penjelasan
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                required
+                rows={4}
+                value={formData.notes}
+                onChange={handleChange}
+                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
+                  role !== "admin"
+                    ? "bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed"
+                    : "bg-white border-gray-300 focus:ring-blue-500"
+                }`}
+                readOnly={role !== "admin"}
+              />
+            </section>
 
-          {/* Status Section */}
-          <section className="flex flex-wrap gap-6">
-            <StatusCard
-              title="Status Approval"
-              status={formData.approved}
-              onResolve={() => {}}
-            />
-            <StatusCard
-              title="Status Pembayaran"
-              status={formData.payment}
-              onResolve={() => {}}
-            />
-            <StatusCard
-              title="Status Perpanjangan"
-              status={formData.ext}
-              onResolve={() => {}}
-            />
-          </section>
+            {/* Status Section */}
+            <section className="flex flex-wrap gap-6">
+              <StatusCard title="Status Approval" status={formData.approved} onResolve={() => {}} />
+              <StatusCard
+                title="Status Pembayaran"
+                status={formData.payment}
+                onResolve={() => {}}
+              />
+              <StatusCard title="Status Perpanjangan" status={formData.ext} onResolve={() => {}} />
+            </section>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
-            <button
-              type="button"
-              className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
-              onClick={() => router.push("/admin/layanan/makam")}
-            >
-              Cancel
-            </button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
+              <button
+                type="button"
+                className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
+                onClick={() => router.push("/admin/layanan/makam")}
+              >
+                Cancel
+              </button>
 
-            {role === "admin" && (
-              <div className="flex flex-col sm:flex-row gap-3">
+              {role === "admin" && (
+                <div className="flex flex-col sm:flex-row gap-3">
                   {formData.ext === "PENDING" && (
                     <button
                       type="button"
@@ -368,13 +395,13 @@ export default function Edit() {
                   >
                     Edit
                   </button>
-              </div>
-            )}
-          </div>
-        </form>
-      )}
-    </main>
-    <Footer />
+                </div>
+              )}
+            </div>
+          </form>
+        )}
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -4,7 +4,8 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 function Input({
   label,
@@ -25,10 +26,7 @@ function Input({
 
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
       <input
@@ -50,25 +48,23 @@ function Input({
   );
 }
 
-function StatusCard({ title, status }: {
-  title: string;
-  status: string;
-  onResolve: () => void;
-}) {
+function StatusCard({ title, status }: { title: string; status: string; onResolve: () => void }) {
   const color =
-    status === 'YES' ? 'bg-green-100 text-green-700' :
-    status === 'PAID' ? 'bg-green-100 text-green-700' :
-    status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-    status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-    'bg-yellow-100 text-yellow-800';
+    status === "YES"
+      ? "bg-green-100 text-green-700"
+      : status === "PAID"
+        ? "bg-green-100 text-green-700"
+        : status === "APPROVED"
+          ? "bg-green-100 text-green-700"
+          : status === "PENDING"
+            ? "bg-yellow-100 text-yellow-800"
+            : "bg-yellow-100 text-yellow-800";
 
   return (
     <div className="text-center">
       <label className="block text-sm font-medium text-gray-700 mb-1">{title}</label>
       <div className="flex items-center justify-center gap-3">
-        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>
-          {status}
-        </span>
+        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
       </div>
     </div>
   );
@@ -147,14 +143,15 @@ export default function MakamStatus() {
   }
 
   const router = useRouter();
-  const { role } = useAuthStore();
+  const user = useStore(authStore, (s) => s.user);
+  const role = user?.role;
 
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
 
         const res = await fetch(`/api/makamStatus?id=${id}`);
         const data = await res.json();
@@ -183,7 +180,7 @@ export default function MakamStatus() {
 
   const fetchData = async () => {
     try {
-      setLoading(true); 
+      setLoading(true);
 
       const res = await fetch(`/api/makamStatus?id=${id}`);
       const data = await res.json();
@@ -203,11 +200,13 @@ export default function MakamStatus() {
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -298,17 +297,45 @@ export default function MakamStatus() {
             className="bg-white border border-gray-400 rounded-lg p-6 md:p-10 w-full max-w-4xl space-y-8"
             onSubmit={handleSubmit}
           >
-            <h2 className="text-2xl font-semibold text-center text-gray-800">Status Pemesanan Makam</h2>
+            <h2 className="text-2xl font-semibold text-center text-gray-800">
+              Status Pemesanan Makam
+            </h2>
 
             <section>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Nama Penanggung Jawab" id="namapj" value={formData.namapj} onChange={handleChange} readOnly />
-                <Input label="No. Kontak PJ" id="kontak" value={formData.kontak} onChange={handleChange} readOnly />
-                <Input label="Hubungan Silsilah" id="silsilah" value={formData.silsilah} onChange={handleChange} readOnly={role !== "admin"} />
-                <Input label="Nama Jenazah" id="namajenazah" value={formData.namajenazah} onChange={handleChange} readOnly={role !== "admin"} />
+                <Input
+                  label="Nama Penanggung Jawab"
+                  id="namapj"
+                  value={formData.namapj}
+                  onChange={handleChange}
+                  readOnly
+                />
+                <Input
+                  label="No. Kontak PJ"
+                  id="kontak"
+                  value={formData.kontak}
+                  onChange={handleChange}
+                  readOnly
+                />
+                <Input
+                  label="Hubungan Silsilah"
+                  id="silsilah"
+                  value={formData.silsilah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
+                <Input
+                  label="Nama Jenazah"
+                  id="namajenazah"
+                  value={formData.namajenazah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
                 <div>
-                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">
+                    Lokasi
+                  </label>
                   <select
                     id="lokasi"
                     name="lokasi"
@@ -318,18 +345,28 @@ export default function MakamStatus() {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={role !== "admin"}
                   >
-                    <option value="" disabled>Pilih Lokasi Pemakaman</option>
+                    <option value="" disabled>
+                      Pilih Lokasi Pemakaman
+                    </option>
                     <option value="Karang Anyar">Karang Anyar</option>
                     <option value="Dalem Kaum">Dalem Kaum</option>
                     <option value="Dayeuhkolot">Dayeuhkolot</option>
                   </select>
                 </div>
-                <Input label="Blok Makam" id="blok" value={formData.blok} onChange={handleChange} readOnly={role !== "admin"} />
+                <Input
+                  label="Blok Makam"
+                  id="blok"
+                  value={formData.blok}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
               </div>
             </section>
 
             <section>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Penjelasan</label>
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                Penjelasan
+              </label>
               <textarea
                 id="notes"
                 name="notes"
@@ -343,21 +380,13 @@ export default function MakamStatus() {
             </section>
 
             <section className="flex flex-wrap gap-6">
-              <StatusCard
-                title="Status Approval"
-                status={formData.approved}
-                onResolve={() => {}}
-              />
+              <StatusCard title="Status Approval" status={formData.approved} onResolve={() => {}} />
               <StatusCard
                 title="Status Pembayaran"
                 status={formData.payment}
                 onResolve={() => {}}
               />
-              <StatusCard
-                title="Status Perpanjangan"
-                status={formData.ext}
-                onResolve={() => {}}
-              />
+              <StatusCard title="Status Perpanjangan" status={formData.ext} onResolve={() => {}} />
             </section>
 
             <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
@@ -371,7 +400,6 @@ export default function MakamStatus() {
 
               {role === "admin" && (
                 <div className="flex flex-col sm:flex-row gap-3">
-
                   {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
@@ -409,7 +437,6 @@ export default function MakamStatus() {
                     Edit
                   </button>
 
-
                   {formData.payment === "PAID" &&
                     formData.ext === "PAID" &&
                     formData.approved === "APPROVED" && (
@@ -423,8 +450,7 @@ export default function MakamStatus() {
                       >
                         Aktifkan Makam
                       </button>
-                  )}
-                  
+                    )}
                 </div>
               )}
 
@@ -440,13 +466,11 @@ export default function MakamStatus() {
                   Approve
                 </button>
               )}
-
             </div>
-
           </form>
         )}
       </main>
-      
+
       <Footer />
     </div>
   );

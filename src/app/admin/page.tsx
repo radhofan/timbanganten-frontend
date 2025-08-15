@@ -11,10 +11,11 @@ import {
   FiCheckCircle,
   FiXCircle,
 } from "react-icons/fi";
-import { useAuthStore, } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 export default function Admin() {
-  const role = useAuthStore((state) => state.role);
+  const user = useStore(authStore, (s) => s.user);
 
   const cards = [
     {
@@ -117,15 +118,13 @@ export default function Admin() {
       <Header />
 
       <div className="text-center text-gray-700">
-        <h1 className="text-4xl font-bold mb-6">
-          Layanan Pemakaman Timbanganten
-        </h1>
+        <h1 className="text-4xl font-bold mb-6">Layanan Pemakaman Timbanganten</h1>
         <p className="text-lg text-gray-600">
           Your supporting text or description goes here. You can customize this content.
         </p>
       </div>
 
-      {role !== "guest" && (
+      {user?.role !== "guest" && (
         <div className="w-full max-w-[900px] mx-auto px-4 sm:px-6 mt-8">
           <div className="bg-[#223D3C] text-white rounded-t-lg px-4 py-4 flex items-center space-x-2">
             <svg
@@ -197,7 +196,6 @@ export default function Admin() {
         </div>
       )}
 
-
       <main className="flex-1 p-4 sm:p-8 lg:p-24 pb-28 relative bg-white">
         <div className="w-full px-2 sm:px-4 mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
@@ -211,13 +209,7 @@ export default function Admin() {
                 >
                   <div className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-4 sm:p-6 w-full h-full">
                     <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
-                      <Image
-                        src={imgSrc}
-                        alt={title}
-                        fill
-                        className="object-contain"
-                        priority
-                      />
+                      <Image src={imgSrc} alt={title} fill className="object-contain" priority />
                     </div>
                     <h3 className="text-lg font-semibold text-center">{title}</h3>
                   </div>

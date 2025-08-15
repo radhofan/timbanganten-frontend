@@ -1,97 +1,36 @@
-// import { NextResponse } from 'next/server';
-// import type { NextRequest } from 'next/server';
+// TODO
+// 1. Cek Redirect dari path selain login yang protected kalau tokennya valid maka next, kalau tidak lempar ke login
+// 2. Cek kalau sudah di login page, kita cek apakah token atau tidak, kalau iya tidak usah login, cek token apa rolenya, kalau string guest masuk sbg guest, kalau token jwt maka verify
+// 3. Semua page prot dan login page, middleware harus jalan
 
-// export function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
+import { NextRequest, NextResponse } from "next/server";
+import { verifyToken, getTokenFromRequest } from "./lib/auth";
 
-//   if (pathname.startsWith('/admin/login')) {
-//     return NextResponse.next();
-//   }
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-//   const protectedRoutes = [
-//     '/admin/layanan/pesan',
-//     '/admin/layanan/histori',
-//   ];
-
-//   const isProtected = protectedRoutes.some((route) =>
-//     pathname.startsWith(route)
-//   );
-
-//   const isOnMainAdmin = pathname === '/admin' || pathname === '/admin/';
-
-//   if (isProtected || isOnMainAdmin) {
-//     const authRole = request.cookies.get('auth-role')?.value;
-//     const token = request.cookies.get('token')?.value;
-
-//     if (isProtected && (!authRole || authRole === 'guest' || (authRole === 'admin' && !token))) {
-//       return NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
-//     }
-  
-//     if (isOnMainAdmin && authRole === 'admin' && !token) {
-//       return NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
-//     }
-  
-//     if (token && authRole === 'admin') {
-//       try {
-//         const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-//         const currentTime = Math.floor(Date.now() / 1000);
-      
-//         if (tokenPayload.exp && tokenPayload.exp < currentTime) {
-//           const response = NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
-//           response.cookies.delete('token');
-//           response.cookies.delete('auth-role');
-//           return response;
-//         }
-//       } catch {
-//         const response = NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
-//         response.cookies.delete('token');
-//         response.cookies.delete('auth-role');
-//         return response;
-//       }
-//     }
-//   }
-
-//   return NextResponse.next();
-// }
-
-// export const config = {
-//   matcher: ['/admin/:path*'],
-// };
-
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith('/admin/login') || pathname === '/admin' || pathname === '/admin/') {
+  if (
+    pathname === "/admin/login/admin" ||
+    pathname === "/admin/login/approver" ||
+    pathname === "/admin/login/pengawas" ||
+    pathname.includes(".") ||
+    pathname === "/api/authAdmin" ||
+    pathname === "/api/authPengawas" ||
+    pathname === "/api/authApprover"
+  ) {
     return NextResponse.next();
   }
 
-  if (pathname.startsWith('/admin')) {
-    const token = request.cookies.get('token')?.value;
-    
-    if (!token) {
-      return NextResponse.redirect(new URL('/admin/login/admin', request.url));
-    }
+  const token = getTokenFromRequest(req);
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const isExpired = payload.exp && (payload.exp < Math.floor(Date.now() / 1000));
-      
-      if (isExpired) {
-        throw new Error('Token expired');
-      }
-    } catch {
-      const response = NextResponse.redirect(new URL('/admin/login/admin?expired=true', request.url));
-      response.cookies.delete('token');
-      return response;
-    }
+  if (!token) {
+    return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+  }
+
+  const user = await verifyToken(token);
+  if (!user) {
+    return NextResponse.redirect(new URL("/admin/login/admin", req.url));
   }
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ['/admin/:path*'],
-};

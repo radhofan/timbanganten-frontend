@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 export default function AddKontakPage() {
   const router = useRouter();
-  const { role } = useAuthStore();
+  const user = useStore(authStore, (s) => s.user);
+  const role = user?.role;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -57,9 +59,7 @@ export default function AddKontakPage() {
       <Header hideBanner />
 
       <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24 mb-24">
-        <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
-          Tambah Kontak
-        </h1>
+        <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Tambah Kontak</h1>
 
         <div className="bg-white p-8 max-w-5xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">

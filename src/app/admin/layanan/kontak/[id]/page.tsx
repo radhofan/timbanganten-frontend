@@ -4,17 +4,19 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 export default function KontakDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { role } = useAuthStore();
+  const user = useStore(authStore, (s) => s.user);
+  const role = user?.role;
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    contact: "", 
+    contact: "",
     password: "",
   });
 
@@ -32,7 +34,7 @@ export default function KontakDetailPage() {
         setFormData({
           name: admin.name || "",
           email: admin.email || "",
-          contact: admin.contact || "", 
+          contact: admin.contact || "",
           password: "",
         });
       } catch (err) {
@@ -94,9 +96,7 @@ export default function KontakDetailPage() {
       <Header hideBanner />
 
       <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24 mb-24">
-        <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
-          Edit Kontak
-        </h1>
+        <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Edit Kontak</h1>
 
         {loading ? (
           <p className="text-center text-gray-500">Memuat data admin...</p>

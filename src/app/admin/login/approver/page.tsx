@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from '@/stores/useAuthStore';
 
 export default function LoginApprover() {
   const [email, setEmail] = useState("");
@@ -24,7 +23,7 @@ export default function LoginApprover() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        credentials: "include",
       });
 
       const data = await response.json();
@@ -32,10 +31,6 @@ export default function LoginApprover() {
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
       }
-
-      useAuthStore.getState().setAuth(data.approver.role, data.approver.name);
-      console.log("Setting auth:", data.approver.role, data.approver.name);
-
 
       router.push("/admin");
     } catch (err) {
@@ -45,11 +40,9 @@ export default function LoginApprover() {
     }
   };
 
-  const handleGuestLogin =  async () => {
-    await fetch('/api/removeCookie', { method: 'POST' }); 
-    useAuthStore.getState().logout();
-    useAuthStore.getState().setAuth("guest", "Guest");
-    router.push("/admin"); 
+  const handleGuestLogin = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/admin");
   };
 
   return (
@@ -80,11 +73,7 @@ export default function LoginApprover() {
           </select>
         </div>
 
-        {error && (
-          <div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded-md">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

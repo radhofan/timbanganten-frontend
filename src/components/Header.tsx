@@ -2,17 +2,17 @@
 
 import Image from "next/image";
 import { UserCircle, Menu, X } from "lucide-react";
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useStore } from "zustand";
+import { authStore } from "@/stores/useAuthStore";
 
 export default function Header({ hideBanner = false }: { hideBanner?: boolean }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
-  const name = useAuthStore((state) => state.name);
-  const role = useAuthStore((state) => state.role);
+  const user = useStore(authStore, (s) => s.user);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -21,8 +21,8 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
         setShowDropdown(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [wrapperRef]);
 
   return (
@@ -44,10 +44,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
         </Link>
 
         {/* Mobile Menu Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
+        <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
         </button>
 
@@ -61,9 +58,9 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           </Link>
 
           <div className="flex flex-col items-end text-right">
-            <span className="text-base font-semibold">{name || "Guest"}</span>
+            <span className="text-base font-semibold">{user?.name || "Guest"}</span>
             <span className="text-sm text-gray-600">
-              {role ? role.charAt(0).toUpperCase() + role.slice(1) : "Guest"}
+              {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Guest"}
             </span>
           </div>
 
@@ -81,7 +78,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
                   className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
                     setShowDropdown(false);
-                    router.push('/admin/login/pengawas');
+                    router.push("/admin/login/pengawas");
                   }}
                 >
                   Pengawas
@@ -90,7 +87,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
                   className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
                     setShowDropdown(false);
-                    router.push('/admin/login/admin');
+                    router.push("/admin/login/admin");
                   }}
                 >
                   Admin
@@ -99,7 +96,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
                   className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
                     setShowDropdown(false);
-                    router.push('/admin/login/approver');
+                    router.push("/admin/login/approver");
                   }}
                 >
                   Approver
@@ -114,32 +111,37 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-t z-50">
             <div className="flex flex-col items-start p-4 space-y-4">
               <Link href="/admin" className="w-full">
-                <span className="block w-full text-left text-lg font-medium hover:text-green-600">Home</span>
+                <span className="block w-full text-left text-lg font-medium hover:text-green-600">
+                  Home
+                </span>
               </Link>
               <Link href="/admin/layanan" className="w-full">
-                <span className="block w-full text-left text-lg font-medium hover:text-green-600">Pelayanan</span>
+                <span className="block w-full text-left text-lg font-medium hover:text-green-600">
+                  Pelayanan
+                </span>
               </Link>
               <div className="text-left">
-                <span className="text-base font-semibold">{name || "Guest"}</span><br />
+                <span className="text-base font-semibold">{user?.name || "Guest"}</span>
+                <br />
                 <span className="text-sm text-gray-600">
-                  {role ? role.charAt(0).toUpperCase() + role.slice(1) : "Guest"}
+                  {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Guest"}
                 </span>
               </div>
               <div className="w-full border-t pt-2">
                 <button
-                  onClick={() => router.push('/admin/login/pengawas')}
+                  onClick={() => router.push("/admin/login/pengawas")}
                   className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Pengawas
                 </button>
                 <button
-                  onClick={() => router.push('/admin/login/admin')}
+                  onClick={() => router.push("/admin/login/admin")}
                   className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Admin
                 </button>
                 <button
-                  onClick={() => router.push('/admin/login/approver')}
+                  onClick={() => router.push("/admin/login/approver")}
                   className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Approver
@@ -155,8 +157,10 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           className="w-full relative mb-12 overflow-hidden"
           style={{
             height: "800px",
-            clipPath: "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-            WebkitClipPath: "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
+            clipPath:
+              "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
+            WebkitClipPath:
+              "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
           }}
         >
           <Image
@@ -168,7 +172,9 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           />
           <div className="absolute inset-0 bg-black opacity-60 pointer-events-none"></div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 z-10">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Sistem Layanan Pemakaman Timbanganten</h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+              Sistem Layanan Pemakaman Timbanganten
+            </h1>
             <div className="text-lg md:text-xl max-w-2xl">
               Your supporting text or description goes here. You can customize this content.
             </div>

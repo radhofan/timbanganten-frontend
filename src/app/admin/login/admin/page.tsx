@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from '@/stores/useAuthStore';
 
 export default function LoginAdmin() {
   const [email, setEmail] = useState("");
@@ -11,7 +10,6 @@ export default function LoginAdmin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +23,7 @@ export default function LoginAdmin() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        credentials: "include",
       });
 
       const data = await response.json();
@@ -34,7 +32,6 @@ export default function LoginAdmin() {
         throw new Error(data.error || "Login failed");
       }
 
-      useAuthStore.getState().setAuth(data.admin.role, data.admin.name);
       router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -43,10 +40,8 @@ export default function LoginAdmin() {
     }
   };
 
-  const handleGuestLogin =  async () => {
-    await fetch('/api/removeCookie', { method: 'POST' }); 
-    useAuthStore.getState().logout();
-    useAuthStore.getState().setAuth("guest", "Guest");
+  const handleGuestLogin = async () => {
+    await fetch("/api/logout", { method: "POST" });
     router.push("/admin");
   };
 
@@ -54,13 +49,7 @@ export default function LoginAdmin() {
     <div className="min-h-screen flex items-center justify-center bg-[url('/images/login.jpg')] bg-cover bg-center bg-no-repeat px-4">
       <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md w-full max-w-md">
         <div className="flex items-center mb-6">
-          <Image
-            src="/images/admin.png"
-            alt="Admin Icon"
-            width={24}
-            height={24}
-            className="mr-4"
-          />
+          <Image src="/images/admin.png" alt="Admin Icon" width={24} height={24} className="mr-4" />
           <h2 className="text-2xl font-bold text-gray-800">Login Admin</h2>
           <select
             name="role"
@@ -78,11 +67,7 @@ export default function LoginAdmin() {
           </select>
         </div>
 
-        {error && (
-          <div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded-md">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
