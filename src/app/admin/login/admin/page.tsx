@@ -31,8 +31,8 @@ export default function LoginAdmin() {
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
       }
-
-      router.push("/admin");
+      window.location.href = "/admin";
+      // router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
@@ -42,7 +42,8 @@ export default function LoginAdmin() {
 
   const handleGuestLogin = async () => {
     await fetch("/api/logout", { method: "POST" });
-    router.push("/admin");
+    window.location.href = "/admin";
+    // router.push("/admin");
   };
 
   return (
