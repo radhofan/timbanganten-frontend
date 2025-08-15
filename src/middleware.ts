@@ -1,10 +1,11 @@
-// TODO
-// 1. Cek Redirect dari path selain login yang protected kalau tokennya valid maka next, kalau tidak lempar ke login
-// 2. Cek kalau sudah di login page, kita cek apakah token atau tidak, kalau iya tidak usah login, cek token apa rolenya, kalau string guest masuk sbg guest, kalau token jwt maka verify
-// 3. Semua page prot dan login page, middleware harus jalan
-
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, getTokenFromRequest } from "./lib/auth";
+
+const protectedRoutes = ["/admin/layanan/histori", "/admin/layanan/pesan"];
+
+function isProtectedPath(pathname: string) {
+  return protectedRoutes.some((route) => pathname === route || pathname.startsWith(route + "/"));
+}
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -24,13 +25,19 @@ export async function middleware(req: NextRequest) {
   const token = getTokenFromRequest(req);
 
   if (!token) {
-    return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+    if (isProtectedPath(pathname)) {
+      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+    }
+    return NextResponse.next();
   }
 
   const user = await verifyToken(token);
   if (!user) {
-    return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+    if (isProtectedPath(pathname)) {
+      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+    }
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  if (user.role) return NextResponse.next();
 }
