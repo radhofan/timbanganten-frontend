@@ -10,7 +10,6 @@ function isProtectedPath(pathname: string) {
 export async function middleware(req: NextRequest) {
   const { pathname, origin } = req.nextUrl;
 
-  // Allow public paths and static files
   if (
     pathname === "/admin/login/admin" ||
     pathname === "/admin/login/approver" ||
@@ -25,11 +24,19 @@ export async function middleware(req: NextRequest) {
 
   let token: string | undefined;
 
-  try {
-    const t = getTokenFromRequest(req);
-    if (typeof t === "string") token = t;
-  } catch {
-    token = undefined;
+  // Retry mechanism: try to get token up to 3 times
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const t = getTokenFromRequest(req);
+      if (typeof t === "string") {
+        token = t;
+        break;
+      }
+    } catch {
+      // ignore errors
+    }
+    // wait 100ms before retrying
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   if (!token) {
