@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User } from "@/components/types";
-import { ChevronDown, ChevronLeft, ChevronRight} from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default function Histori() {
   const [users, setUsers] = useState<User[]>([]);
@@ -154,7 +156,7 @@ export default function Histori() {
                     <div>
                       <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
 
-                      {((user.makams ?? []).length > 0 || (user.statuses ?? []).length > 0) ? (
+                      {(user.makams ?? []).length > 0 || (user.statuses ?? []).length > 0 ? (
                         <div className="space-y-3">
                           {/* Aktif Makam */}
                           {(user.makams ?? []).map((m) => (
@@ -195,7 +197,9 @@ export default function Histori() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">Tidak ada data pemakaman atau pesanan berlangsung.</p>
+                        <p className="text-sm text-gray-500">
+                          Tidak ada data pemakaman atau pesanan berlangsung.
+                        </p>
                       )}
                     </div>
 
@@ -242,10 +246,10 @@ export default function Histori() {
                     page === currentPage
                       ? "bg-blue-500 text-white"
                       : page === "..."
-                      ? "text-gray-400 cursor-default"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        ? "text-gray-400 cursor-default"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   }`}
-                  >
+                >
                   {page}
                 </button>
               ))}

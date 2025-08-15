@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 
+export const dynamic = "force-dynamic";
+
 export default function Pemesanan() {
   const user = useStore(authStore, (s) => s.user);
 
