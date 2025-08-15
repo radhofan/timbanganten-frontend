@@ -8,8 +8,9 @@ function isProtectedPath(pathname: string) {
 }
 
 export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, origin } = req.nextUrl;
 
+  // Allow public paths and static files
   if (
     pathname === "/admin/login/admin" ||
     pathname === "/admin/login/approver" ||
@@ -22,22 +23,32 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = getTokenFromRequest(req);
+  let token: string | undefined;
+
+  try {
+    const t = getTokenFromRequest(req);
+    if (typeof t === "string") token = t;
+  } catch {
+    token = undefined;
+  }
 
   if (!token) {
     if (isProtectedPath(pathname)) {
-      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+      return NextResponse.redirect(new URL("/admin/login/admin", origin));
     }
     return NextResponse.next();
   }
 
-  const user = await verifyToken(token);
-  if (!user) {
-    if (isProtectedPath(pathname)) {
-      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
-    }
-    return NextResponse.next();
+  let user: { role?: string } | null = null;
+  try {
+    user = await verifyToken(token);
+  } catch {
+    user = null;
   }
 
-  if (user.role) return NextResponse.next();
+  if (!user?.role && isProtectedPath(pathname)) {
+    return NextResponse.redirect(new URL("/admin/login/admin", origin));
+  }
+
+  return NextResponse.next();
 }
