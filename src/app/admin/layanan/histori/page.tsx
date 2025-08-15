@@ -5,11 +5,8 @@ import Footer from "@/components/Footer";
 import { User } from "@/components/types";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useStore } from "zustand";
-import { authStore } from "@/stores/useAuthStore";
 
 export default function Histori() {
-  const user = useStore(authStore, (s) => s.user);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -17,12 +14,6 @@ export default function Histori() {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
   const router = useRouter();
-
-  useEffect(() => {
-    if (!user || !user.role) {
-      router.replace("/admin/login/admin");
-    }
-  }, [user, router]);
 
   useEffect(() => {
     const fetchData = async () => {
