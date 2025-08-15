@@ -41,3 +41,7 @@ export async function middleware(req: NextRequest) {
 
   if (user.role) return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/admin/layanan/histori/:path*", "/admin/layanan/pesan/:path*"],
+};
