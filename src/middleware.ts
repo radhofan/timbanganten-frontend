@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, getTokenFromRequest } from "./lib/auth";
 
@@ -10,6 +11,7 @@ function isProtectedPath(pathname: string) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Skip middleware for login pages, API routes, and static files
   if (
     pathname === "/admin/login/admin" ||
     pathname === "/admin/login/approver" ||
@@ -23,21 +25,27 @@ export async function middleware(req: NextRequest) {
   }
 
   const token = getTokenFromRequest(req);
+  const user = token ? await verifyToken(token) : null;
 
-  if (!token) {
-    if (isProtectedPath(pathname)) {
-      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+  let response: NextResponse;
+
+  // If protected route and no valid user → redirect
+  if (isProtectedPath(pathname)) {
+    if (!token || !user) {
+      response = NextResponse.redirect(new URL("/admin/login/admin", req.url));
+    } else {
+      response = NextResponse.next();
     }
-    return NextResponse.next();
+  } else {
+    response = NextResponse.next();
   }
 
-  const user = await verifyToken(token);
-  if (!user) {
-    if (isProtectedPath(pathname)) {
-      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
-    }
-    return NextResponse.next();
+  // ✅ Apply no-cache headers to ALL admin responses
+  if (pathname.startsWith("/admin")) {
+    response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
   }
 
-  if (user.role) return NextResponse.next();
+  return response;
 }
