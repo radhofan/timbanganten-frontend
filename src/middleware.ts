@@ -8,7 +8,7 @@ function isProtectedPath(pathname: string) {
 }
 
 export async function middleware(req: NextRequest) {
-  const { pathname, origin } = req.nextUrl;
+  const { pathname } = req.nextUrl;
 
   if (
     pathname === "/admin/login/admin" ||
@@ -22,40 +22,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  let token: string | undefined;
-
-  // Retry mechanism: try to get token up to 3 times
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const t = getTokenFromRequest(req);
-      if (typeof t === "string") {
-        token = t;
-        break;
-      }
-    } catch {
-      // ignore errors
-    }
-    // wait 100ms before retrying
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
+  const token = getTokenFromRequest(req);
 
   if (!token) {
     if (isProtectedPath(pathname)) {
-      return NextResponse.redirect(new URL("/admin/login/admin", origin));
+      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
     }
     return NextResponse.next();
   }
 
-  let user: { role?: string } | null = null;
-  try {
-    user = await verifyToken(token);
-  } catch {
-    user = null;
+  const user = await verifyToken(token);
+  if (!user) {
+    if (isProtectedPath(pathname)) {
+      return NextResponse.redirect(new URL("/admin/login/admin", req.url));
+    }
+    return NextResponse.next();
   }
 
-  if (!user?.role && isProtectedPath(pathname)) {
-    return NextResponse.redirect(new URL("/admin/login/admin", origin));
-  }
-
-  return NextResponse.next();
+  if (user.role) return NextResponse.next();
 }
