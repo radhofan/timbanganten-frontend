@@ -7,10 +7,15 @@ import { useRouter } from "next/navigation";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 
-export const dynamic = "force-dynamic";
-
 export default function Pemesanan() {
   const user = useStore(authStore, (s) => s.user);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user || !user.role) {
+      router.replace("/admin/login/admin");
+    }
+  }, [user, router]);
 
   const normalizeDate = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -38,8 +43,6 @@ export default function Pemesanan() {
     month: minDate.getMonth() + 1,
     year: minDate.getFullYear(),
   });
-
-  const router = useRouter();
 
   const isDateValid = (day: number, month: number, year: number) => {
     const selectedDate = normalizeDate(new Date(year, month - 1, day));
