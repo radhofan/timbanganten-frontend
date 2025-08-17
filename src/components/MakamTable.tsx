@@ -44,7 +44,7 @@ export default function MakamTable() {
 
   return (
     <div className="p-4">
-      <div className="text-3xl font-bold text-center mb-8">Status Pemakaman</div>
+      <div className="text-3xl font-bold text-center mb-8">Daftar Pemakaman</div>
 
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
         <input

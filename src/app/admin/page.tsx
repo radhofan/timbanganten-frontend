@@ -29,7 +29,7 @@ export default function Admin() {
       href: "/admin/layanan/pesan/status",
     },
     {
-      title: "List Makam",
+      title: "Daftar Makam",
       imgSrc: "/images/list makam1.png",
       href: "/admin/layanan/makam",
     },
