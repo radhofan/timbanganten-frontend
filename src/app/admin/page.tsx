@@ -118,10 +118,7 @@ export default function Admin() {
       <Header />
 
       <div className="text-center text-gray-700">
-        <h1 className="text-4xl font-bold mb-6">Layanan Pemakaman Timbanganten</h1>
-        <p className="text-lg text-gray-600">
-          Your supporting text or description goes here. You can customize this content.
-        </p>
+        <h1 className="text-4xl font-bold mb-6">Pemberitahuan</h1>
       </div>
 
       {user?.role !== "guest" && (
@@ -197,6 +194,9 @@ export default function Admin() {
       )}
 
       <main className="flex-1 p-4 sm:p-8 lg:p-24 pb-28 relative bg-white">
+        <div className="text-center text-gray-700">
+          <h1 className="text-4xl font-bold mb-18">Layanan</h1>
+        </div>
         <div className="w-full px-2 sm:px-4 mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
             {cards.map(({ title, imgSrc, href }, i) => {

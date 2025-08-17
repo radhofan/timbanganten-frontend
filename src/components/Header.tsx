@@ -53,9 +53,6 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           <Link href="/admin">
             <h1 className="text-lg font-medium cursor-pointer hover:text-green-600">Home</h1>
           </Link>
-          <Link href="/admin/layanan">
-            <h1 className="text-lg font-medium cursor-pointer hover:text-green-600">Pelayanan</h1>
-          </Link>
 
           <div className="flex flex-col items-end text-right">
             <span className="text-base font-semibold">{user?.name || "Guest"}</span>
@@ -172,12 +169,10 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           />
           <div className="absolute inset-0 bg-black opacity-60 pointer-events-none"></div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 z-10">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              Sistem Layanan Pemakaman Timbanganten
+            <h1 className="text-xl md:text-6xl font-bold mb-4 leading-relaxed">
+              Sistem Informasi Manajemen <br />
+              Yayasan Sajarah Timbanganten Bandung
             </h1>
-            <div className="text-lg md:text-xl max-w-2xl">
-              Your supporting text or description goes here. You can customize this content.
-            </div>
           </div>
         </div>
       )}
