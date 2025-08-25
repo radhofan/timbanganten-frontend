@@ -6,9 +6,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
+import { Button } from "antd";
 
 export default function Pemesanan() {
   const user = useStore(authStore, (s) => s.user);
+  const [loading, setLoading] = useState(false);
 
   const normalizeDate = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -57,6 +59,7 @@ export default function Pemesanan() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const form = e.currentTarget;
     const formData = new FormData(form);
 
@@ -189,6 +192,8 @@ export default function Pemesanan() {
     } catch (err) {
       console.error("Error:", err);
       alert("Gagal mengirim permintaan.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -446,21 +451,19 @@ export default function Pemesanan() {
           </div>
 
           <div className="flex justify-end space-x-4 mt-6">
-            <button
-              onClick={() => router.push("/admin")}
-              type="reset"
-              className="px-6 py-2 rounded bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-            >
+            <Button type="primary" danger onClick={() => router.push("/admin")}>
               Cancel
-            </button>
+            </Button>
 
             {user?.role === "admin" && (
-              <button
-                type="submit"
-                className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                onClick={() => setLoading(true)}
               >
                 Submit
-              </button>
+              </Button>
             )}
           </div>
         </form>
