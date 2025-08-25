@@ -334,7 +334,7 @@ export default function Pemesanan() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-medium border-b pb-2">Data Jenazah</h3>
+            <h3 className="text-lg font-medium border-b pb-2">Pesanan Makam</h3>
             <div>
               <label htmlFor="namajenazah" className="block mb-1 font-medium">
                 Nama Jenazah
