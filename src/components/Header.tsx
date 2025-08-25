@@ -2,28 +2,22 @@
 
 import Image from "next/image";
 import { UserCircle, Menu, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header({ hideBanner = false }: { hideBanner?: boolean }) {
-  const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   const user = useStore(authStore, (s) => s.user);
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [wrapperRef]);
 
   return (
     <>
@@ -49,7 +43,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
         </button>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-8 ml-auto mr-8" ref={wrapperRef}>
+        <nav className="hidden md:flex items-center space-x-8 ml-auto mr-8">
           <Link href="/admin">
             <h1 className="text-lg font-medium cursor-pointer hover:text-green-600">Home</h1>
           </Link>
@@ -61,46 +55,27 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
             </span>
           </div>
 
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="hover:text-green-600 focus:outline-none"
-          >
-            <UserCircle className="w-8 h-8" />
-          </button>
-
-          {showDropdown && (
-            <div className="absolute top-16 right-8 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg z-50">
-              <ul className="py-2">
-                <li
-                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setShowDropdown(false);
-                    router.push("/admin/login/pengawas");
-                  }}
-                >
-                  Pengawas
-                </li>
-                <li
-                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setShowDropdown(false);
-                    router.push("/admin/login/admin");
-                  }}
-                >
-                  Admin
-                </li>
-                <li
-                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setShowDropdown(false);
-                    router.push("/admin/login/approver");
-                  }}
-                >
-                  Approver
-                </li>
-              </ul>
-            </div>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="hover:text-green-600 focus:outline-none">
+                <UserCircle className="w-8 h-8" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-40 bg-white border border-gray-300 rounded-md shadow-lg"
+            >
+              <DropdownMenuItem onClick={() => router.push("/admin/login/pengawas")}>
+                Pengawas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/admin/login/admin")}>
+                Admin
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/admin/login/approver")}>
+                Approver
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
         {/* Mobile Dropdown */}
