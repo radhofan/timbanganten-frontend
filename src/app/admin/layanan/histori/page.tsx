@@ -105,7 +105,7 @@ export default function Histori() {
       <Header hideBanner />
 
       <main className="flex-1 bg-white w-full max-w-6xl mx-auto mb-24 mt-4 px-2 sm:px-4 lg:px-8 py-8 flex flex-col min-h-[70vh]">
-        <h1 className="text-3xl font-bold text-center mb-8">Histori Pengguna</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">Daftar Penanggung Jawab</h1>
 
         <div className="mb-8 flex justify-center">
           <input

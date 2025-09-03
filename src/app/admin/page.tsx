@@ -33,7 +33,7 @@ export default function Admin() {
       href: "/admin/layanan/denah",
     },
     {
-      title: "Histori Pengguna",
+      title: "Daftar Penanggung Jawab",
       imgSrc: "/images/history pengguna.png",
       href: "/admin/layanan/histori",
     },
@@ -124,7 +124,7 @@ export default function Admin() {
           <div className="text-center text-gray-700">
             <h1 className="text-4xl font-bold mb-6">Pemberitahuan</h1>
           </div>
-          <div className="w-full max-w-[900px] mx-auto px-4 sm:px-6 mt-8">
+          <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 mt-8">
             <NotificationBoard
               notifications={notifications}
               onMarkAsRead={handleMarkAsRead}
@@ -138,15 +138,16 @@ export default function Admin() {
         <div className="text-center text-gray-700">
           <h1 className="text-4xl font-bold mb-18">Layanan</h1>
         </div>
+
         <div className="w-full px-2 sm:px-4 mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8 max-w-[1200px] mx-auto">
             {cards.map(({ title, imgSrc, href }, i) => {
               const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
               return (
                 <Link
                   key={i}
                   href={href}
-                  className={`w-full ${isLastOdd ? "sm:col-span-2 sm:justify-self-center" : ""}`}
+                  className={`w-full ${isLastOdd ? "sm:col-span-2 justify-self-center" : ""}`}
                 >
                   <div className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-4 sm:p-6 w-full h-full">
                     <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
