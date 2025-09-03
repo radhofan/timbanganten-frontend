@@ -1,9 +1,9 @@
 import { createStore } from "zustand/vanilla";
-import { User } from "../lib/types";
+import { CurrentUser } from "../lib/types";
 
 type AuthState = {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: CurrentUser | null;
+  setUser: (user: CurrentUser | null) => void;
   logout: () => void;
 };
 

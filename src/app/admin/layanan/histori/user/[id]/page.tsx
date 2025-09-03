@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { User } from "@/components/types";
+import { User } from "@/lib/types";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 

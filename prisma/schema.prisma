@@ -13,6 +13,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// OLD SCHEMAS
+
 model Admin {
   id       Int      @id @default(autoincrement())
   name     String
@@ -86,3 +88,16 @@ model makamStatus {
   user   User? @relation(fields: [userId], references: [id])
 }
 
+
+// NEW SCHEMAS
+
+// model Orang {
+//   id_orang            String    @id @default(uuid())  
+//   nama                String    @db.VarChar(255)     
+//   no_kontak           String?   @db.VarChar(255)
+//   no_ktp              String?   @unique @db.Char(16)  
+//   alamat              String?   @db.VarChar(255)     
+//   email               String?   @unique @db.VarChar(255)
+//   nama_orang_darurat  String?   @db.VarChar(255)     
+//   no_kontak_darurat   String?   @unique @db.VarChar(255)
+// }

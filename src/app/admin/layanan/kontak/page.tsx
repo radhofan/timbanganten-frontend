@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Admin } from "@/components/types";
+import { Admin } from "@/lib/types";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Makam } from "@/components/types";
+import { Makam } from "@/lib/types";
 import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";

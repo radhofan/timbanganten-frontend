@@ -1,7 +1,7 @@
 "use client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { User } from "@/components/types";
+import { User } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "zustand";

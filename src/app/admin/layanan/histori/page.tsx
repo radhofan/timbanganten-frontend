@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { User } from "@/components/types";
+import { User } from "@/lib/types";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 

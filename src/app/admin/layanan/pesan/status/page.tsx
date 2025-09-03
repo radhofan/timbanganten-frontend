@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
-import { Makam } from "@/components/types";
+import { Makam } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -34,7 +34,7 @@ export default function Status() {
     const query = searchName.toLowerCase();
     const matchNama = item.nama.toLowerCase().includes(query);
     const matchPenanggungJawab = item.nama_penanggung_jawab.toLowerCase().includes(query);
-    const matchBlok = item.blok?.toLowerCase().includes(query); 
+    const matchBlok = item.blok?.toLowerCase().includes(query);
     return matchNama || matchPenanggungJawab || matchBlok;
   });
 
@@ -97,7 +97,9 @@ export default function Status() {
         {/* Filters */}
         <div className="w-full max-w-2xl mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Cari Nama Jenazah / Nama PJ / Blok</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Cari Nama Jenazah / Nama PJ / Blok
+            </label>
             <input
               type="text"
               placeholder="Contoh: John Doe, Blok A, atau 123"
@@ -127,7 +129,10 @@ export default function Status() {
                 href={`/admin/layanan/pesan/status/${item.id}`}
                 className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] cursor-pointer"
                 style={{
-                  borderColor: item.approved === "APPROVED" && item.payment === "PAID" && item.ext === "PAID" ? "#22c55e" : "#facc15",
+                  borderColor:
+                    item.approved === "APPROVED" && item.payment === "PAID" && item.ext === "PAID"
+                      ? "#22c55e"
+                      : "#facc15",
                 }}
               >
                 <div className="flex justify-between items-start mb-1">
@@ -161,18 +166,26 @@ export default function Status() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600">
-                  <p><span className="font-medium">ID:</span> {item.id}</p>
-                  <p><span className="font-medium">Lokasi:</span> {item.lokasi}</p>
-                  <p><span className="font-medium">Silsilah:</span> {item.silsilah}</p>
-                  <p><span className="font-medium">Masa Aktif:</span> {new Date(item.masa_aktif).toLocaleDateString("id-ID")}</p>
+                  <p>
+                    <span className="font-medium">ID:</span> {item.id}
+                  </p>
+                  <p>
+                    <span className="font-medium">Lokasi:</span> {item.lokasi}
+                  </p>
+                  <p>
+                    <span className="font-medium">Silsilah:</span> {item.silsilah}
+                  </p>
+                  <p>
+                    <span className="font-medium">Masa Aktif:</span>{" "}
+                    {new Date(item.masa_aktif).toLocaleDateString("id-ID")}
+                  </p>
                   <p className="col-span-2">
-                    <span className="font-medium">Penanggung Jawab:</span> {item.nama_penanggung_jawab} ({item.kontak_penanggung_jawab})
+                    <span className="font-medium">Penanggung Jawab:</span>{" "}
+                    {item.nama_penanggung_jawab} ({item.kontak_penanggung_jawab})
                   </p>
                 </div>
 
-                <p className="mt-2 text-gray-700 text-xs line-clamp-2">
-                  {item.description}
-                </p>
+                <p className="mt-2 text-gray-700 text-xs line-clamp-2">{item.description}</p>
               </Link>
             ))
           )}
@@ -208,8 +221,8 @@ export default function Status() {
                       page === currentPage
                         ? "bg-blue-500 text-white"
                         : page === "..."
-                        ? "text-gray-400 cursor-default"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          ? "text-gray-400 cursor-default"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     }`}
                   >
                     {page}
