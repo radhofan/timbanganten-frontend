@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { jwtVerify, JWTPayload } from "jose";
 import { NextRequest, NextResponse } from "next/server";
-import { User } from "./types";
+import { CurrentUser } from "./types";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-dev";
 const JWT_SECRET_BUFFER = new TextEncoder().encode(JWT_SECRET);
@@ -10,19 +10,19 @@ const COOKIE_NAME = "token";
 /**
  * Sign a JWT token with user payload.
  */
-export function signToken(user: User): string {
+export function signToken(user: CurrentUser): string {
   return jwt.sign(user, JWT_SECRET, { expiresIn: "7d" });
 }
 
 /**
  * Verify and decode a JWT token.
  */
-export async function verifyToken(token: string): Promise<User | null> {
+export async function verifyToken(token: string): Promise<CurrentUser | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET_BUFFER);
 
     // Optional: Validate the shape
-    const { id, name, email, role } = payload as JWTPayload & Partial<User>;
+    const { id, name, email, role } = payload as JWTPayload & Partial<CurrentUser>;
 
     if (
       typeof id === "number" &&
