@@ -109,7 +109,7 @@ export const NotificationBoard: FC<NotificationBoardProps> = ({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
         <Card className="p-4 bg-white rounded-lg shadow w-full">
           <h3 className="text-sm font-medium text-gray-600">Slot Makam Ditempati</h3>
           <p className="text-xl font-semibold text-gray-900">37</p>
@@ -126,7 +126,7 @@ export const NotificationBoard: FC<NotificationBoardProps> = ({
           <h3 className="text-sm font-medium text-gray-600">Slot Makam Kosong</h3>
           <p className="text-xl font-semibold text-gray-900">55</p>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 };
