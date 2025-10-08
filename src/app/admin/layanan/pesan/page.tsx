@@ -1,4 +1,5 @@
 "use client";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User } from "@/lib/types";
@@ -6,18 +7,31 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
+
 import { Button } from "antd";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Pemesanan() {
   const user = useStore(authStore, (s) => s.user);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const normalizeDate = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
 
   const today = normalizeDate(new Date());
-
   const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
   const fiveYearsLater = new Date(
     sixMonthsLater.getFullYear() + 5,
@@ -39,27 +53,37 @@ export default function Pemesanan() {
     year: minDate.getFullYear(),
   });
 
-  const router = useRouter();
-
-  const isDateValid = (day: number, month: number, year: number) => {
-    const selectedDate = normalizeDate(new Date(year, month - 1, day));
-    return selectedDate >= minDate && selectedDate <= maxDate;
-  };
+  const [useExisting, setUseExisting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const getValidDays = (month: number, year: number) => {
     const daysInMonth = new Date(year, month, 0).getDate();
     const validDays = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-      if (isDateValid(day, month, year)) {
-        validDays.push(day);
-      }
-    }
+    for (let day = 1; day <= daysInMonth; day++) validDays.push(day);
     return validDays;
   };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const endpoint = searchTerm.trim()
+        ? `/api/user?query=${encodeURIComponent(searchTerm)}`
+        : "/api/user";
+
+      fetch(endpoint)
+        .then((res) => res.json())
+        .then((data) => setUsers(data))
+        .catch((err) => console.error(err));
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+
     const form = e.currentTarget;
     const formData = new FormData(form);
 
@@ -95,24 +119,6 @@ export default function Pemesanan() {
       }
     }
 
-    if (useExisting && !selectedUser) {
-      const input = form.querySelector<HTMLInputElement>("#userSearch");
-      if (input) {
-        input.scrollIntoView({ behavior: "smooth", block: "center" });
-        input.focus();
-        input.setCustomValidity("Silakan pilih penanggung jawab yang sudah ada.");
-        input.reportValidity();
-        input.addEventListener(
-          "input",
-          () => {
-            input.setCustomValidity("");
-          },
-          { once: true }
-        );
-      }
-      return;
-    }
-
     const day = masaAktif.day.toString().padStart(2, "0");
     const month = masaAktif.month.toString().padStart(2, "0");
     const year = masaAktif.year.toString();
@@ -123,9 +129,7 @@ export default function Pemesanan() {
       pjId = selectedUser.id;
       await fetch(`/api/user?id=${pjId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: selectedUser.name,
           contact: selectedUser.contact,
@@ -136,9 +140,7 @@ export default function Pemesanan() {
     } else {
       const newUserRes = await fetch("/api/user", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.get("namapj"),
           contact: formData.get("kontak"),
@@ -174,9 +176,7 @@ export default function Pemesanan() {
     try {
       const res = await fetch("/api/makamStatus", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -185,8 +185,6 @@ export default function Pemesanan() {
         router.push("/admin/layanan/pesan/status");
         form.reset();
       } else {
-        const error = await res.json();
-        console.error("Error submitting form:", error);
         alert("Terjadi kesalahan saat menyimpan data.");
       }
     } catch (err) {
@@ -197,277 +195,254 @@ export default function Pemesanan() {
     }
   };
 
-  const [useExisting, setUseExisting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      const endpoint = searchTerm.trim()
-        ? `/api/user?query=${encodeURIComponent(searchTerm)}`
-        : "/api/user";
-
-      fetch(endpoint)
-        .then((res) => res.json())
-        .then((data) => setUsers(data))
-        .catch((err) => console.error(err));
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header hideBanner />
-      <main className="flex-1 p-12 relative bg-white flex justify-center items-start">
-        <form
-          className="bg-white border border-gray-400 rounded-lg p-8 w-full max-w-lg space-y-6 mb-8"
-          onSubmit={handleSubmit}
-        >
-          <h2 className="text-2xl font-semibold mb-4">Form Pemesanan</h2>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium border-b pb-2">Penanggung Jawab</h3>
-            <div className="flex items-center space-x-4 mb-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="pjOption"
-                  checked={!useExisting}
-                  onChange={() => setUseExisting(false)}
-                  className="form-radio"
-                />
-                <span className="ml-2">Buat Baru</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="pjOption"
-                  checked={useExisting}
-                  onChange={() => setUseExisting(true)}
-                  className="form-radio"
-                />
-                <span className="ml-2">Gunakan Pengguna Ada</span>
-              </label>
-            </div>
+      <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-400 p-8 space-y-10"
+        >
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold text-gray-800">Form Pemesanan Makam</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Silakan lengkapi data di bawah ini untuk melakukan pemesanan.
+            </p>
+          </div>
+
+          <section className="space-y-5">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Penanggung Jawab</h3>
+
+            <RadioGroup
+              defaultValue={useExisting ? "existing" : "new"}
+              onValueChange={(val) => setUseExisting(val === "existing")}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="new" id="new" />
+                <Label htmlFor="new">Buat Baru</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="existing" id="existing" />
+                <Label htmlFor="existing">Gunakan Data Ada</Label>
+              </div>
+            </RadioGroup>
 
             {useExisting ? (
-              <div className="relative">
-                <label htmlFor="userSearch" className="block mb-1 font-medium">
-                  Cari Penanggung Jawab
-                </label>
-                <input
-                  id="userSearch"
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onFocus={() => {
-                    if (!searchTerm) setSearchTerm("");
-                  }}
-                  placeholder="Ketik nama atau kontak..."
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+              <div className="space-y-2">
+                <div className="flex flex-col">
+                  <Label htmlFor="userSearch" className="mb-2">
+                    Cari Penanggung Jawab
+                  </Label>
+                  <Input
+                    id="userSearch"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Ketik nama atau kontak..."
+                  />
+                </div>
 
-                <ul className="border border-gray-300 mt-1 rounded bg-white max-h-60 overflow-y-auto z-10 absolute w-full md:w-96 shadow-md">
+                <ul className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100 max-h-56 overflow-y-auto shadow-sm">
                   {users.length > 0 ? (
-                    users.map((user) => (
+                    users.map((u) => (
                       <li
-                        key={user.id}
+                        key={u.id}
                         onClick={() => {
-                          setSelectedUser(user);
-                          setSearchTerm(user.name);
+                          setSelectedUser(u);
+                          setSearchTerm(u.name);
                         }}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        className={`px-4 py-2 text-sm cursor-pointer transition ${
+                          selectedUser?.id === u.id
+                            ? "bg-blue-50 text-blue-700"
+                            : "hover:bg-gray-50 text-gray-700"
+                        }`}
                       >
-                        {user.name} - {user.contact}
+                        {u.name} — {u.contact}
                       </li>
                     ))
                   ) : (
-                    <li className="px-4 py-2 text-gray-500">Tidak ada hasil ditemukan</li>
+                    <li className="px-4 py-2 text-sm text-gray-500">Tidak ada hasil ditemukan</li>
                   )}
                 </ul>
               </div>
             ) : (
-              <>
-                <div>
-                  <label htmlFor="namapj" className="block mb-1 font-medium">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col col-span-2">
+                  <Label htmlFor="namapj" className="mb-2">
                     Nama Penanggung Jawab
-                  </label>
-                  <input
-                    type="text"
-                    id="namapj"
-                    name="namapj"
-                    required
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Masukkan Nama PJ"
-                  />
+                  </Label>
+                  <Input id="namapj" name="namapj" placeholder="Masukkan Nama PJ" required />
                 </div>
-                <div>
-                  <label htmlFor="kontak" className="block mb-1 font-medium">
-                    No. Kontak PJ
-                  </label>
-                  <input
-                    type="text"
-                    id="kontak"
-                    name="kontak"
-                    required
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="08XXXXXXXXX"
-                  />
+                <div className="flex flex-col">
+                  <Label htmlFor="kontak" className="mb-2">
+                    No. Kontak
+                  </Label>
+                  <Input id="kontak" name="kontak" placeholder="08XXXXXXXXX" required />
                 </div>
-                <div>
-                  <label htmlFor="email" className="block mb-1 font-medium">
-                    Email PJ
-                  </label>
-                  <input
-                    type="email"
+                <div className="flex flex-col">
+                  <Label htmlFor="email" className="mb-2">
+                    Email
+                  </Label>
+                  <Input
                     id="email"
                     name="email"
-                    required
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="email"
                     placeholder="user@gmail.com"
+                    required
                   />
                 </div>
-              </>
+              </div>
             )}
-          </div>
+          </section>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium border-b pb-2">Pesanan Makam</h3>
-            <div>
-              <label htmlFor="namajenazah" className="block mb-1 font-medium">
-                Nama Jenazah
-              </label>
-              <input
-                type="text"
-                id="namajenazah"
-                name="namajenazah"
-                required
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nama Jenazah"
-              />
-            </div>
-            <div>
-              <label htmlFor="blok" className="block mb-1 font-medium">
-                Blok Kavling
-              </label>
-              <input
-                type="text"
-                id="blok"
-                name="blok"
-                required
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Masukkan kode blok"
-              />
-            </div>
-            <div>
-              <label htmlFor="silsilah" className="block mb-1 font-medium">
-                Silsilah PJ
-              </label>
-              <input
-                type="text"
-                id="silsilah"
-                name="silsilah"
-                required
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Silsilah"
-              />
-            </div>
-          </div>
+          <section className="space-y-5">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Data Pemesanan</h3>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium border-b pb-2">Data Lainnya</h3>
-            <div>
-              <label htmlFor="lokasi" className="block mb-1 font-medium">
-                Lokasi
-              </label>
-              <select
-                id="lokasi"
-                name="lokasi"
-                required
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  Pilih Lokasi Pemakaman
-                </option>
-                <option value="Karang Anyar">Karang Anyar</option>
-                <option value="Dalem Kaum">Dalem Kaum</option>
-                <option value="Dayeuhkolot">Dayeuhkolot</option>
-              </select>
-            </div>
-            <div>
-              <label className="block mb-1 font-medium">Masa Aktif</label>
-              <div className="flex space-x-2">
-                <select
-                  value={masaAktif.day}
-                  onChange={(e) => setMasaAktif({ ...masaAktif, day: parseInt(e.target.value) })}
-                  className="border border-gray-300 rounded px-2 py-2"
-                >
-                  {getValidDays(masaAktif.month, masaAktif.year).map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={masaAktif.month}
-                  onChange={(e) => setMasaAktif({ ...masaAktif, month: parseInt(e.target.value) })}
-                  className="border border-gray-300 rounded px-2 py-2"
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                    <option key={month} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={masaAktif.year}
-                  onChange={(e) => setMasaAktif({ ...masaAktif, year: parseInt(e.target.value) })}
-                  className="border border-gray-300 rounded px-2 py-2"
-                >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col col-span-2">
+                <Label htmlFor="namajenazah" className="mb-2">
+                  Nama Jenazah
+                </Label>
+                <Input id="namajenazah" name="namajenazah" required placeholder="Nama Jenazah" />
+              </div>
+              <div className="flex flex-col">
+                <Label htmlFor="blok" className="mb-2">
+                  Blok Kavling
+                </Label>
+                <Input id="blok" name="blok" required placeholder="Masukkan kode blok" />
+              </div>
+              <div className="flex flex-col">
+                <Label htmlFor="silsilah" className="mb-2">
+                  Silsilah PJ
+                </Label>
+                <Select name="silsilah" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Silsilah" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="diri sendiri">Diri Sendiri</SelectItem>
+                    <SelectItem value="anak">Anak</SelectItem>
+                    <SelectItem value="orang tua">Orang Tua</SelectItem>
+                    <SelectItem value="kakak/adik">Kakak/Adik</SelectItem>
+                    <SelectItem value="sepupu">Sepupu</SelectItem>
+                    <SelectItem value="keponakan">Keponakan</SelectItem>
+                    <SelectItem value="paman/bibi">Paman/Bibi</SelectItem>
+                    <SelectItem value="kakek/nenek">Kakek/Nenek</SelectItem>
+                    <SelectItem value="cucu">Cucu</SelectItem>
+                    <SelectItem value=">2 generasi di atas">{">2 Generasi di Atas"}</SelectItem>
+                    <SelectItem value=">2 generasi di bawah">{">2 Generasi di Bawah"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col col-span-2">
+                <Label htmlFor="lokasi" className="mb-2">
+                  Lokasi Pemakaman
+                </Label>
+                <Select name="lokasi" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Lokasi Pemakaman" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
+                    <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
+                    <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div>
-              <label htmlFor="notes" className="block mb-1 font-medium">
+          </section>
+
+          <section className="space-y-5">
+            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Detail Tambahan</h3>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="flex flex-col">
+                <Label className="mb-2">Hari</Label>
+                <Select
+                  value={masaAktif.day.toString()}
+                  onValueChange={(v) => setMasaAktif({ ...masaAktif, day: parseInt(v) })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Hari" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {getValidDays(masaAktif.month, masaAktif.year).map((d) => (
+                      <SelectItem key={d} value={d.toString()}>
+                        {d}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col">
+                <Label className="mb-2">Bulan</Label>
+                <Select
+                  value={masaAktif.month.toString()}
+                  onValueChange={(v) => setMasaAktif({ ...masaAktif, month: parseInt(v) })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Bulan" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                      <SelectItem key={m} value={m.toString()}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col">
+                <Label className="mb-2">Tahun</Label>
+                <Select
+                  value={masaAktif.year.toString()}
+                  onValueChange={(v) => setMasaAktif({ ...masaAktif, year: parseInt(v) })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tahun" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {years.map((y) => (
+                      <SelectItem key={y} value={y.toString()}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex flex-col">
+              <Label htmlFor="notes" className="mb-2">
                 Penjelasan
-              </label>
-              <textarea
+              </Label>
+              <Textarea
                 id="notes"
                 name="notes"
-                required
                 rows={4}
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Penjelasan tambahan terkait yang dimakamkan..."
+                required
+                placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
               />
             </div>
-          </div>
+          </section>
 
-          <div className="flex justify-end space-x-4 mt-6">
-            <Button type="primary" danger onClick={() => router.push("/admin")}>
-              Cancel
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button danger onClick={() => router.push("/admin")} className="min-w-[100px]">
+              Batal
             </Button>
 
             {user?.role === "admin" && (
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                onClick={() => setLoading(true)}
-              >
-                Submit
+              <Button type="primary" htmlType="submit" loading={loading} className="min-w-[100px]">
+                Kirim
               </Button>
             )}
           </div>
         </form>
       </main>
+
       <Footer />
     </div>
   );
