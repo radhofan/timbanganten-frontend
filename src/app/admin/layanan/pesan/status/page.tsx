@@ -12,6 +12,8 @@ export default function Status() {
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterApproved, setFilterApproved] = useState<string[]>([]);
+  const [filterPayment, setFilterPayment] = useState<string[]>([]);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -19,7 +21,8 @@ export default function Status() {
       try {
         const res = await fetch("/api/makamStatus");
         const result = await res.json();
-        setData(result);
+        const sortedResult = result.sort((a: Makam, b: Makam) => b.id - a.id);
+        setData(sortedResult);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -35,7 +38,11 @@ export default function Status() {
     const matchNama = item.nama.toLowerCase().includes(query);
     const matchPenanggungJawab = item.nama_penanggung_jawab.toLowerCase().includes(query);
     const matchBlok = item.blok?.toLowerCase().includes(query);
-    return matchNama || matchPenanggungJawab || matchBlok;
+
+    const matchApproval = filterApproved.length === 0 || filterApproved.includes(item.approved);
+    const matchPayment = filterPayment.length === 0 || filterPayment.includes(item.payment);
+
+    return (matchNama || matchPenanggungJawab || matchBlok) && matchApproval && matchPayment;
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -108,6 +115,75 @@ export default function Status() {
               className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Approval filter */}
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-gray-600 mb-1">Filter Approval</span>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-1 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={filterApproved.includes("APPROVED")}
+                    onChange={(e) =>
+                      setFilterApproved((prev) =>
+                        e.target.checked
+                          ? [...prev, "APPROVED"]
+                          : prev.filter((x) => x !== "APPROVED")
+                      )
+                    }
+                  />
+                  APPROVED
+                </label>
+                <label className="flex items-center gap-1 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={filterApproved.includes("PENDING")}
+                    onChange={(e) =>
+                      setFilterApproved((prev) =>
+                        e.target.checked
+                          ? [...prev, "PENDING"]
+                          : prev.filter((x) => x !== "PENDING")
+                      )
+                    }
+                  />
+                  PENDING
+                </label>
+              </div>
+            </div>
+
+            {/* Payment filter */}
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-gray-600 mb-1">Filter Pembayaran</span>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-1 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={filterPayment.includes("PAID")}
+                    onChange={(e) =>
+                      setFilterPayment((prev) =>
+                        e.target.checked ? [...prev, "PAID"] : prev.filter((x) => x !== "PAID")
+                      )
+                    }
+                  />
+                  PAID
+                </label>
+                <label className="flex items-center gap-1 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={filterPayment.includes("PENDING")}
+                    onChange={(e) =>
+                      setFilterPayment((prev) =>
+                        e.target.checked
+                          ? [...prev, "PENDING"]
+                          : prev.filter((x) => x !== "PENDING")
+                      )
+                    }
+                  />
+                  PENDING
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
 
         {!loading && (
@@ -176,8 +252,8 @@ export default function Status() {
                     <span className="font-medium">Silsilah:</span> {item.silsilah}
                   </p>
                   <p>
-                    <span className="font-medium">Masa Aktif:</span>{" "}
-                    {new Date(item.masa_aktif).toLocaleDateString("id-ID")}
+                    <span className="font-medium">Tanggal Pemesanan:</span>{" "}
+                    {new Date(item.created_at).toLocaleDateString("id-ID")}
                   </p>
                   <p className="col-span-2">
                     <span className="font-medium">Penanggung Jawab:</span>{" "}

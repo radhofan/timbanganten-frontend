@@ -68,7 +68,6 @@ export default function AdminTable() {
               </p>
             </div>
 
-            {/* ✅ Table Wrapper to Prevent Overflow */}
             <div className="w-full overflow-x-auto">
               <table className="min-w-full border-collapse border border-gray-300 text-sm font-sans text-gray-700">
                 <thead className="bg-gray-50 border-b border-gray-300">
@@ -76,6 +75,7 @@ export default function AdminTable() {
                     <th className="px-4 py-3 font-semibold text-center">Nama</th>
                     <th className="px-4 py-3 font-semibold text-center">Kontak</th>
                     <th className="px-4 py-3 font-semibold text-center">Email</th>
+                    <th className="px-4 py-3 font-semibold text-center">Role</th>
                     {role === "admin" && (
                       <th className="px-4 py-3 font-semibold text-center">Edit</th>
                     )}
@@ -92,6 +92,7 @@ export default function AdminTable() {
                         {user.contact ?? "-"}
                       </td>
                       <td className="px-4 py-3 text-center max-w-[200px] truncate">{user.email}</td>
+                      <td className="px-4 py-3 text-center whitespace-nowrap">Admin</td>
                       {role === "admin" && (
                         <td className="px-4 py-3 text-center">
                           <Link
