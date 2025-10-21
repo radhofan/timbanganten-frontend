@@ -130,88 +130,93 @@ export default function Histori() {
           ) : filteredData.length === 0 ? (
             <div className="text-center text-gray-500 italic">Tidak ada pengguna ditemukan.</div>
           ) : (
-            currentUsers.map((user, idx) => (
-              <div key={user.id} className="bg-white shadow rounded-xl">
-                <button
-                  onClick={() => toggleAccordion(idx)}
-                  className="w-full px-3 sm:px-6 py-4 flex justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-t-xl"
-                >
-                  <div className="flex-1 pr-3">
-                    <div className="text-lg font-semibold text-gray-400">{user.name}</div>
-                    <div className="text-sm font-semibold text-gray-400">{user.contact}</div>
-                  </div>
-                  <span
-                    className={`flex-shrink-0 text-gray-500 transform transition-transform duration-300 ${
-                      openIndex === idx ? "rotate-180" : ""
+            currentUsers.map((user, idx) => {
+              const isOpen = openIndex === idx;
+              return (
+                <div key={user.id} className="bg-white shadow rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => toggleAccordion(idx)}
+                    className="w-full px-3 sm:px-6 py-4 flex justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    <div className="flex-1 pr-3">
+                      <div className="text-lg font-semibold text-gray-700">{user.name}</div>
+                      <div className="text-sm text-gray-500">{user.contact}</div>
+                    </div>
+                    <span
+                      className={`flex-shrink-0 text-gray-500 transform transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      <ChevronDown size={20} />
+                    </span>
+                  </button>
+
+                  <div
+                    className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                      isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
                     }`}
                   >
-                    <ChevronDown size={20} />
-                  </span>
-                </button>
+                    <div className="border-t px-3 sm:px-6 pb-6 pt-4 space-y-6">
+                      <div>
+                        <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
 
-                {openIndex === idx && (
-                  <div className="border-t px-3 sm:px-6 pb-6 pt-4 space-y-6 transition-all duration-300 ease-in-out">
-                    <div>
-                      <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
+                        {(user.makams ?? []).length > 0 || (user.statuses ?? []).length > 0 ? (
+                          <div className="space-y-3">
+                            {(user.makams ?? []).map((m) => (
+                              <button
+                                type="button"
+                                key={`aktif-${m.id}`}
+                                className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                              >
+                                <div className="flex justify-between items-start gap-2">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-gray-800">{m.nama}</div>
+                                    <div className="text-sm text-gray-600">{m.lokasi}</div>
+                                  </div>
+                                  <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                    AKTIF
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
 
-                      {(user.makams ?? []).length > 0 || (user.statuses ?? []).length > 0 ? (
-                        <div className="space-y-3">
-                          {/* Aktif Makam */}
-                          {(user.makams ?? []).map((m) => (
-                            <button
-                              type="button"
-                              key={`aktif-${m.id}`}
-                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
-                            >
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-800">{m.nama}</div>
-                                  <div className="text-sm text-gray-600">{m.lokasi}</div>
+                            {(user.statuses ?? []).map((s) => (
+                              <button
+                                type="button"
+                                key={`pesan-${s.id}`}
+                                className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                              >
+                                <div className="flex justify-between items-start gap-2">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-gray-800">{s.nama}</div>
+                                    <div className="text-sm text-gray-600">{s.lokasi}</div>
+                                  </div>
+                                  <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
+                                    PESAN
+                                  </div>
                                 </div>
-                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                                  AKTIF
-                                </div>
-                              </div>
-                            </button>
-                          ))}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            Tidak ada data pemakaman atau pesanan berlangsung.
+                          </p>
+                        )}
+                      </div>
 
-                          {/* Pesanan Makam */}
-                          {(user.statuses ?? []).map((s) => (
-                            <button
-                              type="button"
-                              key={`pesan-${s.id}`}
-                              className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
-                            >
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-800">{s.nama}</div>
-                                  <div className="text-sm text-gray-600">{s.lokasi}</div>
-                                </div>
-                                <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
-                                  PESAN
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500">
-                          Tidak ada data pemakaman atau pesanan berlangsung.
-                        </p>
-                      )}
+                      <button
+                        type="button"
+                        className="bg-blue-600 text-white rounded px-3 py-1 text-sm hover:bg-blue-700"
+                        onClick={() => router.push(`/admin/layanan/histori/user/${user.id}`)}
+                      >
+                        Edit Pengguna
+                      </button>
                     </div>
-
-                    <button
-                      type="button"
-                      className="bg-blue-600 text-white rounded px-3 py-1 text-sm hover:bg-blue-700"
-                      onClick={() => router.push(`/admin/layanan/histori/user/${user.id}`)}
-                    >
-                      Edit Pengguna
-                    </button>
                   </div>
-                )}
-              </div>
-            ))
+                </div>
+              );
+            })
           )}
         </div>
 
