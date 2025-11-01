@@ -30,21 +30,21 @@ model Pengawas {
 }
 
 model User {
-  id      Int    @id @default(autoincrement())
-  name    String
-  contact String
-  email   String @unique
-  status  String
-
-  ktp_num                       String?   @unique @db.Char(16)  
-  emergency_name                String?   @db.VarChar(255)     
-  emergency_contact             String?   @unique @db.VarChar(255)
-
+  id                Int       @id @default(autoincrement())
+  name              String
+  contact           String
+  email             String    @unique
+  status            String
+  ktp_num           String?   @unique @db.Char(16)  
+  emergency_name    String?   @db.VarChar(255)     
+  emergency_contact String?   @unique @db.VarChar(255)
+  
+  makams            makam[]
+  statuses          makamStatus[]
   jenazah           Jenazah?
   penanggung_jawab  Penanggung_Jawab?
 }
 
-// NEW TABLES - No foreign keys yet
 model Penanggung_Jawab {
   id_penanggung_jawab String @id @default(uuid())
   id_user             Int?   @unique
@@ -91,6 +91,8 @@ model makam {
   created_at              DateTime @default(now())
   updated_at              DateTime @updatedAt
   userId                  Int?
+  
+  user                    User?    @relation(fields: [userId], references: [id])
 }
 
 model makamStatus {
@@ -109,4 +111,6 @@ model makamStatus {
   created_at              DateTime @default(now()) @db.Timestamp(6)
   updated_at              DateTime @default(now()) @updatedAt @db.Timestamp(6)
   userId                  Int?
+  
+  user                    User?    @relation(fields: [userId], references: [id])
 }
