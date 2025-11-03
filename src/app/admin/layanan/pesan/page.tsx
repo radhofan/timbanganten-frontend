@@ -146,6 +146,7 @@ export default function Pemesanan() {
           contact: formData.get("kontak"),
           email: formData.get("email"),
           status: "PESAN",
+          ktp_num: formData.get("ktp_num"),
         }),
       });
 
@@ -292,6 +293,17 @@ export default function Pemesanan() {
                     required
                   />
                 </div>
+                <div>
+                  <Label htmlFor="ktp_num" className="mb-2">
+                    No KTP Pemesan
+                  </Label>
+                  <Input
+                    id="ktp_num"
+                    name="ktp_num"
+                    maxLength={16}
+                    placeholder="Masukkan 16 digit nomor KTP"
+                  />
+                </div>
               </div>
             )}
           </section>
@@ -335,20 +347,39 @@ export default function Pemesanan() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex flex-col col-span-2">
-                <Label htmlFor="lokasi" className="mb-2">
-                  Lokasi Pemakaman
-                </Label>
-                <Select name="lokasi" required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Lokasi Pemakaman" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                    <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                    <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-row gap-4">
+                <div className="flex flex-col flex-1">
+                  <Label htmlFor="jenismakam" className="mb-2">
+                    Jenis Makam
+                  </Label>
+                  <Select name="jenismakam" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Jenis Makam" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      <SelectItem value="baru">Baru</SelectItem>
+                      <SelectItem value="tumpuk1">Tumpuk 1</SelectItem>
+                      <SelectItem value="tumpuk2">Tumpuk 2</SelectItem>
+                      <SelectItem value="tumpuk3">Tumpuk 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex flex-col flex-1">
+                  <Label htmlFor="lokasi" className="mb-2">
+                    Lokasi Pemakaman
+                  </Label>
+                  <Select name="lokasi" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Lokasi Pemakaman" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
+                      <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
+                      <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </section>

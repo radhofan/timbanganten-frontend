@@ -1,10 +1,10 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const id = url.searchParams.get('id');
-  const query = url.searchParams.get('query');
+  const id = url.searchParams.get("id");
+  const query = url.searchParams.get("query");
 
   let users;
 
@@ -13,12 +13,12 @@ export async function GET(request: Request) {
       where: { id: Number(id) },
       include: {
         makams: true,
-        statuses: true
-      }
+        statuses: true,
+      },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(user);
@@ -28,46 +28,47 @@ export async function GET(request: Request) {
     users = await prisma.user.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { contact: { contains: query, mode: 'insensitive' } }
-        ]
+          { name: { contains: query, mode: "insensitive" } },
+          { contact: { contains: query, mode: "insensitive" } },
+        ],
       },
       include: {
         makams: true,
-        statuses: true
-      }
+        statuses: true,
+      },
     });
   } else {
     users = await prisma.user.findMany({
       include: {
         makams: true,
-        statuses: true
-      }
+        statuses: true,
+      },
     });
   }
 
   return NextResponse.json(users);
 }
 
-// POST 
+// POST
 export async function POST(request: Request) {
   const body = await request.json();
 
-  const { name, contact, email, status } = body;
+  const { name, contact, email, status, ktp_num } = body;
 
   const newUser = await prisma.user.create({
     data: {
       name,
       contact,
       email,
-      status: status || 'PESAN',
+      status: status || "PESAN",
+      ktp_num,
     },
   });
 
   return NextResponse.json(newUser, { status: 201 });
 }
 
-// PUT 
+// PUT
 export async function PUT(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -129,5 +130,3 @@ export async function PUT(request: Request) {
 
   return NextResponse.json(finalUser);
 }
-
-

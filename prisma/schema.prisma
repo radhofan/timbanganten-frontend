@@ -75,6 +75,7 @@ model Blok {
   jenazah                    Jenazah?
 }
 
+// Makam Aktif
 model makam {
   id                      Int      @id @default(autoincrement())
   blok                    String
@@ -95,6 +96,7 @@ model makam {
   user                    User?    @relation(fields: [userId], references: [id])
 }
 
+// Makam Sedang Dipesan
 model makamStatus {
   id                      Int      @id(map: "makamstatus_pkey") @default(autoincrement())
   blok                    String

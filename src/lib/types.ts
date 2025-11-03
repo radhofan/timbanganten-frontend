@@ -4,6 +4,9 @@ export type User = {
   contact: string;
   email: string;
   status: string;
+  ktp_num: string;
+  emergency_name: string;
+  emergency_contact: string;
   makams: Makam[];
   statuses: Makam[];
 };
