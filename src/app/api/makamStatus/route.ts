@@ -1,7 +1,7 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
-// GET 
+// GET
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
@@ -27,28 +27,41 @@ export async function GET(request: Request) {
   return NextResponse.json(data);
 }
 
-// POST 
+// POST
 export async function POST(req: Request) {
+  try {
     const body = await req.json();
 
     const newEntry = await prisma.makamStatus.create({
-        data: {
-            blok: body.blok,
-            nama: body.nama,
-            lokasi: body.lokasi,
-            silsilah: body.silsilah,
-            ext: body.ext ?? null,
-            masa_aktif: new Date(body.masa_aktif),
-            nama_penanggung_jawab: body.nama_penanggung_jawab,
-            kontak_penanggung_jawab: body.kontak_penanggung_jawab,
-            description: body.description,
-            payment: body.payment,
-            approved: body.approved,
-            userId: body.userId,
-        },
+      data: {
+        blok: body.blok,
+        nama: body.nama,
+        lokasi: body.lokasi,
+        silsilah: body.silsilah,
+        ext: body.ext ?? null,
+        masa_aktif: new Date(body.masa_aktif),
+        nama_penanggung_jawab: body.nama_penanggung_jawab,
+        kontak_penanggung_jawab: body.kontak_penanggung_jawab,
+        description: body.description,
+        payment: body.payment,
+        approved: body.approved,
+        userId: body.userId,
+      },
     });
 
-    return NextResponse.json(newEntry, { status: 201 });
+    let newPJ = null;
+    if (body.userId) {
+      newPJ = await prisma.penanggung_Jawab.create({
+        data: {
+          id_user: body.userId,
+        },
+      });
+    }
+
+    return NextResponse.json({ makamStatus: newEntry, penanggung_jawab: newPJ }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  }
 }
 
 // PUT
@@ -82,4 +95,3 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Failed to update record" }, { status: 500 });
   }
 }
-

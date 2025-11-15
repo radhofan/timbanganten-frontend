@@ -32,9 +32,9 @@ model Pengawas {
 model User {
   id                Int       @id @default(autoincrement())
   name              String
-  contact           String
-  email             String    @unique
-  status            String
+  contact           String?
+  email             String?    @unique
+  status            String?
   ktp_num           String?   @unique @db.Char(16)  
   emergency_name    String?   @db.VarChar(255)     
   emergency_contact String?   @unique @db.VarChar(255)
@@ -91,7 +91,7 @@ model makam {
   approved                String
   created_at              DateTime @default(now())
   updated_at              DateTime @updatedAt
-  userId                  Int?
+  userId                  Int? //PENANGGUNG JAWAB
   
   user                    User?    @relation(fields: [userId], references: [id])
 }
@@ -112,7 +112,7 @@ model makamStatus {
   approved                String
   created_at              DateTime @default(now()) @db.Timestamp(6)
   updated_at              DateTime @default(now()) @updatedAt @db.Timestamp(6)
-  userId                  Int?
+  userId                  Int? //PENANGGUNG JAWAB
   
   user                    User?    @relation(fields: [userId], references: [id])
 }

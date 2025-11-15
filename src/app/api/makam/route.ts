@@ -1,7 +1,7 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
-// GET 
+// GET
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
@@ -14,6 +14,15 @@ export async function GET(request: Request) {
 
     const data = await prisma.makam.findUnique({
       where: { id: parsedId },
+      include: {
+        // Include the deceased user
+        user: {
+          include: {
+            // Include the penanggung_jawab of that user
+            penanggung_jawab: true,
+          },
+        },
+      },
     });
 
     if (!data) {
@@ -23,34 +32,43 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   }
 
-  const data = await prisma.makam.findMany();
+  const data = await prisma.makam.findMany({
+    include: {
+      user: {
+        include: {
+          penanggung_jawab: true,
+        },
+      },
+    },
+  });
+
   return NextResponse.json(data);
 }
 
-// POST 
+// POST
 export async function POST(req: Request) {
-    const body = await req.json();
+  const body = await req.json();
 
-    const newEntry = await prisma.makam.create({
-        data: {
-            blok: body.blok,
-            nama: body.nama,
-            lokasi: body.lokasi,
-            silsilah: body.silsilah,
-            ext: body.ext ?? null,
-            masa_aktif: new Date(body.masa_aktif),
-            nama_penanggung_jawab: body.nama_penanggung_jawab,
-            kontak_penanggung_jawab: body.kontak_penanggung_jawab,
-            description: body.description,
-            payment: body.payment,
-            approved: body.approved,
-        },
-    });
+  const newEntry = await prisma.makam.create({
+    data: {
+      blok: body.blok,
+      nama: body.nama,
+      lokasi: body.lokasi,
+      silsilah: body.silsilah,
+      ext: body.ext ?? null,
+      masa_aktif: new Date(body.masa_aktif),
+      nama_penanggung_jawab: body.nama_penanggung_jawab,
+      kontak_penanggung_jawab: body.kontak_penanggung_jawab,
+      description: body.description,
+      payment: body.payment,
+      approved: body.approved,
+    },
+  });
 
-    return NextResponse.json(newEntry, { status: 201 });
+  return NextResponse.json(newEntry, { status: 201 });
 }
 
-// PUT 
+// PUT
 export async function PUT(req: Request) {
   const body = await req.json();
   const id = body.id;
@@ -81,4 +99,3 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Failed to update record" }, { status: 500 });
   }
 }
-

@@ -6,9 +6,17 @@ import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const { Search } = Input;
 const { Option } = Select;
+
+export interface User {
+  penanggung_jawab?: {
+    id_penanggung_jawab: string;
+    id_user?: number | null;
+  } | null;
+}
 
 export interface Makam {
   id: number;
@@ -26,6 +34,7 @@ export interface Makam {
   created_at?: string | null;
   updated_at?: string | null;
   userId?: number | null;
+  user: User;
 }
 
 export default function MakamTable(): JSX.Element {
@@ -35,6 +44,8 @@ export default function MakamTable(): JSX.Element {
   const [pageSize, setPageSize] = useState<number>(12);
   const [current, setCurrent] = useState<number>(1);
   const [selectedLocation, setSelectedLocation] = useState<string>("Semua");
+
+  const router = useRouter();
 
   const user = useStore(authStore, (s) => s.user);
   const isGuest = user?.role === "guest";
@@ -197,19 +208,20 @@ export default function MakamTable(): JSX.Element {
 
     columns.push({
       title: "Penjelasan",
-      dataIndex: "description",
-      key: "description",
+      key: "penjelasan",
       align: "center",
-      sorter: (a, b) => (a.description ?? "").localeCompare(b.description ?? ""),
-      render: (value, record) =>
-        record.description && record.description.trim() !== "" ? (
-          <details>
-            <summary className="cursor-pointer text-blue-600 underline">Lihat Detail</summary>
-            <div>{record.description}</div>
-          </details>
-        ) : (
-          <span style={{ color: "#999" }}>Tidak ada penjelasan</span>
-        ),
+      render: (_, record: Makam) => {
+        const userId = record.user?.penanggung_jawab?.id_user;
+
+        return (
+          <span
+            className="cursor-pointer text-blue-600 underline"
+            onClick={() => router.push(`/admin/layanan/histori/user/${userId}`)}
+          >
+            Lihat Detail
+          </span>
+        );
+      },
     });
 
     columns.push({
