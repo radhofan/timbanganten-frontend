@@ -137,7 +137,20 @@ export default function MakamTable(): JSX.Element {
         const bb = b.kontak_penanggung_jawab ?? "";
         return aa.localeCompare(bb);
       },
-      render: (value, record) => <span>{record.kontak_penanggung_jawab ?? "-"}</span>,
+      render: (_, record) => {
+        const num = record.kontak_penanggung_jawab;
+        if (!num) return "-";
+        return (
+          <a
+            href={`https://wa.me/${num}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "underline" }}
+          >
+            {num}
+          </a>
+        );
+      },
     });
 
     columns.push({
