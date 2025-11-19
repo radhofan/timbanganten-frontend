@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   if (id) {
     const user = await prisma.user.findUnique({
-      where: { id: Number(id) },
+      where: { id: String(id) },
       include: {
         makams: true,
         statuses: true,
@@ -80,7 +80,7 @@ export async function PUT(request: Request) {
   const body = await request.json();
   const { name, contact, email, status } = body;
 
-  const userId = Number(id);
+  const userId = String(id);
 
   const existingUser = await prisma.user.findUnique({
     where: { id: userId },

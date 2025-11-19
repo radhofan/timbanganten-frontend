@@ -5,8 +5,6 @@ import Footer from "@/components/Footer";
 import { User } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useStore } from "zustand";
-import { authStore } from "@/stores/useAuthStore";
 
 import { Button } from "antd";
 
@@ -23,13 +21,11 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Pemesanan() {
-  const user = useStore(authStore, (s) => s.user);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const normalizeDate = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  };
+  const normalizeDate = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
   const today = normalizeDate(new Date());
   const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
@@ -60,25 +56,24 @@ export default function Pemesanan() {
 
   const getValidDays = (month: number, year: number) => {
     const daysInMonth = new Date(year, month, 0).getDate();
-    const validDays = [];
-    for (let day = 1; day <= daysInMonth; day++) validDays.push(day);
-    return validDays;
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
   };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      if (!useExisting) return;
       const endpoint = searchTerm.trim()
-        ? `/api/user?query=${encodeURIComponent(searchTerm)}`
-        : "/api/user";
+        ? `/api/penanggungJawab?query=${encodeURIComponent(searchTerm)}`
+        : "/api/penanggungJawab";
 
       fetch(endpoint)
         .then((res) => res.json())
         .then((data) => setUsers(data))
-        .catch((err) => console.error(err));
+        .catch(console.error);
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
+  }, [searchTerm, useExisting]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,90 +87,76 @@ export default function Pemesanan() {
       alert(
         `Masa aktif harus antara ${minDate.toLocaleDateString("id-ID")} dan ${maxDate.toLocaleDateString("id-ID")}`
       );
+      setLoading(false);
       return;
     }
 
-    const requiredFields = [
-      { key: "namajenazah", label: "Nama Jenazah" },
-      { key: "blok", label: "Blok Kavling" },
-      { key: "silsilah", label: "Silsilah PJ" },
-      { key: "lokasi", label: "Lokasi Pemakaman" },
-      { key: "notes", label: "Penjelasan" },
-    ];
+    const diriSendiri = (formData.get("silsilah") as string) === "diri sendiri";
 
-    if (!useExisting) {
-      requiredFields.push(
-        { key: "namapj", label: "Nama Penanggung Jawab" },
-        { key: "kontak", label: "Kontak Penanggung Jawab" },
-        { key: "email", label: "Email Penanggung Jawab" }
-      );
+    console.log(diriSendiri);
+
+    interface PemesananPayload {
+      namaJenazah: string;
+      blok: string;
+      lokasi: string;
+      silsilah: string;
+      notes: string;
+      masaAktif: string;
+      diriSendiri: boolean;
+      existingPJId?: number;
+      pjName?: string;
+      pjContact?: string;
+      userPAName?: string;
+      userPAContact?: string;
+      userPAEmail?: string;
+      userPAKTP?: string;
+      userPBName?: string;
+      userPBContact?: string;
+      userPBEmail?: string;
     }
 
-    for (const { key, label } of requiredFields) {
-      const value = formData.get(key);
-      if (!value || (typeof value === "string" && value.trim() === "")) {
-        alert(`Field "${label}" wajib diisi.`);
-        return;
-      }
-    }
-
-    const day = masaAktif.day.toString().padStart(2, "0");
-    const month = masaAktif.month.toString().padStart(2, "0");
-    const year = masaAktif.year.toString();
-    const masaAktifStr = `${year}-${month}-${day}`;
-    let pjId;
-
-    if (useExisting && selectedUser) {
-      pjId = selectedUser.id;
-      await fetch(`/api/user?id=${pjId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: selectedUser.name,
-          contact: selectedUser.contact,
-          email: selectedUser.email,
-          status: selectedUser.status === "AKTIF" ? "AKTIF/PESAN" : "PESAN",
-        }),
-      });
-    } else {
-      const newUserRes = await fetch("/api/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.get("namapj"),
-          contact: formData.get("kontak"),
-          email: formData.get("email"),
-          status: "PESAN",
-          ktp_num: formData.get("ktp_num"),
-        }),
-      });
-
-      if (!newUserRes.ok) {
-        alert("Gagal membuat penanggung jawab baru.");
-        return;
-      }
-
-      const newUser = await newUserRes.json();
-      pjId = newUser.id;
-    }
-
-    const payload = {
-      nama_penanggung_jawab: (formData.get("namapj") as string) ?? selectedUser?.name,
-      kontak_penanggung_jawab: (formData.get("kontak") as string) ?? selectedUser?.contact,
-      nama: formData.get("namajenazah") as string,
+    const payload: PemesananPayload = {
+      namaJenazah: formData.get("namajenazah") as string,
       blok: formData.get("blok") as string,
-      silsilah: formData.get("silsilah") as string,
       lokasi: formData.get("lokasi") as string,
-      description: formData.get("notes") as string,
-      masa_aktif: masaAktifStr,
-      userId: pjId,
-      ext: "PENDING",
-      payment: "PENDING",
-      approved: "PENDING",
+      silsilah: formData.get("silsilah") as string,
+      notes: formData.get("notes") as string,
+      masaAktif: `${masaAktif.year}-${masaAktif.month.toString().padStart(2, "0")}-${masaAktif.day.toString().padStart(2, "0")}`,
+      diriSendiri,
     };
 
+    if (useExisting && selectedUser) {
+      payload.existingPJId = selectedUser.id;
+      payload.pjName = selectedUser.name;
+      payload.pjContact = selectedUser.contact;
+
+      payload.userPAName = formData.get("namapj") as string;
+      payload.userPAContact = formData.get("kontak") as string;
+      payload.userPAEmail = formData.get("email") as string;
+      payload.userPAKTP = formData.get("ktp_num") as string;
+
+      if (!diriSendiri) {
+        payload.userPBName = formData.get("namajenazah") as string;
+        payload.userPBContact = "";
+        payload.userPBEmail = "";
+      }
+    } else {
+      payload.userPAName = formData.get("namapj") as string;
+      payload.userPAContact = formData.get("kontak") as string;
+      payload.userPAEmail = formData.get("email") as string;
+      payload.userPAKTP = formData.get("ktp_num") as string;
+      payload.pjName = formData.get("namapj") as string;
+      payload.pjContact = formData.get("kontak") as string;
+
+      if (!diriSendiri) {
+        payload.userPBName = formData.get("namajenazah") as string;
+        payload.userPBContact = "";
+        payload.userPBEmail = "";
+      }
+    }
+
     try {
-      const res = await fetch("/api/makamStatus", {
+      const res = await fetch("/api/pemesanan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -185,11 +166,14 @@ export default function Pemesanan() {
         alert("Pemesanan berhasil disimpan!");
         router.push("/admin/layanan/pesan/status");
         form.reset();
+        setSelectedUser(null);
+        setUseExisting(false);
       } else {
-        alert("Terjadi kesalahan saat menyimpan data.");
+        const data = await res.json();
+        alert(data?.error || "Terjadi kesalahan saat menyimpan data.");
       }
     } catch (err) {
-      console.error("Error:", err);
+      console.error(err);
       alert("Gagal mengirim permintaan.");
     } finally {
       setLoading(false);
@@ -212,6 +196,7 @@ export default function Pemesanan() {
             </p>
           </div>
 
+          {/* Penanggung Jawab Section */}
           <section className="space-y-5">
             <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Penanggung Jawab</h3>
 
@@ -253,11 +238,7 @@ export default function Pemesanan() {
                           setSelectedUser(u);
                           setSearchTerm(u.name);
                         }}
-                        className={`px-4 py-2 text-sm cursor-pointer transition ${
-                          selectedUser?.id === u.id
-                            ? "bg-blue-50 text-blue-700"
-                            : "hover:bg-gray-50 text-gray-700"
-                        }`}
+                        className={`px-4 py-2 text-sm cursor-pointer transition ${selectedUser?.id === u.id ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}`}
                       >
                         {u.name} — {u.contact}
                       </li>
@@ -308,6 +289,7 @@ export default function Pemesanan() {
             )}
           </section>
 
+          {/* Data Pemesanan Section */}
           <section className="space-y-5">
             <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Data Pemesanan</h3>
 
@@ -384,6 +366,7 @@ export default function Pemesanan() {
             </div>
           </section>
 
+          {/* Detail Tambahan Section */}
           <section className="space-y-5">
             <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Detail Tambahan</h3>
 
@@ -465,11 +448,9 @@ export default function Pemesanan() {
               Batal
             </Button>
 
-            {user?.role === "admin" && (
-              <Button type="primary" htmlType="submit" loading={loading} className="min-w-[100px]">
-                Kirim
-              </Button>
-            )}
+            <Button type="primary" htmlType="submit" loading={loading} className="min-w-[100px]">
+              Kirim
+            </Button>
           </div>
         </form>
       </main>

@@ -3,15 +3,55 @@ import { prisma } from "@/lib/db";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const search = url.searchParams.get("id");
-  if (search) {
-    const data = await prisma.penanggung_Jawab.findUnique({
-      where: { id_penanggung_jawab: search },
+  const id = url.searchParams.get("id");
+  const query = url.searchParams.get("query");
+
+  if (id) {
+    const user = await prisma.user.findUnique({
+      where: { id: String(id) },
+      include: {
+        penanggung_jawab: true,
+        makams: true,
+        statuses: true,
+      },
     });
-    return NextResponse.json(data);
+
+    if (!user || !user.penanggung_jawab) {
+      return NextResponse.json({ error: "PJ not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user);
   }
-  const data = await prisma.penanggung_Jawab.findMany();
-  return NextResponse.json(data);
+
+  let users;
+
+  if (query) {
+    users = await prisma.user.findMany({
+      where: {
+        penanggung_jawab: { isNot: null },
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { contact: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      include: {
+        penanggung_jawab: true,
+        makams: true,
+        statuses: true,
+      },
+    });
+  } else {
+    users = await prisma.user.findMany({
+      where: { penanggung_jawab: { isNot: null } },
+      include: {
+        penanggung_jawab: true,
+        makams: true,
+        statuses: true,
+      },
+    });
+  }
+
+  return NextResponse.json(users);
 }
 
 export async function POST(request: Request) {
