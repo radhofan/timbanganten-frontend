@@ -7,16 +7,10 @@ import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
+import { Jenazah, Penanggung_Jawab, User } from "@prisma/client";
 
 const { Search } = Input;
 const { Option } = Select;
-
-export interface User {
-  penanggung_jawab?: {
-    id_penanggung_jawab: string;
-    id_user?: number | null;
-  } | null;
-}
 
 export interface Makam {
   id: number;
@@ -33,8 +27,12 @@ export interface Makam {
   approved?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
-  userId?: number | null;
-  user: User;
+  userId?: string | null;
+  pjId?: string | null;
+  jenazahId?: string | null;
+  user: User | null;
+  pj: Penanggung_Jawab | null;
+  jenazah: Jenazah | null;
 }
 
 export default function MakamTable(): JSX.Element {
@@ -55,6 +53,7 @@ export default function MakamTable(): JSX.Element {
     fetch("/api/makam")
       .then((r) => r.json())
       .then((res: Makam[]) => {
+        console.log("API returned", res);
         if (!mounted) return;
         setData(Array.isArray(res) ? res : []);
         setLoading(false);
@@ -211,7 +210,7 @@ export default function MakamTable(): JSX.Element {
       key: "penjelasan",
       align: "center",
       render: (_, record: Makam) => {
-        const userId = record.user?.penanggung_jawab?.id_user;
+        const userId = record.pjId;
 
         return (
           <span

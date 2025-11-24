@@ -15,13 +15,9 @@ export async function GET(request: Request) {
     const data = await prisma.makam.findUnique({
       where: { id: parsedId },
       include: {
-        // Include the deceased user
-        user: {
-          include: {
-            // Include the penanggung_jawab of that user
-            penanggung_jawab: true,
-          },
-        },
+        user: true,
+        pj: true,
+        jenazah: true,
       },
     });
 
@@ -34,11 +30,9 @@ export async function GET(request: Request) {
 
   const data = await prisma.makam.findMany({
     include: {
-      user: {
-        include: {
-          penanggung_jawab: true,
-        },
-      },
+      user: true,
+      pj: true,
+      jenazah: true,
     },
   });
 

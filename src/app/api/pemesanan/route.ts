@@ -137,9 +137,9 @@ export async function POST(request: Request) {
           description: body.notes,
           nama_penanggung_jawab: body.pjName,
           kontak_penanggung_jawab: body.pjContact,
-          user: { connect: { id: paId } },
-          ...(body.pjId && { pjId: pjId }),
-          ...(body.jenazahId && { jenazahId: jenazahId }),
+          userId: paId ?? null,
+          pjId: pjId ?? null,
+          jenazahId: jenazahId ?? null,
         },
       });
 
