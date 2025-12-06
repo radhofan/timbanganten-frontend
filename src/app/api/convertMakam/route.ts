@@ -34,6 +34,7 @@ export async function POST(request: Request) {
         userId: status.userId,
         pjId: status.pjId,
         jenazahId: status.jenazahId,
+        blokId: status.blokId,
       },
     });
 

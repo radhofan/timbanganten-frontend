@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
-import { Jenazah, Penanggung_Jawab, User } from "@prisma/client";
+import { Jenazah, Penanggung_Jawab, User, Blok } from "@prisma/client";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -15,6 +15,7 @@ const { Option } = Select;
 export interface Makam {
   id: number;
   blok: string;
+  id_blok: Blok | null;
   nama: string;
   lokasi: string;
   silsilah: string;
@@ -101,12 +102,40 @@ export default function MakamTable(): JSX.Element {
   });
 
   columns.push({
+    title: "Status Blok",
+    dataIndex: "id_blok",
+    key: "id_blok",
+    align: "center",
+    sorter: (a, b) => {
+      const sa = a.id_blok?.status_blok || "";
+      const sb = b.id_blok?.status_blok || "";
+      return sa.localeCompare(sb);
+    },
+    render: (_, record) => {
+      const status = record.id_blok?.status_blok || "";
+      return <span className="font-medium">{status}</span>;
+    },
+  });
+
+  columns.push({
     title: "Nama Jenazah",
     dataIndex: "nama",
     key: "nama",
     align: "center",
     sorter: (a, b) => a.nama.localeCompare(b.nama),
     render: (value, record) => <span className="font-medium">{record.nama}</span>,
+  });
+
+  columns.push({
+    title: "Status Jenazah",
+    dataIndex: "status_jenazah",
+    key: "status_jenazah",
+    align: "center",
+    sorter: (a, b) =>
+      (a.jenazah?.status_jenazah ?? "").localeCompare(b.jenazah?.status_jenazah ?? ""),
+    render: (value, record) => (
+      <span className="font-medium">{record.jenazah?.status_jenazah}</span>
+    ),
   });
 
   columns.push({

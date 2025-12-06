@@ -18,6 +18,7 @@ export async function GET(request: Request) {
         user: true,
         pj: true,
         jenazah: true,
+        id_blok: true,
       },
     });
 
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
       user: true,
       pj: true,
       jenazah: true,
+      id_blok: true,
     },
   });
 
