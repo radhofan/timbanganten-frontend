@@ -41,4 +41,5 @@ export type Makam = {
   approved: string;
   created_at: string;
   updated_at: string;
+  tanggal_pemesanan: string;
 };

@@ -253,7 +253,10 @@ export default function Status() {
                   </p>
                   <p>
                     <span className="font-medium">Tanggal Pemesanan:</span>{" "}
-                    {new Date(item.created_at).toLocaleDateString("id-ID")}
+                    {/* {new Date(item.created_at).toLocaleDateString("id-ID")} */}
+                    {item.tanggal_pemesanan
+                      ? new Date(item.tanggal_pemesanan).toLocaleDateString("id-ID")
+                      : "-"}
                   </p>
                   <p className="col-span-2">
                     <span className="font-medium">Penanggung Jawab:</span>{" "}

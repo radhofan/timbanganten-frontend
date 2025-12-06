@@ -137,9 +137,20 @@ export async function POST(request: Request) {
           description: body.notes,
           nama_penanggung_jawab: body.pjName,
           kontak_penanggung_jawab: body.pjContact,
+          tanggal_pemesanan: body.tanggalPemesanan,
           userId: paId ?? null,
           pjId: pjId ?? null,
           jenazahId: jenazahId ?? null,
+          blokId: body.id_blok ?? null,
+        },
+      });
+
+      // --- Update Blok to be unvaialable ---
+      await prisma.blok.update({
+        where: { id_blok: body.id_blok },
+        data: {
+          status_blok: "DIPESAN",
+          availability: "TIDAK TERSEDIA",
         },
       });
 

@@ -89,6 +89,8 @@ model Blok {
   
   // OUT RELATION
   jenazah                    Jenazah?
+  makam                      makam?
+  makamStatus                makamStatus?
 }
 
 // Makam Aktif
@@ -107,16 +109,19 @@ model makam {
   approved                String
   created_at              DateTime @default(now())
   updated_at              DateTime @updatedAt
+  tanggal_pemesanan       DateTime?
 
   // RELATION ID
   userId                  String? 
   pjId                    String? 
   jenazahId               String? 
+  blokId                  String? @unique
   
   // IN RELATION
   user                    User?    @relation(fields: [userId], references: [id])
   pj                      Penanggung_Jawab?    @relation(fields: [pjId], references: [id_penanggung_jawab])
   jenazah                 Jenazah?    @relation(fields: [jenazahId], references: [id_jenazah])
+  id_blok                 Blok? @relation(fields: [blokId], references: [id_blok])
 }
 
 // Makam Sedang Dipesan
@@ -135,14 +140,17 @@ model makamStatus {
   approved                String
   created_at              DateTime @default(now()) @db.Timestamp(6)
   updated_at              DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  tanggal_pemesanan       DateTime?
 
   // RELATION ID
   userId                  String? 
   pjId                    String? 
   jenazahId               String? 
+  blokId                  String? @unique
   
   // IN RELATION
   user                    User?    @relation(fields: [userId], references: [id])
   pj                      Penanggung_Jawab?    @relation(fields: [pjId], references: [id_penanggung_jawab])
   jenazah                 Jenazah?    @relation(fields: [jenazahId], references: [id_jenazah])
+  id_blok                 Blok? @relation(fields: [blokId], references: [id_blok])
 }

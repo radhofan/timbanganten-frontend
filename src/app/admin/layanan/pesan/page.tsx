@@ -6,7 +6,7 @@ import { User } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "antd";
+import { Button, DatePicker } from "antd";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,9 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Pemesanan() {
+  const [blokList, setBlokList] = useState<{ id_blok: string; lokasi: string }[]>([]);
+  const [lokasi, setLokasi] = useState<string>("");
+
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -75,6 +78,15 @@ export default function Pemesanan() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, useExisting]);
 
+  useEffect(() => {
+    const url = lokasi ? `/api/blok?lokasi=${encodeURIComponent(lokasi)}` : "/api/blok";
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => setBlokList(data))
+      .catch(console.error);
+  }, [lokasi]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -97,6 +109,7 @@ export default function Pemesanan() {
 
     interface PemesananPayload {
       namaJenazah: string;
+      id_blok: string;
       blok: string;
       lokasi: string;
       silsilah: string;
@@ -113,16 +126,25 @@ export default function Pemesanan() {
       userPBName?: string;
       userPBContact?: string;
       userPBEmail?: string;
+      tanggalPemesanan?: Date;
+      tanggalPemakaman?: Date;
     }
 
     const payload: PemesananPayload = {
       namaJenazah: formData.get("namajenazah") as string,
-      blok: formData.get("blok") as string,
+      blok: formData.get("id_blok") as string,
+      id_blok: formData.get("id_blok") as string,
       lokasi: formData.get("lokasi") as string,
       silsilah: formData.get("silsilah") as string,
       notes: formData.get("notes") as string,
       masaAktif: `${masaAktif.year}-${masaAktif.month.toString().padStart(2, "0")}-${masaAktif.day.toString().padStart(2, "0")}`,
       diriSendiri,
+      tanggalPemakaman: formData.get("tanggalPemakaman")
+        ? new Date(formData.get("tanggalPemakaman") as string)
+        : undefined,
+      tanggalPemesanan: formData.get("tanggalPemesanan")
+        ? new Date(formData.get("tanggalPemesanan") as string)
+        : undefined,
     };
 
     if (useExisting && selectedUser) {
@@ -163,6 +185,7 @@ export default function Pemesanan() {
       });
 
       if (res.ok) {
+        console.log(payload);
         alert("Pemesanan berhasil disimpan!");
         router.push("/admin/layanan/pesan/status");
         form.reset();
@@ -292,7 +315,6 @@ export default function Pemesanan() {
           {/* Data Pemesanan Section */}
           <section className="space-y-5">
             <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Data Pemesanan</h3>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col col-span-2">
                 <Label htmlFor="namajenazah" className="mb-2">
@@ -301,10 +323,36 @@ export default function Pemesanan() {
                 <Input id="namajenazah" name="namajenazah" required placeholder="Nama Jenazah" />
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="blok" className="mb-2">
+                <Label htmlFor="id_blok" className="mb-2">
                   Blok Kavling
                 </Label>
-                <Input id="blok" name="blok" required placeholder="Masukkan kode blok" />
+                <Select name="id_blok" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Blok" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {blokList.map((b) => (
+                      <SelectItem key={b.id_blok} value={b.id_blok}>
+                        {b.id_blok} ({b.lokasi})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col">
+                <Label htmlFor="lokasi" className="mb-2">
+                  Lokasi Pemakaman
+                </Label>
+                <Select name="lokasi" required onValueChange={(value) => setLokasi(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Lokasi Pemakaman" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
+                    <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
+                    <SelectItem value="Dayeuh Kolot">Dayeuh Kolot</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="silsilah" className="mb-2">
@@ -346,22 +394,30 @@ export default function Pemesanan() {
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="flex flex-col flex-1">
-                  <Label htmlFor="lokasi" className="mb-2">
-                    Lokasi Pemakaman
-                  </Label>
-                  <Select name="lokasi" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih Lokasi Pemakaman" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                      <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                      <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              </div>
+            </div>
+            <div className="flex flex-row gap-4">
+              <div className="flex flex-col flex-1">
+                <Label htmlFor="tanggalPemesan" className="mb-2">
+                  Tanggal Pemesanan
+                </Label>
+                <DatePicker
+                  id="tanggalPemesanan"
+                  name="tanggalPemesanan"
+                  className="w-full border border-black"
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="flex flex-col flex-1">
+                <Label htmlFor="tanggalPemakaman" className="mb-2">
+                  Tanggal Pemakaman
+                </Label>
+                <DatePicker
+                  id="tanggalPemakaman"
+                  name="tanggalPemakaman"
+                  className="w-full border border-black"
+                  onChange={() => {}}
+                />
               </div>
             </div>
           </section>
