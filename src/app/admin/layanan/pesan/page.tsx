@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { User } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dayjs from "dayjs";
 
 import { Button, DatePicker } from "antd";
 
@@ -41,10 +42,20 @@ export default function Pemesanan() {
   const minDate = normalizeDate(sixMonthsLater);
   const maxDate = normalizeDate(fiveYearsLater);
 
-  const years = Array.from(
-    { length: maxDate.getFullYear() - minDate.getFullYear() + 1 },
-    (_, i) => minDate.getFullYear() + i
-  );
+  // const years = Array.from(
+  //   { length: maxDate.getFullYear() - minDate.getFullYear() + 1 },
+  //   (_, i) => minDate.getFullYear() + i
+  // );
+
+  // const getValidDays = (month: number, year: number) => {
+  //   const daysInMonth = new Date(year, month, 0).getDate();
+  //   return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  // };
+
+  const disableDate = (current: dayjs.Dayjs) => {
+    if (!current) return false;
+    return current.isBefore(dayjs(minDate), "day") || current.isAfter(dayjs(maxDate), "day");
+  };
 
   const [masaAktif, setMasaAktif] = useState({
     day: minDate.getDate(),
@@ -56,11 +67,6 @@ export default function Pemesanan() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  const getValidDays = (month: number, year: number) => {
-    const daysInMonth = new Date(year, month, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -327,7 +333,7 @@ export default function Pemesanan() {
                   Blok Kavling
                 </Label>
                 <Select name="id_blok" required>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Blok" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -344,7 +350,7 @@ export default function Pemesanan() {
                   Lokasi Pemakaman
                 </Label>
                 <Select name="lokasi" required onValueChange={(value) => setLokasi(value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Lokasi Pemakaman" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -356,10 +362,10 @@ export default function Pemesanan() {
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="silsilah" className="mb-2">
-                  Silsilah PJ
+                  Hubungan dengan pemesan
                 </Label>
                 <Select name="silsilah" required>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Silsilah" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -383,7 +389,7 @@ export default function Pemesanan() {
                     Jenis Makam
                   </Label>
                   <Select name="jenismakam" required>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Pilih Jenis Makam" />
                     </SelectTrigger>
                     <SelectContent className="bg-white">
@@ -412,12 +418,17 @@ export default function Pemesanan() {
                 <Label htmlFor="tanggalPemakaman" className="mb-2">
                   Tanggal Pemakaman
                 </Label>
+
                 <DatePicker
                   id="tanggalPemakaman"
                   name="tanggalPemakaman"
                   className="w-full border border-black"
                   onChange={() => {}}
                 />
+
+                <span className="text-sm text-gray-600 mt-1">
+                  *Diisi jika pemesan telah dimakamkan.
+                </span>
               </div>
             </div>
           </section>
@@ -425,69 +436,31 @@ export default function Pemesanan() {
           {/* Detail Tambahan Section */}
           <section className="space-y-5">
             <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Detail Tambahan</h3>
-
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col">
-                <Label className="mb-2">Hari</Label>
-                <Select
-                  value={masaAktif.day.toString()}
-                  onValueChange={(v) => setMasaAktif({ ...masaAktif, day: parseInt(v) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Hari" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {getValidDays(masaAktif.month, masaAktif.year).map((d) => (
-                      <SelectItem key={d} value={d.toString()}>
-                        {d}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <Label className="block text-sm text-gray-600 mb-3 w-full">
+                  Masa berlaku makam sampai dengan
+                </Label>
 
-              <div className="flex flex-col">
-                <Label className="mb-2">Bulan</Label>
-                <Select
-                  value={masaAktif.month.toString()}
-                  onValueChange={(v) => setMasaAktif({ ...masaAktif, month: parseInt(v) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Bulan" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                      <SelectItem key={m} value={m.toString()}>
-                        {m}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col">
-                <Label className="mb-2">Tahun</Label>
-                <Select
-                  value={masaAktif.year.toString()}
-                  onValueChange={(v) => setMasaAktif({ ...masaAktif, year: parseInt(v) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Tahun" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {years.map((y) => (
-                      <SelectItem key={y} value={y.toString()}>
-                        {y}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <DatePicker
+                  className="w-full"
+                  format="DD MM YYYY"
+                  disabledDate={disableDate}
+                  onChange={(value) => {
+                    if (!value) return;
+                    setMasaAktif({
+                      day: value.date(),
+                      month: value.month() + 1,
+                      year: value.year(),
+                    });
+                  }}
+                />
               </div>
             </div>
 
             <div className="flex flex-col">
               <Label htmlFor="notes" className="mb-2">
-                Penjelasan
+                Penjelasan Tambahan
               </Label>
               <Textarea
                 id="notes"
