@@ -47,6 +47,8 @@ export default function LoginAdmin() {
           style={{ objectFit: "cover" }}
           priority
           placeholder="empty"
+          unoptimized
+          quality={100}
         />
       </div>
       <div className="absolute inset-0 bg-black opacity-50 -z-10"></div>
