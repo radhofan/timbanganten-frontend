@@ -77,6 +77,8 @@ export async function POST(request: Request) {
               tanggal_pemakaman: body.tanggalPemakaman,
               status_jenazah: finalJenazahStatus,
               id_blok: body.id_blok,
+              status_pembayaran_pesanan: "UNPAID",
+              status_pembayaran_iuran_tahunan: "UNPAID",
             },
           });
           jenazahId = newJenazahPB.id_jenazah;
@@ -88,6 +90,8 @@ export async function POST(request: Request) {
               tanggal_pemakaman: body.tanggalPemakaman,
               status_jenazah: finalJenazahStatus,
               id_blok: body.id_blok,
+              status_pembayaran_pesanan: "UNPAID",
+              status_pembayaran_iuran_tahunan: "UNPAID",
             },
           });
           jenazahId = newJenazahPA.id_jenazah;
@@ -115,6 +119,8 @@ export async function POST(request: Request) {
               tanggal_pemakaman: body.tanggalPemakaman,
               status_jenazah: finalJenazahStatus,
               id_blok: body.id_blok,
+              status_pembayaran_pesanan: "UNPAID",
+              status_pembayaran_iuran_tahunan: "UNPAID",
             },
           });
           paId = pjId;
@@ -127,6 +133,8 @@ export async function POST(request: Request) {
               tanggal_pemakaman: body.tanggalPemakaman,
               status_jenazah: finalJenazahStatus,
               id_blok: body.id_blok,
+              status_pembayaran_pesanan: "UNPAID",
+              status_pembayaran_iuran_tahunan: "UNPAID",
             },
           });
 

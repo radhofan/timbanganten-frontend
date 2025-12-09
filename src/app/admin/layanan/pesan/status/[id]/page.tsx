@@ -206,7 +206,7 @@ export default function MakamStatus() {
         approved: data.approved,
         blok: data.blok,
         statusBlok: data.id_blok.status_blok || "",
-        statusJenazah: data.jenzah.status_jenazah || "",
+        statusJenazah: data.jenazah.status_jenazah || "",
       });
     } catch (err) {
       console.error("Failed to fetch data:", err);
@@ -278,20 +278,56 @@ export default function MakamStatus() {
     }
   };
 
-  const markAsResolving = async (id: string) => {
-    await fetch("/api/resolving", {
-      method: "PUT",
-      body: JSON.stringify({ id }),
-    });
-    fetchData();
+  const markAsResolving = async (id: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/resolving", {
+        method: "PUT",
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error?.error || "Failed to mark as resolving");
+      }
+
+      await fetchData();
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Resolving error:", err);
+        alert("Gagal menandai sebagai resolving: " + err.message);
+      } else {
+        console.error("Unknown error:", err);
+        alert("Terjadi kesalahan tidak dikenal.");
+      }
+      return false;
+    }
   };
 
-  const markAsResolved = async (id: string) => {
-    await fetch("/api/resolved", {
-      method: "PUT",
-      body: JSON.stringify({ id }),
-    });
-    fetchData();
+  const markAsResolved = async (id: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/resolved", {
+        method: "PUT",
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error?.error || "Failed to mark as resolved");
+      }
+
+      await fetchData();
+      return true;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Resolved error:", err);
+        alert("Gagal menandai sebagai resolved: " + err.message);
+      } else {
+        console.error("Unknown error:", err);
+        alert("Terjadi kesalahan tidak dikenal.");
+      }
+      return false;
+    }
   };
 
   return (
@@ -429,7 +465,7 @@ export default function MakamStatus() {
             <section className="flex flex-wrap gap-6">
               <StatusCard title="Status Approval" status={formData.approved} onResolve={() => {}} />
               <StatusCard
-                title="Status Pembayaran"
+                title="Status Pembayaran Pesanan"
                 status={formData.payment}
                 onResolve={() => {}}
               />
@@ -450,7 +486,13 @@ export default function MakamStatus() {
                   {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
-                      onClick={() => markAsResolving(id as string)}
+                      onClick={async () => {
+                        const success = await markAsResolving(id as string);
+                        if (success) {
+                          router.refresh();
+                        }
+                      }}
+                      // onClick={() => markAsResolving(id as string)}
                       className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
                     >
                       Mark as Resolving
@@ -460,7 +502,13 @@ export default function MakamStatus() {
                   {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
-                      onClick={() => markAsResolved(id as string)}
+                      onClick={async () => {
+                        const success = await markAsResolved(id as string);
+                        if (success) {
+                          router.refresh();
+                        }
+                      }}
+                      // onClick={() => markAsResolved(id as string)}
                       className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                     >
                       Approve Payment
@@ -470,7 +518,13 @@ export default function MakamStatus() {
                   {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
                     <button
                       type="button"
-                      onClick={() => markAsResolved(id as string)}
+                      onClick={async () => {
+                        const success = await markAsResolved(id as string);
+                        if (success) {
+                          router.refresh();
+                        }
+                      }}
+                      // onClick={() => markAsResolved(id as string)}
                       className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                     >
                       Mark as Resolved

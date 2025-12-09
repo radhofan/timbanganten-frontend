@@ -28,9 +28,9 @@ export default function Admin() {
       href: "/admin/layanan/makam",
     },
     {
-      title: "Denah Makam",
+      title: "Pembayaran",
       imgSrc: "/images/denah makam1.png",
-      href: "/admin/layanan/denah",
+      href: "/admin/layanan/pembayaran",
     },
     {
       title: "Daftar Penanggung Jawab",

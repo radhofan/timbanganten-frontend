@@ -4,13 +4,25 @@ import { prisma } from "@/lib/db";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const search = url.searchParams.get("id");
+
   if (search) {
     const data = await prisma.jenazah.findUnique({
       where: { id_jenazah: search },
+      include: {
+        user: true,
+        blok: true,
+      },
     });
     return NextResponse.json(data);
   }
-  const data = await prisma.jenazah.findMany();
+
+  const data = await prisma.jenazah.findMany({
+    include: {
+      user: true,
+      blok: true,
+    },
+  });
+
   return NextResponse.json(data);
 }
 
@@ -23,7 +35,8 @@ export async function POST(request: Request) {
       status_jenazah: body.status_jenazah ?? null,
       masa_aktif: body.masa_aktif ?? null,
       id_blok: body.id_blok ?? null,
-      status_pembayaran: body.status_pembayaran ?? null,
+      status_pembayaran_pesanan: body.status_pembayaran_pesanan ?? null,
+      status_pembayaran_iuran_tahunan: body.status_pembayaran_iuran_tahunan ?? null,
     },
   });
   return NextResponse.json(data);

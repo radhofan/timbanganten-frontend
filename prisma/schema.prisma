@@ -65,7 +65,8 @@ model Jenazah {
   tanggal_pemakaman DateTime?
   status_jenazah    String?   @db.VarChar(255)
   masa_aktif        Int?
-  status_pembayaran String?   @db.VarChar(255)
+  status_pembayaran_pesanan String?   @db.VarChar(255)
+  status_pembayaran_iuran_tahunan String?   @db.VarChar(255)
 
   // RELATION ID
   id_user           String?   @unique
@@ -87,6 +88,7 @@ model Blok {
   status_blok                String?   @db.VarChar(255)
   status_pesanan             String?   @db.VarChar(255)
   availability               String?   @db.VarChar(255)
+  status_pembayaran          String?   @db.VarChar(255)
   
   // OUT RELATION
   jenazah                    Jenazah[]
