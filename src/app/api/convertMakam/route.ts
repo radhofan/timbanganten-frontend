@@ -53,6 +53,63 @@ export async function POST(request: Request) {
       });
     }
 
+    // --- UPDATE JENAZAH STATUS IF DIPESAN ---
+    if (status.jenazahId) {
+      const jenazahData = await prisma.jenazah.findUnique({
+        where: { id_jenazah: status.jenazahId },
+      });
+
+      if (jenazahData && jenazahData.status_jenazah === "DIPESAN" && jenazahData.id_blok) {
+        // Get related blok
+        const blokData = await prisma.blok.findUnique({
+          where: { id_blok: jenazahData.id_blok },
+        });
+
+        let newJenazahStatus: string | null = null;
+        let newBlokStatus: string | null = null;
+
+        if (blokData?.status_blok === "KOSONG") {
+          newJenazahStatus = "DIKUBURKAN";
+          newBlokStatus = "DIGUNAKAN-1";
+        } else if (blokData?.status_blok === "DIGUNAKAN-1") {
+          newJenazahStatus = "DITUMPUK-2";
+          newBlokStatus = "DIGUNAKAN-2";
+        } else if (blokData?.status_blok === "DIGUNAKAN-2") {
+          newJenazahStatus = "DITUMPUK-3";
+          newBlokStatus = "DIGUNAKAN-3";
+        }
+
+        if (newJenazahStatus) {
+          await prisma.jenazah.update({
+            where: { id_jenazah: jenazahData.id_jenazah },
+            data: {
+              status_jenazah: newJenazahStatus,
+              tanggal_pemakaman: new Date(),
+            },
+          });
+        }
+
+        let newBlokAvailability: string | null = null;
+        if (newBlokStatus === "DIGUNAKAN-3") {
+          newBlokAvailability = "TIDAK TERSEDIA";
+        } else {
+          newBlokAvailability = "TERSEDIA";
+        }
+
+        if (newBlokStatus && blokData) {
+          await prisma.blok.update({
+            where: { id_blok: blokData.id_blok },
+            data: {
+              status_blok: newBlokStatus,
+              status_pesanan: "TIDAK DIPESAN",
+              availability: newBlokAvailability,
+              tanggal_pemakaman_terakhir: new Date(),
+            },
+          });
+        }
+      }
+    }
+
     return NextResponse.json({
       message: "Berhasil disetujui dan status user diupdate",
       makam: newMakam,

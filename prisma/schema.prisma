@@ -68,8 +68,8 @@ model Jenazah {
   status_pembayaran String?   @db.VarChar(255)
 
   // RELATION ID
-  id_user           String?      @unique
-  id_blok           String?   @unique
+  id_user           String?   @unique
+  id_blok           String?  
   
   // IN RELATION
   user              User?     @relation(fields: [id_user], references: [id])
@@ -85,12 +85,13 @@ model Blok {
   lokasi                     String?   @db.VarChar(255)
   tanggal_pemakaman_terakhir DateTime?
   status_blok                String?   @db.VarChar(255)
+  status_pesanan             String?   @db.VarChar(255)
   availability               String?   @db.VarChar(255)
   
   // OUT RELATION
-  jenazah                    Jenazah?
-  makam                      makam?
-  makamStatus                makamStatus?
+  jenazah                    Jenazah[]
+  makam                      makam[]
+  makamStatus                makamStatus[]
 }
 
 // Makam Aktif
@@ -101,7 +102,7 @@ model makam {
   lokasi                  String
   silsilah                String
   ext                     String?
-  masa_aktif              DateTime
+  masa_aktif              DateTime?
   nama_penanggung_jawab   String
   kontak_penanggung_jawab String
   description             String
@@ -115,7 +116,7 @@ model makam {
   userId                  String? 
   pjId                    String? 
   jenazahId               String? 
-  blokId                  String? @unique
+  blokId                  String? 
   
   // IN RELATION
   user                    User?    @relation(fields: [userId], references: [id])
@@ -132,7 +133,7 @@ model makamStatus {
   lokasi                  String
   silsilah                String
   ext                     String?
-  masa_aktif              DateTime @db.Timestamp(6)
+  masa_aktif              DateTime?
   nama_penanggung_jawab   String
   kontak_penanggung_jawab String
   description             String
@@ -146,7 +147,7 @@ model makamStatus {
   userId                  String? 
   pjId                    String? 
   jenazahId               String? 
-  blokId                  String? @unique
+  blokId                  String? 
   
   // IN RELATION
   user                    User?    @relation(fields: [userId], references: [id])

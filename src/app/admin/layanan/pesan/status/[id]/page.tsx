@@ -6,6 +6,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
 
 function Input({
   label,
@@ -62,7 +64,7 @@ function StatusCard({ title, status }: { title: string; status: string; onResolv
 
   return (
     <div className="text-center">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{title}</label>
+      <label className="block text-sm font-medium text-gray-700 mb-2">{title}</label>
       <div className="flex items-center justify-center gap-3">
         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
       </div>
@@ -84,6 +86,9 @@ export default function MakamStatus() {
     ext: "",
     approved: "",
     blok: "",
+    tanggalPemesanan: "",
+    statusBlok: "",
+    statusJenazah: "",
   });
 
   async function approveMakam(id: string): Promise<boolean> {
@@ -165,8 +170,11 @@ export default function MakamStatus() {
           notes: data.description || "",
           payment: data.payment || "",
           ext: data.ext || "",
+          tanggalPemesanan: data.tanggal_pemesanan || "",
           approved: data.approved,
           blok: data.blok,
+          statusBlok: data.id_blok.status_blok || "",
+          statusJenazah: data.jenazah.status_jenazah || "",
         });
       } catch (err) {
         console.error("Failed to fetch data:", err);
@@ -194,8 +202,11 @@ export default function MakamStatus() {
         notes: data.description || "",
         payment: data.payment || "",
         ext: data.ext || "",
+        tanggalPemesanan: data.jenazah.tanggal_pemesanan || "",
         approved: data.approved,
         blok: data.blok,
+        statusBlok: data.id_blok.status_blok || "",
+        statusJenazah: data.jenzah.status_jenazah || "",
       });
     } catch (err) {
       console.error("Failed to fetch data:", err);
@@ -305,6 +316,13 @@ export default function MakamStatus() {
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
+                  label="Nama Jenazah"
+                  id="namajenazah"
+                  value={formData.namajenazah}
+                  onChange={handleChange}
+                  readOnly={role !== "admin"}
+                />
+                <Input
                   label="Nama Penanggung Jawab"
                   id="namapj"
                   value={formData.namapj}
@@ -322,13 +340,6 @@ export default function MakamStatus() {
                   label="Hubungan Silsilah"
                   id="silsilah"
                   value={formData.silsilah}
-                  onChange={handleChange}
-                  readOnly={role !== "admin"}
-                />
-                <Input
-                  label="Nama Jenazah"
-                  id="namajenazah"
-                  value={formData.namajenazah}
                   onChange={handleChange}
                   readOnly={role !== "admin"}
                 />
@@ -359,6 +370,42 @@ export default function MakamStatus() {
                   value={formData.blok}
                   onChange={handleChange}
                   readOnly={role !== "admin"}
+                />
+                <div>
+                  <label
+                    htmlFor="Tanggal Pemesanan"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Tanggal Pemesanan
+                  </label>
+                  <DatePicker
+                    id="tanggal_pemesanan"
+                    value={formData.tanggalPemesanan ? dayjs(formData.tanggalPemesanan) : null}
+                    onChange={(value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        tanggal_pemesanan: value ? value.toISOString() : "",
+                      }));
+                    }}
+                    disabled={true}
+                    className="w-full"
+                  />
+                </div>
+                <Input
+                  label="Status Blok Sekarang"
+                  id="statusBlok"
+                  value={formData.statusBlok}
+                  onChange={handleChange}
+                  readOnly={true}
+                  disabled={true}
+                />
+                <Input
+                  label="Status Jenazah *(Harap approve dan aktifkan makam jika jenazah sudah dikubur)"
+                  id="statusJenazah"
+                  value={formData.statusJenazah}
+                  onChange={handleChange}
+                  readOnly={true}
+                  disabled={true}
                 />
               </div>
             </section>
@@ -434,7 +481,7 @@ export default function MakamStatus() {
                     type="submit"
                     className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
                   >
-                    Edit
+                    Update
                   </button>
 
                   {formData.payment === "PAID" &&

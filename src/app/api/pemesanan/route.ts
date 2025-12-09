@@ -4,6 +4,28 @@ import { prisma } from "@/lib/db";
 export async function POST(request: Request) {
   const body = await request.json();
 
+  const blokData = await prisma.blok.findUnique({
+    where: { id_blok: body.id_blok },
+  });
+
+  let finalJenazahStatus;
+  let finalStatusBlok: string;
+  // CEK APAKAH SUDAH DIMAKAMKAN ATAU BELUM
+  if (body.tanggalPemakaman) {
+    if (blokData?.status_blok === "DIGUNAKAN-1") {
+      finalJenazahStatus = "DITUMPUK-2";
+      finalStatusBlok = "DIGUNAKAN-2";
+    } else if (blokData?.status_blok === "DIGUNAKAN-2") {
+      finalJenazahStatus = "DITUMPUK-3";
+      finalStatusBlok = "DIGUNAKAN-3";
+    } else {
+      finalJenazahStatus = "DIKUBURKAN";
+      finalStatusBlok = "DIGUNAKAN-1";
+    }
+  } else {
+    finalJenazahStatus = "DIPESAN";
+  }
+
   try {
     const result = await prisma.$transaction(async (prisma) => {
       let paId: string | undefined;
@@ -52,11 +74,9 @@ export async function POST(request: Request) {
           const newJenazahPB = await prisma.jenazah.create({
             data: {
               id_user: pbId,
-              tanggal_pemakaman: null,
-              status_jenazah: null,
-              masa_aktif: null,
-              id_blok: null,
-              status_pembayaran: null,
+              tanggal_pemakaman: body.tanggalPemakaman,
+              status_jenazah: finalJenazahStatus,
+              id_blok: body.id_blok,
             },
           });
           jenazahId = newJenazahPB.id_jenazah;
@@ -65,11 +85,9 @@ export async function POST(request: Request) {
           const newJenazahPA = await prisma.jenazah.create({
             data: {
               id_user: paId,
-              tanggal_pemakaman: null,
-              status_jenazah: null,
-              masa_aktif: null,
-              id_blok: null,
-              status_pembayaran: null,
+              tanggal_pemakaman: body.tanggalPemakaman,
+              status_jenazah: finalJenazahStatus,
+              id_blok: body.id_blok,
             },
           });
           jenazahId = newJenazahPA.id_jenazah;
@@ -85,8 +103,6 @@ export async function POST(request: Request) {
           const newUserPB = await prisma.user.create({
             data: {
               name: body.userPBName,
-              // contact: body.userPBContact,
-              // email: body.userPBEmail,
               status: "PENDING",
             },
           });
@@ -96,11 +112,9 @@ export async function POST(request: Request) {
           const newJenazahPB = await prisma.jenazah.create({
             data: {
               id_user: pbId,
-              tanggal_pemakaman: null,
-              status_jenazah: null,
-              masa_aktif: null,
-              id_blok: null,
-              status_pembayaran: null,
+              tanggal_pemakaman: body.tanggalPemakaman,
+              status_jenazah: finalJenazahStatus,
+              id_blok: body.id_blok,
             },
           });
           paId = pjId;
@@ -110,11 +124,9 @@ export async function POST(request: Request) {
           const newJenazahPA = await prisma.jenazah.create({
             data: {
               id_user: pjId,
-              tanggal_pemakaman: null,
-              status_jenazah: null,
-              masa_aktif: null,
-              id_blok: null,
-              status_pembayaran: null,
+              tanggal_pemakaman: body.tanggalPemakaman,
+              status_jenazah: finalJenazahStatus,
+              id_blok: body.id_blok,
             },
           });
 
@@ -130,7 +142,6 @@ export async function POST(request: Request) {
           blok: body.blok,
           lokasi: body.lokasi,
           silsilah: body.silsilah,
-          masa_aktif: new Date(body.masaAktif),
           ext: "PENDING",
           payment: "PENDING",
           approved: "PENDING",
@@ -145,12 +156,14 @@ export async function POST(request: Request) {
         },
       });
 
-      // --- Update Blok to be unvaialable ---
+      // --- Update Blok to be unavailable ---
       await prisma.blok.update({
         where: { id_blok: body.id_blok },
         data: {
-          status_blok: "DIPESAN",
+          ...(body.tanggalPemakaman ? { tanggal_pemakaman_terakhir: body.tanggalPemakaman } : {}),
+          ...(finalStatusBlok ? { status_blok: finalStatusBlok } : {}),
           availability: "TIDAK TERSEDIA",
+          status_pesanan: "DIPESAN",
         },
       });
 

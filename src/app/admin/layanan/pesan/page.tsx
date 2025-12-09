@@ -22,8 +22,11 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Pemesanan() {
-  const [blokList, setBlokList] = useState<{ id_blok: string; lokasi: string }[]>([]);
+  const [blokList, setBlokList] = useState<
+    { id_blok: string; lokasi: string; status_blok: string }[]
+  >([]);
   const [lokasi, setLokasi] = useState<string>("");
+  const [jenisMakam, setJenisMakam] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -41,16 +44,6 @@ export default function Pemesanan() {
 
   const minDate = normalizeDate(sixMonthsLater);
   const maxDate = normalizeDate(fiveYearsLater);
-
-  // const years = Array.from(
-  //   { length: maxDate.getFullYear() - minDate.getFullYear() + 1 },
-  //   (_, i) => minDate.getFullYear() + i
-  // );
-
-  // const getValidDays = (month: number, year: number) => {
-  //   const daysInMonth = new Date(year, month, 0).getDate();
-  //   return Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  // };
 
   const disableDate = (current: dayjs.Dayjs) => {
     if (!current) return false;
@@ -85,13 +78,18 @@ export default function Pemesanan() {
   }, [searchTerm, useExisting]);
 
   useEffect(() => {
-    const url = lokasi ? `/api/blok?lokasi=${encodeURIComponent(lokasi)}` : "/api/blok";
+    const params = new URLSearchParams();
+
+    if (lokasi) params.set("lokasi", lokasi);
+    if (jenisMakam) params.set("jenismakam", jenisMakam);
+
+    const url = `/api/blok?${params.toString()}`;
 
     fetch(url)
       .then((res) => res.json())
       .then((data) => setBlokList(data))
       .catch(console.error);
-  }, [lokasi]);
+  }, [lokasi, jenisMakam]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -339,7 +337,7 @@ export default function Pemesanan() {
                   <SelectContent className="bg-white">
                     {blokList.map((b) => (
                       <SelectItem key={b.id_blok} value={b.id_blok}>
-                        {b.id_blok} ({b.lokasi})
+                        {b.id_blok} ({b.lokasi}) ({b.status_blok})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -388,15 +386,17 @@ export default function Pemesanan() {
                   <Label htmlFor="jenismakam" className="mb-2">
                     Jenis Makam
                   </Label>
-                  <Select name="jenismakam" required>
+                  <Select
+                    name="jenismakam"
+                    required
+                    onValueChange={(value) => setJenisMakam(value)}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Pilih Jenis Makam" />
                     </SelectTrigger>
                     <SelectContent className="bg-white">
                       <SelectItem value="baru">Baru</SelectItem>
-                      <SelectItem value="tumpuk1">Tumpuk 1</SelectItem>
-                      <SelectItem value="tumpuk2">Tumpuk 2</SelectItem>
-                      <SelectItem value="tumpuk3">Tumpuk 3</SelectItem>
+                      <SelectItem value="tumpuk">Tumpuk</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -14,6 +14,10 @@ export async function GET(request: Request) {
 
     const data = await prisma.makamStatus.findUnique({
       where: { id: parsedId },
+      include: {
+        jenazah: true,
+        id_blok: true,
+      },
     });
 
     if (!data) {
@@ -23,7 +27,13 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   }
 
-  const data = await prisma.makamStatus.findMany();
+  const data = await prisma.makamStatus.findMany({
+    include: {
+      jenazah: true,
+      id_blok: true,
+    },
+  });
+
   return NextResponse.json(data);
 }
 

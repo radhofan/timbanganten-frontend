@@ -33,7 +33,7 @@ export type Makam = {
   lokasi: string;
   silsilah: string;
   ext: string | null;
-  masa_aktif: string;
+  masa_aktif: string | null;
   nama_penanggung_jawab: string;
   kontak_penanggung_jawab: string;
   description: string;
