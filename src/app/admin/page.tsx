@@ -28,6 +28,11 @@ export default function Admin() {
       href: "/admin/layanan/makam",
     },
     {
+      title: "Denah Makam",
+      imgSrc: "/images/denah makam1.png",
+      href: "/admin/layanan/denah",
+    },
+    {
       title: "Pembayaran",
       imgSrc: "/images/denah makam1.png",
       href: "/admin/layanan/pembayaran",
