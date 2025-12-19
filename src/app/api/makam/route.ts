@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         user: true,
         pj: true,
         jenazah: true,
-        id_blok: true,
+        blok: true,
       },
     });
 
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       user: true,
       pj: true,
       jenazah: true,
-      id_blok: true,
+      blok: true,
     },
   });
 
@@ -47,7 +47,6 @@ export async function POST(req: Request) {
 
   const newEntry = await prisma.makam.create({
     data: {
-      blok: body.blok,
       nama: body.nama,
       lokasi: body.lokasi,
       silsilah: body.silsilah,
@@ -79,7 +78,6 @@ export async function PUT(req: Request) {
         id: parseInt(id, 10),
       },
       data: {
-        blok: body.blok,
         nama: body.nama,
         lokasi: body.lokasi,
         silsilah: body.silsilah,

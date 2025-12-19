@@ -99,7 +99,6 @@ model Blok {
 // Makam Aktif
 model makam {
   id                      Int      @id @default(autoincrement())
-  blok                    String
   nama                    String
   lokasi                  String
   silsilah                String
@@ -124,13 +123,12 @@ model makam {
   user                    User?    @relation(fields: [userId], references: [id])
   pj                      Penanggung_Jawab?    @relation(fields: [pjId], references: [id_penanggung_jawab])
   jenazah                 Jenazah?    @relation(fields: [jenazahId], references: [id_jenazah])
-  id_blok                 Blok? @relation(fields: [blokId], references: [id_blok])
+  blok                    Blok? @relation(fields: [blokId], references: [id_blok])
 }
 
 // Makam Sedang Dipesan
 model makamStatus {
   id                      Int      @id(map: "makamstatus_pkey") @default(autoincrement())
-  blok                    String
   nama                    String
   lokasi                  String
   silsilah                String
@@ -155,5 +153,5 @@ model makamStatus {
   user                    User?    @relation(fields: [userId], references: [id])
   pj                      Penanggung_Jawab?    @relation(fields: [pjId], references: [id_penanggung_jawab])
   jenazah                 Jenazah?    @relation(fields: [jenazahId], references: [id_jenazah])
-  id_blok                 Blok? @relation(fields: [blokId], references: [id_blok])
+  blok                    Blok? @relation(fields: [blokId], references: [id_blok])
 }

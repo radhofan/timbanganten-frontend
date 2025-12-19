@@ -14,8 +14,6 @@ const { Option } = Select;
 
 export interface Makam {
   id: number;
-  blok: string;
-  id_blok: Blok | null;
   nama: string;
   lokasi: string;
   silsilah: string;
@@ -34,6 +32,7 @@ export interface Makam {
   user: User | null;
   pj: Penanggung_Jawab | null;
   jenazah: Jenazah | null;
+  blok: Blok | null;
 }
 
 export default function MakamTable(): JSX.Element {
@@ -73,9 +72,7 @@ export default function MakamTable(): JSX.Element {
     const q = search.trim().toLowerCase();
     return data.filter((item) => {
       const matchesSearch =
-        item.nama.toLowerCase().includes(q) ||
-        item.nama_penanggung_jawab.toLowerCase().includes(q) ||
-        item.blok.toLowerCase().includes(q);
+        item.nama.toLowerCase().includes(q) || item.nama_penanggung_jawab.toLowerCase().includes(q);
       const matchesLocation = selectedLocation === "Semua" || item.lokasi === selectedLocation;
       return matchesSearch && matchesLocation;
     });
@@ -95,24 +92,27 @@ export default function MakamTable(): JSX.Element {
     key: "blok",
     align: "center",
     sorter: (a, b) =>
-      a.blok.localeCompare(b.blok, undefined, { numeric: true, sensitivity: "base" }),
+      (a.blok?.id_blok ?? "").localeCompare(b.blok?.id_blok ?? "", undefined, {
+        numeric: true,
+        sensitivity: "base",
+      }),
     defaultSortOrder: "ascend",
     sortDirections: ["ascend", "descend"],
-    render: (value, record) => <span>{record.blok}</span>,
+    render: (value, record) => <span>{record.blok?.id_blok}</span>,
   });
 
   columns.push({
     title: "Status Blok",
-    dataIndex: "id_blok",
-    key: "id_blok",
+    dataIndex: "blok",
+    key: "blok",
     align: "center",
     sorter: (a, b) => {
-      const sa = a.id_blok?.status_blok || "";
-      const sb = b.id_blok?.status_blok || "";
+      const sa = a.blok?.status_blok || "";
+      const sb = b.blok?.status_blok || "";
       return sa.localeCompare(sb);
     },
     render: (_, record) => {
-      const status = record.id_blok?.status_blok || "";
+      const status = record.blok?.status_blok || "";
       return <span className="font-medium">{status}</span>;
     },
   });

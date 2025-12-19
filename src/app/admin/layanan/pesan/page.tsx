@@ -114,7 +114,6 @@ export default function Pemesanan() {
     interface PemesananPayload {
       namaJenazah: string;
       id_blok: string;
-      blok: string;
       lokasi: string;
       silsilah: string;
       notes: string;
@@ -136,7 +135,6 @@ export default function Pemesanan() {
 
     const payload: PemesananPayload = {
       namaJenazah: formData.get("namajenazah") as string,
-      blok: formData.get("id_blok") as string,
       id_blok: formData.get("id_blok") as string,
       lokasi: formData.get("lokasi") as string,
       silsilah: formData.get("silsilah") as string,

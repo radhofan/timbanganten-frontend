@@ -20,7 +20,6 @@ export async function POST(request: Request) {
 
     const newMakam = await prisma.makam.create({
       data: {
-        blok: status.blok,
         nama: status.nama,
         lokasi: status.lokasi,
         silsilah: status.silsilah,

@@ -37,7 +37,7 @@ export default function Status() {
     const query = searchName.toLowerCase();
     const matchNama = item.nama.toLowerCase().includes(query);
     const matchPenanggungJawab = item.nama_penanggung_jawab.toLowerCase().includes(query);
-    const matchBlok = item.blok?.toLowerCase().includes(query);
+    const matchBlok = item.blok?.id_blok.toLowerCase().includes(query);
 
     const matchApproval = filterApproved.length === 0 || filterApproved.includes(item.approved);
     const matchPayment = filterPayment.length === 0 || filterPayment.includes(item.payment);

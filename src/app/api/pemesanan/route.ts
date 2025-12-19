@@ -147,7 +147,6 @@ export async function POST(request: Request) {
       const makamStatus = await prisma.makamStatus.create({
         data: {
           nama: body.namaJenazah,
-          blok: body.blok,
           lokasi: body.lokasi,
           silsilah: body.silsilah,
           ext: "PENDING",

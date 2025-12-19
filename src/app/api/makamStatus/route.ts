@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       where: { id: parsedId },
       include: {
         jenazah: true,
-        id_blok: true,
+        blok: true,
       },
     });
 
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   const data = await prisma.makamStatus.findMany({
     include: {
       jenazah: true,
-      id_blok: true,
+      blok: true,
     },
   });
 
@@ -44,7 +44,6 @@ export async function POST(req: Request) {
 
     const newEntry = await prisma.makamStatus.create({
       data: {
-        blok: body.blok,
         nama: body.nama,
         lokasi: body.lokasi,
         silsilah: body.silsilah,
@@ -89,7 +88,6 @@ export async function PUT(req: Request) {
         id: parseInt(id, 10),
       },
       data: {
-        blok: body.blok,
         nama: body.nama,
         lokasi: body.lokasi,
         silsilah: body.silsilah,

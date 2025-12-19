@@ -172,8 +172,8 @@ export default function MakamStatus() {
           ext: data.ext || "",
           tanggalPemesanan: data.tanggal_pemesanan || "",
           approved: data.approved,
-          blok: data.blok,
-          statusBlok: data.id_blok.status_blok || "",
+          blok: data.blok.id_blok,
+          statusBlok: data.blok.status_blok || "",
           statusJenazah: data.jenazah.status_jenazah || "",
         });
       } catch (err) {
