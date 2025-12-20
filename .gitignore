@@ -47,3 +47,6 @@ notes.txt
 
 # ssl certificate
 ca.pem
+
+# prisma build
+./prisma/generated
