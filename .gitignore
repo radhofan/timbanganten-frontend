@@ -49,4 +49,4 @@ notes.txt
 ca.pem
 
 # prisma build
-./prisma/generated
+/prisma/generated
