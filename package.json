@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev-watch": "nodemon --watch src --exec next dev",
-    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
