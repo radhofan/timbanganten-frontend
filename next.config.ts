@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   env: {
     JWT_SECRET: process.env.JWT_SECRET,
   },
+  outputFileTracingIncludes: {
+    "**/*": ["certs/ca.pem"],
+  },
+  experimental: {},
   webpack(config: Configuration) {
     config.module?.rules?.push({
       test: /\.svg$/i,
