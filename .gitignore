@@ -45,8 +45,5 @@ notes.txt
 /prisma/schema_old.txt
 /src/app/admin/layanan/pesan/page_old.txt
 
-# ssl certificate
-ca.pem
-
 # prisma build
 /prisma/generated
