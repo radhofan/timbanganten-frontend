@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+  contact  String
+}
+
+model Approver {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+}
+
+model Pengawas {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+}
+
+model User {
+  id                String  @id @default(uuid())
+  name              String
+  contact           String?
+  email             String? @unique
+  status            String?
+  ktp_num           String? @unique @db.Char(16)
+  emergency_name    String? @db.VarChar(255)
+  emergency_contact String? @unique @db.VarChar(255)
+
+  // OUT RELATION
+  makams           makam[]
+  statuses         makamStatus[]
+  jenazah          Jenazah?
+  penanggung_jawab Penanggung_Jawab?
+}
+
+model Penanggung_Jawab {
+  id_penanggung_jawab String @id @default(uuid())
+
+  // RELATION ID
+  id_user String? @unique
+
+  // IN RELATION
+  user User? @relation(fields: [id_user], references: [id])
+
+  // OUT RELATION
+  makams   makam[]
+  statuses makamStatus[]
+}
+
+model Jenazah {
+  id_jenazah                      String    @id @default(uuid())
+  tanggal_pemakaman               DateTime?
+  status_jenazah                  String?   @db.VarChar(255)
+  masa_aktif                      Int?
+  status_pembayaran_pesanan       String?   @db.VarChar(255)
+  status_pembayaran_iuran_tahunan String?   @db.VarChar(255)
+
+  // RELATION ID
+  id_user String? @unique
+  id_blok String?
+
+  // IN RELATION
+  user User? @relation(fields: [id_user], references: [id])
+  blok Blok? @relation(fields: [id_blok], references: [id_blok])
+
+  // OUT RELATION
+  makams   makam[]
+  statuses makamStatus[]
+}
+
+model Blok {
+  id_blok                    String    @id @default(uuid())
+  lokasi                     String?   @db.VarChar(255)
+  tanggal_pemakaman_terakhir DateTime?
+  status_blok                String?   @db.VarChar(255)
+  status_pesanan             String?   @db.VarChar(255)
+  availability               String?   @db.VarChar(255)
+  status_pembayaran          String?   @db.VarChar(255)
+
+  // OUT RELATION
+  jenazah     Jenazah[]
+  makam       makam[]
+  makamStatus makamStatus[]
+}
+
+// Makam Aktif
+model makam {
+  id                      Int       @id @default(autoincrement())
+  nama                    String
+  lokasi                  String
+  silsilah                String
+  ext                     String?
+  masa_aktif              DateTime?
+  nama_penanggung_jawab   String
+  kontak_penanggung_jawab String
+  description             String
+  payment                 String
+  approved                String
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+  tanggal_pemesanan       DateTime?
+
+  // RELATION ID
+  userId    String?
+  pjId      String?
+  jenazahId String?
+  blokId    String?
+
+  // IN RELATION
+  user    User?             @relation(fields: [userId], references: [id])
+  pj      Penanggung_Jawab? @relation(fields: [pjId], references: [id_penanggung_jawab])
+  jenazah Jenazah?          @relation(fields: [jenazahId], references: [id_jenazah])
+  blok    Blok?             @relation(fields: [blokId], references: [id_blok])
+}
+
+// Makam Sedang Dipesan
+model makamStatus {
+  id                      Int       @id(map: "makamstatus_pkey") @default(autoincrement())
+  nama                    String
+  lokasi                  String
+  silsilah                String
+  ext                     String?
+  masa_aktif              DateTime?
+  nama_penanggung_jawab   String
+  kontak_penanggung_jawab String
+  description             String
+  payment                 String
+  approved                String
+  created_at              DateTime  @default(now()) @db.Timestamp(6)
+  updated_at              DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  tanggal_pemesanan       DateTime?
+
+  // RELATION ID
+  userId    String?
+  pjId      String?
+  jenazahId String?
+  blokId    String?
+
+  // IN RELATION
+  user    User?             @relation(fields: [userId], references: [id])
+  pj      Penanggung_Jawab? @relation(fields: [pjId], references: [id_penanggung_jawab])
+  jenazah Jenazah?          @relation(fields: [jenazahId], references: [id_jenazah])
+  blok    Blok?             @relation(fields: [blokId], references: [id_blok])
+}
