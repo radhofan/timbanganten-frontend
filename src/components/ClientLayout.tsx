@@ -8,7 +8,7 @@ import AuthBootstrapper from "./AuthBootstrapper";
 export default function ClientLayout({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const pathname = usePathname();
-  const authPages = ["/admin/login/admin", "/admin/login/approver", "/admin/login/pengawas"];
+  const authPages = ["/login/admin", "/login/approver", "/login/pengawas"];
   const isAuthPage = authPages.includes(pathname);
 
   useEffect(() => {
