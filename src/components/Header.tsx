@@ -22,7 +22,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
   return (
     <>
       <header className="flex items-center justify-between p-4 bg-white relative">
-        <Link href="/admin">
+        <Link href="/">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 relative">
               <Image
@@ -44,7 +44,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-8 ml-auto mr-8">
-          <Link href="/admin">
+          <Link href="/">
             <h1 className="text-lg font-medium cursor-pointer hover:text-green-600">Home</h1>
           </Link>
 
@@ -65,13 +65,11 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
               align="end"
               className="w-40 bg-white border border-gray-300 rounded-md shadow-lg"
             >
-              <DropdownMenuItem onClick={() => router.push("/admin/login/pengawas")}>
+              <DropdownMenuItem onClick={() => router.push("/login/pengawas")}>
                 Pengawas
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/admin/login/admin")}>
-                Admin
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/admin/login/approver")}>
+              <DropdownMenuItem onClick={() => router.push("/login/admin")}>Admin</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/login/approver")}>
                 Approver
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -82,12 +80,12 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-t z-50">
             <div className="flex flex-col items-start p-4 space-y-4">
-              <Link href="/admin" className="w-full">
+              <Link href="/" className="w-full">
                 <span className="block w-full text-left text-lg font-medium hover:text-green-600">
                   Home
                 </span>
               </Link>
-              <Link href="/admin/layanan" className="w-full">
+              <Link href="/layanan" className="w-full">
                 <span className="block w-full text-left text-lg font-medium hover:text-green-600">
                   Pelayanan
                 </span>
@@ -101,19 +99,19 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
               </div>
               <div className="w-full border-t pt-2">
                 <button
-                  onClick={() => router.push("/admin/login/pengawas")}
+                  onClick={() => router.push("/login/pengawas")}
                   className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Pengawas
                 </button>
                 <button
-                  onClick={() => router.push("/admin/login/admin")}
+                  onClick={() => router.push("/login/admin")}
                   className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Admin
                 </button>
                 <button
-                  onClick={() => router.push("/admin/login/approver")}
+                  onClick={() => router.push("/login/approver")}
                   className="block w-full text-left px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Approver

@@ -244,7 +244,7 @@ export default function MakamTable(): JSX.Element {
         return (
           <span
             className="cursor-pointer text-blue-600 underline"
-            onClick={() => router.push(`/admin/layanan/histori/user/${userId}`)}
+            onClick={() => router.push(`/layanan/histori/user/${userId}`)}
           >
             Lihat Detail
           </span>
@@ -257,7 +257,7 @@ export default function MakamTable(): JSX.Element {
       key: "edit",
       align: "center",
       render: (value, record) => (
-        <Link href={`/admin/layanan/makam/${record.id}`} legacyBehavior>
+        <Link href={`/layanan/makam/${record.id}`} legacyBehavior>
           <a>
             <Button type="primary" size="small">
               Edit
