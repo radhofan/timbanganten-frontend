@@ -7,9 +7,15 @@ import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 
+import { Button } from "antd";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export default function KontakDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
 
@@ -20,62 +26,65 @@ export default function KontakDetailPage() {
     password: "",
   });
 
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const fetchAdmin = async () => {
-      try {
-        const res = await fetch(`/api/admin?id=${id}`);
-        if (!res.ok) throw new Error("Failed to fetch admin data");
-        const admin = await res.json();
+    let mounted = true;
 
+    fetch(`/api/admin?id=${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch admin data");
+        return res.json();
+      })
+      .then((admin) => {
+        if (!mounted) return;
         setFormData({
           name: admin.name || "",
           email: admin.email || "",
           contact: admin.contact || "",
           password: "",
         });
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Unknown error occurred");
-        }
-      } finally {
         setLoading(false);
-      }
-    };
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        setError(err instanceof Error ? err.message : "Unknown error");
+        setLoading(false);
+      });
 
-    if (id) fetchAdmin();
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (role !== "admin") return;
+
+    setSaving(true);
+
+    const payload: Record<string, string> = {
+      name: formData.name,
+      email: formData.email,
+      contact: formData.contact,
+    };
+
+    if (formData.password.trim() !== "") {
+      payload.password = formData.password;
+    }
+
     try {
-      const payload: Record<string, string> = {
-        name: formData.name,
-        email: formData.email,
-        contact: formData.contact,
-      };
-
-      if (formData.password.trim() !== "") {
-        payload.password = formData.password;
-      }
-
       const res = await fetch(`/api/admin?id=${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -83,114 +92,112 @@ export default function KontakDetailPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        setSuccess(false);
         router.push("/layanan/kontak");
-      }, 2000);
+      }, 1500);
     } catch (err) {
       console.error(err);
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header hideBanner />
 
-      <main className="flex-1 px-4 py-8 md:px-8 lg:px-16 xl:px-24 mb-24">
-        <h1 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Edit Kontak</h1>
-
+      <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
         {loading ? (
-          <p className="text-center text-gray-500">Memuat data admin...</p>
+          <p className="text-gray-600">Memuat data kontak...</p>
         ) : error ? (
-          <p className="text-center text-red-600">{error}</p>
+          <p className="text-red-600">{error}</p>
         ) : (
-          <div className="bg-white p-8 max-w-5xl mx-auto">
-            <form onSubmit={handleUpdate} className="space-y-6 max-w-lg mx-auto">
-              <div>
-                <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-8 space-y-8"
+          >
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-gray-800">Edit Kontak Admin</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Perbarui informasi kontak admin di bawah ini.
+              </p>
+            </div>
+
+            <section className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Informasi Kontak</h3>
+
+              <div className="flex flex-col">
+                <Label htmlFor="name" className="mb-2">
                   Nama
-                </label>
-                <input
+                </Label>
+                <Input
                   id="name"
                   name="name"
-                  type="text"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                   required
                 />
               </div>
 
-              <div>
-                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+              <div className="flex flex-col">
+                <Label htmlFor="email" className="mb-2">
                   Email
-                </label>
-                <input
+                </Label>
+                <Input
                   id="email"
                   name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                   required
                 />
               </div>
 
-              <div>
-                <label htmlFor="contact" className="block text-gray-700 font-medium mb-2">
-                  Kontak
-                </label>
-                <input
+              <div className="flex flex-col">
+                <Label htmlFor="contact" className="mb-2">
+                  No. Kontak
+                </Label>
+                <Input
                   id="contact"
                   name="contact"
-                  type="text"
                   value={formData.contact}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  placeholder="08XXXXXXXXX"
                 />
               </div>
+            </section>
 
-              <div>
-                <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
-                  Password
-                </label>
-                <input
+            <section className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Keamanan</h3>
+
+              <div className="flex flex-col">
+                <Label htmlFor="password" className="mb-2">
+                  Password Baru
+                </Label>
+                <Input
                   id="password"
                   name="password"
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                  placeholder="Kosongkan jika tidak diubah"
                 />
               </div>
+            </section>
 
-              <div className="flex justify-center gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => router.push("/layanan/kontak")}
-                  className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition transform hover:scale-105 active:scale-95"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={role !== "admin"}
-                  className={`px-6 py-3 font-semibold rounded-lg transition transform active:scale-95 ${
-                    role === "admin"
-                      ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  Simpan Perubahan
-                </button>
-              </div>
+            {success && (
+              <p className="text-green-600 text-center text-sm">✔ Kontak berhasil diperbarui</p>
+            )}
 
-              {success && (
-                <p className="text-green-600 text-center text-sm mt-2 animate-fade-in-down">
-                  ✔ Kontak berhasil diperbarui!
-                </p>
-              )}
-            </form>
-          </div>
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button danger onClick={() => router.push("/layanan/kontak")}>
+                Batal
+              </Button>
+
+              <Button type="primary" htmlType="submit" loading={saving} disabled={role !== "admin"}>
+                Simpan
+              </Button>
+            </div>
+          </form>
         )}
       </main>
 
