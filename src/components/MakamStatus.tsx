@@ -164,33 +164,33 @@ export default function MakamStatus({ page }: { page: string }) {
     }
   };
 
-  async function approveMakam(id: string): Promise<boolean> {
-    try {
-      const res = await fetch("/api/approveMakam", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
+  // async function approveMakam(id: string): Promise<boolean> {
+  //   try {
+  //     const res = await fetch("/api/approveMakam", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ id }),
+  //     });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error?.error || "Approval failed");
-      }
+  //     if (!res.ok) {
+  //       const error = await res.json();
+  //       throw new Error(error?.error || "Approval failed");
+  //     }
 
-      return true;
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error("Approval error:", err);
-        alert("Gagal menyetujui makam: " + err.message);
-      } else {
-        console.error("Unknown error:", err);
-        alert("Terjadi kesalahan tidak dikenal.");
-      }
-      return false;
-    }
-  }
+  //     return true;
+  //   } catch (err: unknown) {
+  //     if (err instanceof Error) {
+  //       console.error("Approval error:", err);
+  //       alert("Gagal menyetujui makam: " + err.message);
+  //     } else {
+  //       console.error("Unknown error:", err);
+  //       alert("Terjadi kesalahan tidak dikenal.");
+  //     }
+  //     return false;
+  //   }
+  // }
 
   async function convertMakam(id: string): Promise<boolean> {
     try {
@@ -604,8 +604,10 @@ export default function MakamStatus({ page }: { page: string }) {
                         alert("Tanggal pemakaman wajib diisi sebelum approval.");
                         return;
                       }
-                      const success = await approveMakam(id as string);
-                      if (success) router.push("/layanan/pesan/status");
+                      const success = await convertMakam(id as string);
+                      if (success) router.push("/layanan/makam");
+                      // const success = await approveMakam(id as string);
+                      // if (success) router.push("/layanan/pesan/status");
                     }}
                     className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                   >
