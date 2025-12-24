@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
@@ -26,6 +26,15 @@ function Input({
 }) {
   const isInactive = readOnly || disabled;
 
+  const statusStyle =
+    value === "PAID"
+      ? "border-green-400 text-green-700 bg-green-50"
+      : value === "UNPAID"
+        ? "border-red-400 text-red-700 bg-red-50"
+        : value === "UNKNOWN"
+          ? "border-gray-300 text-gray-500 bg-gray-100"
+          : "";
+
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
@@ -40,37 +49,38 @@ function Input({
         onChange={onChange}
         readOnly={readOnly}
         disabled={disabled}
-        className={`w-full px-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 ${
-          isInactive
-            ? "bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed"
-            : "border-gray-300 focus:ring-blue-500"
-        }`}
+        className={`w-full px-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 text-center font-medium
+          ${
+            isInactive
+              ? statusStyle || "bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed"
+              : "border-gray-300 focus:ring-blue-500"
+          }`}
       />
     </div>
   );
 }
 
-function StatusCard({ title, status }: { title: string; status: string; onResolve: () => void }) {
-  const color =
-    status === "YES"
-      ? "bg-green-100 text-green-700"
-      : status === "PAID"
-        ? "bg-green-100 text-green-700"
-        : status === "APPROVED"
-          ? "bg-green-100 text-green-700"
-          : status === "PENDING"
-            ? "bg-yellow-100 text-yellow-800"
-            : "bg-yellow-100 text-yellow-800";
+// function StatusCard({ title, status }: { title: string; status: string; onResolve: () => void }) {
+//   const color =
+//     status === "YES"
+//       ? "bg-green-100 text-green-700"
+//       : status === "PAID"
+//         ? "bg-green-100 text-green-700"
+//         : status === "APPROVED"
+//           ? "bg-green-100 text-green-700"
+//           : status === "PENDING"
+//             ? "bg-yellow-100 text-yellow-800"
+//             : "bg-yellow-100 text-yellow-800";
 
-  return (
-    <div className="text-center">
-      <label className="block text-sm font-medium text-gray-700 mb-2">{title}</label>
-      <div className="flex items-center justify-center gap-3">
-        <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="text-center">
+//       <label className="block text-sm font-medium text-gray-700 mb-2">{title}</label>
+//       <div className="flex items-center justify-center gap-3">
+//         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
@@ -91,6 +101,9 @@ export default function MakamStatus({ page }: { page: string }) {
     tanggalPemakaman: "",
     statusBlok: "",
     statusJenazah: "",
+    statusPembayaranPesanan: "",
+    statusPembayaranIuranTahunan: "",
+    jenazahId: "",
   });
 
   const router = useRouter();
@@ -98,43 +111,9 @@ export default function MakamStatus({ page }: { page: string }) {
   const role = user?.role;
   const canEdit = role === "admin";
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!id) return;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const res = await fetch(`/api/${endpoint}?id=${id}`);
-        const data = await res.json();
-
-        setFormData({
-          namapj: data.nama_penanggung_jawab || "",
-          kontak: data.kontak_penanggung_jawab || "",
-          namajenazah: data.nama || "",
-          silsilah: data.silsilah || "",
-          lokasi: data.lokasi || "",
-          notes: data.description || "",
-          payment: data.payment || "",
-          ext: data.ext || "",
-          tanggalPemesanan: data.tanggal_pemesanan || "",
-          tanggalPemakaman: data.jenazah.tanggal_pemakaman || "",
-          approved: data.approved,
-          blok: data.blok.id_blok,
-          statusBlok: data.blok.status_blok || "",
-          statusJenazah: data.jenazah.status_jenazah || "",
-        });
-      } catch (err) {
-        console.error("Failed to fetch data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id, endpoint]);
-
-  const fetchData = async () => {
     try {
       setLoading(true);
 
@@ -153,16 +132,23 @@ export default function MakamStatus({ page }: { page: string }) {
         tanggalPemesanan: data.tanggal_pemesanan || "",
         tanggalPemakaman: data.jenazah.tanggal_pemakaman || "",
         approved: data.approved,
-        blok: data.blok,
-        statusBlok: data.id_blok.status_blok || "",
+        blok: data.blok.id_blok,
+        statusBlok: data.blok.status_blok || "",
         statusJenazah: data.jenazah.status_jenazah || "",
+        statusPembayaranPesanan: data.jenazah.status_pembayaran_pesanan || "",
+        statusPembayaranIuranTahunan: data.jenazah.status_pembayaran_iuran_tahunan || "",
+        jenazahId: data.jenazah.id_jenazah || "",
       });
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, endpoint]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // async function approveMakam(id: string): Promise<boolean> {
   //   try {
@@ -284,24 +270,56 @@ export default function MakamStatus({ page }: { page: string }) {
     }
   };
 
-  const markAsResolving = async (id: string): Promise<boolean> => {
+  // const markAsResolving = async (id: string): Promise<boolean> => {
+  //   try {
+  //     const res = await fetch("/api/resolving", {
+  //       method: "PUT",
+  //       body: JSON.stringify({ id }),
+  //     });
+
+  //     if (!res.ok) {
+  //       const error = await res.json();
+  //       throw new Error(error?.error || "Failed to mark as resolving");
+  //     }
+
+  //     await fetchData();
+  //     return true;
+  //   } catch (err: unknown) {
+  //     if (err instanceof Error) {
+  //       console.error("Resolving error:", err);
+  //       alert("Gagal menandai sebagai resolving: " + err.message);
+  //     } else {
+  //       console.error("Unknown error:", err);
+  //       alert("Terjadi kesalahan tidak dikenal.");
+  //     }
+  //     return false;
+  //   }
+  // };
+
+  const bayarPesanan = async (id: string): Promise<boolean> => {
     try {
-      const res = await fetch("/api/resolving", {
+      const res = await fetch("/api/bayarPesanan", {
         method: "PUT",
-        body: JSON.stringify({ id }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          tanggal_pemesanan: formData.tanggalPemesanan,
+        }),
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error?.error || "Failed to mark as resolving");
+        throw new Error(error?.error || "Failed to mark pesanan as PAID");
       }
 
       await fetchData();
       return true;
     } catch (err: unknown) {
       if (err instanceof Error) {
-        console.error("Resolving error:", err);
-        alert("Gagal menandai sebagai resolving: " + err.message);
+        console.error("Pesanan PAID error:", err);
+        alert("Gagal mengubah status pembayaran pesanan: " + err.message);
       } else {
         console.error("Unknown error:", err);
         alert("Terjadi kesalahan tidak dikenal.");
@@ -310,24 +328,27 @@ export default function MakamStatus({ page }: { page: string }) {
     }
   };
 
-  const markAsResolved = async (id: string): Promise<boolean> => {
+  const bayarIuranTahunan = async (id: string): Promise<boolean> => {
     try {
-      const res = await fetch("/api/resolved", {
+      const res = await fetch("/api/bayarIuranTahunan", {
         method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ id }),
       });
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error?.error || "Failed to mark as resolved");
+        throw new Error(error?.error || "Failed to mark pesanan as PAID");
       }
 
       await fetchData();
       return true;
     } catch (err: unknown) {
       if (err instanceof Error) {
-        console.error("Resolved error:", err);
-        alert("Gagal menandai sebagai resolved: " + err.message);
+        console.error("Pesanan PAID error:", err);
+        alert("Gagal mengubah status pembayaran pesanan: " + err.message);
       } else {
         console.error("Unknown error:", err);
         alert("Terjadi kesalahan tidak dikenal.");
@@ -471,6 +492,20 @@ export default function MakamStatus({ page }: { page: string }) {
                     className="w-full"
                   />
                 </div>
+                <Input
+                  label="Status Pembayaran Pesanan"
+                  id="statusPembayaranPesanan"
+                  value={formData.statusPembayaranPesanan || "UNKNOWN"}
+                  readOnly
+                  disabled
+                />
+                <Input
+                  label="Status Pembayaran Iuran Tahunan"
+                  id="statusPembayaranIuranTahunan"
+                  value={formData.statusPembayaranIuranTahunan || "UNKNOWN"}
+                  readOnly
+                  disabled
+                />
               </div>
             </section>
 
@@ -490,7 +525,7 @@ export default function MakamStatus({ page }: { page: string }) {
               />
             </section>
 
-            {page === "pesan-status" && (
+            {/* {page === "pesan-status" && (
               <section className="flex flex-wrap gap-6">
                 <StatusCard
                   title="Status Approval"
@@ -508,7 +543,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   onResolve={() => {}}
                 />
               </section>
-            )}
+            )} */}
 
             <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
               <button
@@ -521,7 +556,7 @@ export default function MakamStatus({ page }: { page: string }) {
 
               {role === "admin" && (
                 <div className="flex flex-col sm:flex-row gap-3">
-                  {page === "pesan-status" && (
+                  {/* {page === "pesan-status" && (
                     <>
                       {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
                         <button
@@ -583,6 +618,36 @@ export default function MakamStatus({ page }: { page: string }) {
                           </button>
                         )}
                     </>
+                  )} */}
+
+                  {page === "pesan-status" && !formData.statusPembayaranPesanan && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const success = await bayarPesanan(formData.jenazahId);
+                        if (success) {
+                          await fetchData();
+                        }
+                      }}
+                      className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                    >
+                      Approve Pembayaran Pesanan
+                    </button>
+                  )}
+
+                  {page === "makam-status" && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const success = await bayarIuranTahunan(formData.jenazahId);
+                        if (success) {
+                          await fetchData();
+                        }
+                      }}
+                      className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                    >
+                      Approve Iuran Tahunan
+                    </button>
                   )}
 
                   <button

@@ -79,12 +79,15 @@ export async function POST(request: Request) {
           newBlokStatus = "DIGUNAKAN-3";
         }
 
-        if (newJenazahStatus) {
+        if (jenazahData.tanggal_pemakaman) {
+          const oneYearLater = new Date(jenazahData.tanggal_pemakaman);
+          oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
           await prisma.jenazah.update({
             where: { id_jenazah: jenazahData.id_jenazah },
             data: {
               status_jenazah: newJenazahStatus,
-              tanggal_pemakaman: new Date(),
+              masa_aktif: oneYearLater,
             },
           });
         }

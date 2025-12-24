@@ -1,4 +1,4 @@
-import { Blok } from "@prisma/client";
+import { Blok, Jenazah } from "@prisma/client";
 
 export type User = {
   id: number;
@@ -31,6 +31,7 @@ export type Admin = {
 export type Makam = {
   id: number;
   blok: Blok;
+  jenazah: Jenazah;
   nama: string;
   lokasi: string;
   silsilah: string;

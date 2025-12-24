@@ -3,9 +3,9 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
-import { Makam } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { Makam } from "@/lib/types";
 
 export default function Status() {
   const [data, setData] = useState<Makam[]>([]);
@@ -215,27 +215,32 @@ export default function Status() {
                   <h2 className="text-base font-semibold text-gray-800">{item.nama}</h2>
                   <div className="flex flex-col text-left gap-y-2">
                     <div className="flex items-center gap-x-2">
-                      <div className="text-sm font-medium">Status Approval:</div>
+                      <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
                       <span
-                        className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          item.approved === "APPROVED"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-500"
+                        className={`text-xs px-2 py-0.5 rounded-full border ${
+                          item.jenazah.status_pembayaran_pesanan === "PAID"
+                            ? "border-green-400 text-green-700 bg-green-50"
+                            : item.jenazah.status_pembayaran_pesanan === "UNPAID"
+                              ? "border-red-400 text-red-700 bg-red-50"
+                              : "border-gray-300 text-gray-500 bg-gray-100"
                         }`}
                       >
-                        {item.approved}
+                        {item.jenazah.status_pembayaran_pesanan || "UNKNOWN"}
                       </span>
                     </div>
+
                     <div className="flex items-center gap-x-2">
-                      <div className="text-sm font-medium">Status Pembayaran:</div>
+                      <div className="text-sm font-medium">Status Iuran Tahunan:</div>
                       <span
-                        className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          item.payment === "PAID"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-500"
+                        className={`text-xs px-2 py-0.5 rounded-full border ${
+                          item.jenazah.status_pembayaran_iuran_tahunan === "PAID"
+                            ? "border-green-400 text-green-700 bg-green-50"
+                            : item.jenazah.status_pembayaran_iuran_tahunan === "UNPAID"
+                              ? "border-red-400 text-red-700 bg-red-50"
+                              : "border-gray-300 text-gray-500 bg-gray-100"
                         }`}
                       >
-                        {item.payment}
+                        {item.jenazah.status_pembayaran_iuran_tahunan || "UNKNOWN"}
                       </span>
                     </div>
                   </div>

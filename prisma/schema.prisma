@@ -65,7 +65,7 @@ model Jenazah {
   id_jenazah        String    @id @default(uuid())
   tanggal_pemakaman DateTime?
   status_jenazah    String?   @db.VarChar(255)
-  masa_aktif        Int?
+  masa_aktif        DateTime?
   status_pembayaran_pesanan String?   @db.VarChar(255)
   status_pembayaran_iuran_tahunan String?   @db.VarChar(255)
 
