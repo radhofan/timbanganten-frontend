@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         kontak_penanggung_jawab: status.kontak_penanggung_jawab,
         description: status.description,
         payment: status.payment,
+        tanggal_pemesanan: status.tanggal_pemesanan,
         approved: status.approved,
         userId: status.userId,
         pjId: status.pjId,

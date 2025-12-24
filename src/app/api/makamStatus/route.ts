@@ -83,7 +83,8 @@ export async function PUT(req: Request) {
   }
 
   try {
-    const updatedEntry = await prisma.makamStatus.update({
+    // update makamStatus first and get jenazahId
+    const makamStatus = await prisma.makamStatus.update({
       where: {
         id: parseInt(id, 10),
       },
@@ -95,9 +96,24 @@ export async function PUT(req: Request) {
         kontak_penanggung_jawab: body.kontak_penanggung_jawab,
         description: body.description,
       },
+      select: {
+        jenazahId: true,
+      },
     });
 
-    return NextResponse.json(updatedEntry);
+    // update jenazah.tanggal_pemakaman explicitly
+    if (body.tanggal_pemakaman && makamStatus.jenazahId) {
+      await prisma.jenazah.update({
+        where: {
+          id_jenazah: makamStatus.jenazahId,
+        },
+        data: {
+          tanggal_pemakaman: new Date(body.tanggal_pemakaman),
+        },
+      });
+    }
+
+    return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Update failed:", err);
     return NextResponse.json({ error: "Failed to update record" }, { status: 500 });

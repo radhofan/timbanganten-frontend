@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { DatePicker } from "antd";
+import { DatePicker, Select } from "antd";
 import dayjs from "dayjs";
 
 function Input({
@@ -88,6 +88,7 @@ export default function MakamStatus({ page }: { page: string }) {
     approved: "",
     blok: "",
     tanggalPemesanan: "",
+    tanggalPemakaman: "",
     statusBlok: "",
     statusJenazah: "",
   });
@@ -95,6 +96,7 @@ export default function MakamStatus({ page }: { page: string }) {
   const router = useRouter();
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
+  const canEdit = role === "admin";
 
   useEffect(() => {
     if (!id) return;
@@ -116,6 +118,7 @@ export default function MakamStatus({ page }: { page: string }) {
           payment: data.payment || "",
           ext: data.ext || "",
           tanggalPemesanan: data.tanggal_pemesanan || "",
+          tanggalPemakaman: data.jenazah.tanggal_pemakaman || "",
           approved: data.approved,
           blok: data.blok.id_blok,
           statusBlok: data.blok.status_blok || "",
@@ -147,7 +150,8 @@ export default function MakamStatus({ page }: { page: string }) {
         notes: data.description || "",
         payment: data.payment || "",
         ext: data.ext || "",
-        tanggalPemesanan: data.jenazah.tanggal_pemesanan || "",
+        tanggalPemesanan: data.tanggal_pemesanan || "",
+        tanggalPemakaman: data.jenazah.tanggal_pemakaman || "",
         approved: data.approved,
         blok: data.blok,
         statusBlok: data.id_blok.status_blok || "",
@@ -254,6 +258,7 @@ export default function MakamStatus({ page }: { page: string }) {
       nama_penanggung_jawab: formData.namapj,
       kontak_penanggung_jawab: formData.kontak,
       description: formData.notes,
+      tanggal_pemakaman: formData.tanggalPemakaman,
     };
 
     try {
@@ -357,7 +362,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   id="namajenazah"
                   value={formData.namajenazah}
                   onChange={handleChange}
-                  readOnly={role !== "admin"}
+                  readOnly={!canEdit}
                 />
                 <Input
                   label="Nama Penanggung Jawab"
@@ -378,28 +383,30 @@ export default function MakamStatus({ page }: { page: string }) {
                   id="silsilah"
                   value={formData.silsilah}
                   onChange={handleChange}
-                  readOnly={role !== "admin"}
+                  readOnly={!canEdit}
                 />
                 <div>
-                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">
-                    Lokasi
-                  </label>
-                  <select
-                    id="lokasi"
-                    name="lokasi"
-                    required
-                    value={formData.lokasi}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    disabled={role !== "admin"}
-                  >
-                    <option value="" disabled>
-                      Pilih Lokasi Pemakaman
-                    </option>
-                    <option value="Karang Anyar">Karang Anyar</option>
-                    <option value="Dalem Kaum">Dalem Kaum</option>
-                    <option value="Dayeuhkolot">Dayeuhkolot</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+
+                  <Select
+                    value={formData.lokasi || undefined}
+                    onChange={(value) => {
+                      if (!canEdit) return;
+                      setFormData((prev) => ({
+                        ...prev,
+                        lokasi: value,
+                      }));
+                    }}
+                    disabled={!canEdit}
+                    placeholder="Pilih Lokasi Pemakaman"
+                    className="w-full"
+                    size="middle"
+                    options={[
+                      { value: "Karang Anyar", label: "Karang Anyar" },
+                      { value: "Dalem Kaum", label: "Dalem Kaum" },
+                      { value: "Dayeuhkolot", label: "Dayeuhkolot" },
+                    ]}
+                  />
                 </div>
                 <Input
                   label="Blok Makam"
@@ -444,6 +451,26 @@ export default function MakamStatus({ page }: { page: string }) {
                   readOnly={true}
                   disabled={true}
                 />
+                <div>
+                  <label
+                    htmlFor="Tanggal Pemakaman"
+                    className="block text-sm font-medium text-gray-700 mb-1 mt-6"
+                  >
+                    Tanggal Pemakaman *(Harap diisi sebelum di approve)
+                  </label>
+                  <DatePicker
+                    id="tanggal_pemakaman"
+                    value={formData.tanggalPemakaman ? dayjs(formData.tanggalPemakaman) : null}
+                    disabled={!canEdit}
+                    onChange={(value) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        tanggalPemakaman: value ? value.toISOString() : "",
+                      }));
+                    }}
+                    className="w-full"
+                  />
+                </div>
               </div>
             </section>
 
@@ -573,6 +600,10 @@ export default function MakamStatus({ page }: { page: string }) {
                   <button
                     type="button"
                     onClick={async () => {
+                      if (!formData.tanggalPemakaman) {
+                        alert("Tanggal pemakaman wajib diisi sebelum approval.");
+                        return;
+                      }
                       const success = await approveMakam(id as string);
                       if (success) router.push("/layanan/pesan/status");
                     }}
