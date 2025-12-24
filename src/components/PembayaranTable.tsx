@@ -115,8 +115,11 @@ export default function JenazahTable(): JSX.Element {
     dataIndex: "masa_aktif",
     key: "masa_aktif",
     align: "center",
-    sorter: (a, b) => (a.masa_aktif || 0) - (b.masa_aktif || 0),
-    render: (_, record) => record.masa_aktif || "-",
+    sorter: (a, b) =>
+      (a.masa_aktif ? new Date(a.masa_aktif).getTime() : 0) -
+      (b.masa_aktif ? new Date(b.masa_aktif).getTime() : 0),
+    render: (_, record) =>
+      record.masa_aktif ? new Date(record.masa_aktif).toLocaleDateString() : "-",
   });
 
   columns.push({
