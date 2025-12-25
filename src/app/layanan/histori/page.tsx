@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User } from "@/lib/types";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Histori() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
@@ -18,7 +17,7 @@ export default function Histori() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/user");
+        const res = await fetch("/api/penanggungJawab");
         const data = await res.json();
 
         const formattedData = data.map((user: User) => ({
@@ -41,10 +40,6 @@ export default function Histori() {
     fetchData();
   }, []);
 
-  const toggleAccordion = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   const filteredData = users.filter((user) =>
     user.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -56,12 +51,10 @@ export default function Histori() {
 
   useEffect(() => {
     setCurrentPage(1);
-    setOpenIndex(null);
   }, [search]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setOpenIndex(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -101,118 +94,116 @@ export default function Histori() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 bg-white w-full max-w-6xl mx-auto mb-24 mt-4 px-2 sm:px-4 lg:px-8 py-8 flex flex-col min-h-[70vh]">
-        <h1 className="text-3xl font-bold text-center mb-8">Daftar Penanggung Jawab</h1>
+      <main className="flex-1 p-6 relative bg-white flex flex-col items-center gap-4">
+        <div className="text-xl text-center">Daftar Penanggung Jawab</div>
 
-        <div className="mb-8 flex justify-center">
+        {/* Search Filter */}
+        <div className="w-full max-w-2xl mb-4">
+          <label className="block text-xs font-medium text-gray-600 mb-1">Cari Nama Pengguna</label>
           <input
             type="text"
-            placeholder="Cari nama pengguna..."
-            className="w-full max-w-md px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            placeholder="Contoh: John Doe"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
 
         {!loading && (
-          <div className="mb-4 text-sm text-gray-600 flex justify-center">
+          <div className="w-full max-w-2xl mb-2 text-sm text-gray-600">
             Menampilkan {currentUsers.length} dari {filteredData.length} pengguna
             {filteredData.length !== users.length && ` (difilter dari ${users.length} total)`}
           </div>
         )}
 
-        <div className="space-y-4 mb-8">
+        <div className="w-full max-w-2xl space-y-4 mb-6">
           {loading ? (
-            <div className="text-center text-gray-500 italic">Memuat data...</div>
+            <p className="text-center text-gray-500">Loading...</p>
           ) : filteredData.length === 0 ? (
-            <div className="text-center text-gray-500 italic">Tidak ada pengguna ditemukan.</div>
+            <p className="text-sm text-gray-500 text-center">Tidak ada pengguna ditemukan.</p>
           ) : (
-            currentUsers.map((user, idx) => {
-              const isOpen = openIndex === idx;
+            currentUsers.map((user) => {
+              const totalMakams = (user.makams ?? []).length + (user.statuses ?? []).length;
+              const hasActiveMakams = (user.makams ?? []).length > 0;
+
               return (
-                <div key={user.id} className="bg-white shadow rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion(idx)}
-                    className="w-full px-3 sm:px-6 py-4 flex justify-between items-start text-left hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                  >
-                    <div className="flex-1 pr-3">
-                      <div className="text-lg font-semibold text-gray-700">{user.name}</div>
-                      <div className="text-sm text-gray-500">{user.contact}</div>
+                <div
+                  key={user.id}
+                  className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01]"
+                  style={{
+                    borderColor: hasActiveMakams ? "#22c55e" : "#facc15",
+                  }}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h2 className="text-base font-semibold text-gray-800">{user.name}</h2>
+                      <p className="text-xs text-gray-600">{user.contact}</p>
                     </div>
                     <span
-                      className={`flex-shrink-0 text-gray-500 transform transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : ""
+                      className={`text-xs px-2 py-0.5 rounded-full border ${
+                        hasActiveMakams
+                          ? "border-green-400 text-green-700 bg-green-50"
+                          : "border-yellow-400 text-yellow-700 bg-yellow-50"
                       }`}
                     >
-                      <ChevronDown size={20} />
+                      {totalMakams} Makam
                     </span>
-                  </button>
+                  </div>
 
-                  <div
-                    className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                      isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                    }`}
-                  >
-                    <div className="border-t px-3 sm:px-6 pb-6 pt-4 space-y-6">
-                      <div>
-                        <h3 className="font-medium text-gray-800 mb-2">Daftar Makam</h3>
-
-                        {(user.makams ?? []).length > 0 || (user.statuses ?? []).length > 0 ? (
-                          <div className="space-y-3">
-                            {(user.makams ?? []).map((m) => (
-                              <button
-                                type="button"
-                                key={`aktif-${m.id}`}
-                                className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
-                              >
-                                <div className="flex justify-between items-start gap-2">
-                                  <div className="flex-1">
-                                    <div className="font-medium text-gray-800">{m.nama}</div>
-                                    <div className="text-sm text-gray-600">{m.lokasi}</div>
-                                  </div>
-                                  <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                                    AKTIF
-                                  </div>
-                                </div>
-                              </button>
-                            ))}
-
-                            {(user.statuses ?? []).map((s) => (
-                              <button
-                                type="button"
-                                key={`pesan-${s.id}`}
-                                className="w-full text-left p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
-                              >
-                                <div className="flex justify-between items-start gap-2">
-                                  <div className="flex-1">
-                                    <div className="font-medium text-gray-800">{s.nama}</div>
-                                    <div className="text-sm text-gray-600">{s.lokasi}</div>
-                                  </div>
-                                  <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
-                                    PESAN
-                                  </div>
-                                </div>
-                              </button>
-                            ))}
+                  {/* Makam List */}
+                  {totalMakams > 0 ? (
+                    <div className="mt-3 space-y-2">
+                      {(user.makams ?? []).map((m) => (
+                        <div
+                          key={`aktif-${m.id}`}
+                          className="p-2 bg-green-50 border border-green-200 rounded-lg"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-gray-800">{m.nama}</div>
+                              <div className="text-xs text-gray-600">{m.lokasi}</div>
+                            </div>
+                            <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                              AKTIF
+                            </div>
                           </div>
-                        ) : (
-                          <p className="text-sm text-gray-500">
-                            Tidak ada data pemakaman atau pesanan berlangsung.
-                          </p>
-                        )}
-                      </div>
+                        </div>
+                      ))}
 
-                      <button
-                        type="button"
-                        className="bg-blue-600 text-white rounded px-3 py-1 text-sm hover:bg-blue-700"
-                        onClick={() => router.push(`/layanan/histori/user/${user.id}`)}
-                      >
-                        Edit Pengguna
-                      </button>
+                      {(user.statuses ?? []).map((s) => (
+                        <div
+                          key={`pesan-${s.id}`}
+                          className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-gray-800">{s.nama}</div>
+                              <div className="text-xs text-gray-600">{s.lokasi}</div>
+                            </div>
+                            <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
+                              PESAN
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Tidak ada data pemakaman atau pesanan berlangsung.
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      className="bg-blue-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-blue-700 transition"
+                      onClick={() => router.push(`/layanan/histori/user/${user.id}`)}
+                    >
+                      Edit Pengguna
+                    </button>
                   </div>
                 </div>
               );
@@ -220,58 +211,60 @@ export default function Histori() {
           )}
         </div>
 
-        <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4">
-          <div className="text-sm text-gray-700">
-            Halaman {currentPage} dari {totalPages}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
-                currentPage === 1
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              }`}
-            >
-              <ChevronLeft size={16} />
-              Sebelumnya
-            </button>
-
-            <div className="flex items-center gap-1">
-              {getPageNumbers().map((page, index) => (
-                <button
-                  key={index}
-                  onClick={() => typeof page === "number" && handlePageChange(page)}
-                  disabled={page === "..."}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                    page === currentPage
-                      ? "bg-blue-500 text-white"
-                      : page === "..."
-                        ? "text-gray-400 cursor-default"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+        {!loading && filteredData.length > 0 && (
+          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow mb-12">
+            <div className="text-sm text-gray-700">
+              Halaman {currentPage} dari {totalPages}
             </div>
 
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
-                currentPage === totalPages
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              }`}
-            >
-              Selanjutnya
-              <ChevronRight size={16} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
+                  currentPage === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                }`}
+              >
+                <ChevronLeft size={16} />
+                Sebelumnya
+              </button>
+
+              <div className="flex items-center gap-1">
+                {getPageNumbers().map((page, index) => (
+                  <button
+                    key={index}
+                    onClick={() => typeof page === "number" && handlePageChange(page)}
+                    disabled={page === "..."}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition ${
+                      page === currentPage
+                        ? "bg-blue-500 text-white"
+                        : page === "..."
+                          ? "text-gray-400 cursor-default"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
+                  currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                }`}
+              >
+                Selanjutnya
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <Footer />

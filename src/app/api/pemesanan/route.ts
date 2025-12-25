@@ -8,6 +8,10 @@ export async function POST(request: Request) {
     where: { id_blok: body.id_blok },
   });
 
+  const existingPJ = await prisma.penanggung_Jawab.findUnique({
+    where: { id_user: body.existingUserId },
+  });
+
   let finalJenazahStatus;
   let finalStatusBlok: string;
   // CEK APAKAH SUDAH DIMAKAMKAN ATAU BELUM
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
       let pjId: string | undefined;
       let jenazahId: string | undefined;
 
-      const useExistingPJ = !!body.existingPJId;
+      const useExistingPJ = !!body.existingUserId;
       const diriSendiri = body.diriSendiri === true;
 
       // --- PESAN MAKAM USER BARU ---
@@ -100,7 +104,7 @@ export async function POST(request: Request) {
 
       // --- PESAN MAKAM USER EXISTING PJ ---
       if (useExistingPJ) {
-        pjId = body.existingPJId;
+        pjId = existingPJ?.id_penanggung_jawab;
 
         if (!diriSendiri) {
           // 1. Buat Akun User (PB)
@@ -123,7 +127,7 @@ export async function POST(request: Request) {
               status_pembayaran_iuran_tahunan: "UNPAID",
             },
           });
-          paId = pjId;
+          paId = body.existingUserId;
           jenazahId = newJenazahPB.id_jenazah;
         } else {
           // diri sendiri: jenazah = PJ user

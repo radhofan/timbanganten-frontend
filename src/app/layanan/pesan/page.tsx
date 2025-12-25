@@ -2,7 +2,6 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { User } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
@@ -20,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { User } from "@prisma/client";
 
 export default function Pemesanan() {
   const [blokList, setBlokList] = useState<
@@ -119,7 +119,7 @@ export default function Pemesanan() {
       notes: string;
       masaAktif: string;
       diriSendiri: boolean;
-      existingPJId?: number;
+      existingUserId?: string;
       pjName?: string;
       pjContact?: string;
       userPAName?: string;
@@ -150,9 +150,9 @@ export default function Pemesanan() {
     };
 
     if (useExisting && selectedUser) {
-      payload.existingPJId = selectedUser.id;
+      payload.existingUserId = selectedUser.id;
       payload.pjName = selectedUser.name;
-      payload.pjContact = selectedUser.contact;
+      payload.pjContact = selectedUser.contact || undefined;
 
       payload.userPAName = formData.get("namapj") as string;
       payload.userPAContact = formData.get("kontak") as string;
