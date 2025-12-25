@@ -2,53 +2,10 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Image from "next/image";
-import Link from "next/link";
-import { useStore } from "zustand";
-import { authStore } from "@/stores/useAuthStore";
-import { NotificationBoard } from "@/components/NotificationsBoard";
+import { Calendar, CheckCircle, MapPin, List, CreditCard, Users, Phone } from "lucide-react";
+import NotificationBoard from "@/components/NotificationsBoard";
 
 export default function Admin() {
-  const user = useStore(authStore, (s) => s.user);
-
-  const cards = [
-    {
-      title: "Pemesanan",
-      imgSrc: "/images/booking-removebg-preview 1.png",
-      href: "/layanan/pesan",
-    },
-    {
-      title: "Status Pemesanan",
-      imgSrc: "/images/status pemesanan.png",
-      href: "/layanan/pesan/status",
-    },
-    {
-      title: "Daftar Makam",
-      imgSrc: "/images/list makam1.png",
-      href: "/layanan/makam",
-    },
-    {
-      title: "Denah Makam",
-      imgSrc: "/images/denah makam1.png",
-      href: "/layanan/denah",
-    },
-    {
-      title: "Pembayaran",
-      imgSrc: "/images/denah makam1.png",
-      href: "/layanan/pembayaran",
-    },
-    {
-      title: "Daftar Penanggung Jawab",
-      imgSrc: "/images/history pengguna.png",
-      href: "/layanan/histori",
-    },
-    {
-      title: "Kontak Admin",
-      imgSrc: "/images/kontak.png",
-      href: "/layanan/kontak",
-    },
-  ];
-
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -90,82 +47,99 @@ export default function Admin() {
       date: "2025-08-25",
       time: "11:05 AM",
     },
-    {
-      id: 6,
-      user: "Fajar",
-      type: "lewat-perpanjangan",
-      message: "Melewati batas perpanjangan.",
-      date: "2025-08-25",
-      time: "11:05 AM",
-    },
-    {
-      id: 7,
-      user: "Indra",
-      type: "perpanjangan",
-      message: "Telah melakukan perpanjangan.",
-      date: "2025-08-25",
-      time: "11:05 AM",
-    },
-    {
-      id: 8,
-      user: "Putri",
-      type: "perpanjangan",
-      message: "Telah melakukan perpanjangan.",
-      date: "2025-08-25",
-      time: "11:05 AM",
-    },
   ]);
 
   const handleMarkAsRead = (id: number) => {
     setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
 
+  const services = [
+    {
+      title: "Pemesanan",
+      icon: <Calendar className="w-12 h-12" />,
+      color: "from-blue-500 to-blue-600",
+      href: "/layanan/pesan",
+    },
+    {
+      title: "Status Pemesanan",
+      icon: <CheckCircle className="w-12 h-12" />,
+      color: "from-emerald-500 to-emerald-600",
+      href: "/layanan/pesan/status",
+    },
+    {
+      title: "Daftar Makam",
+      icon: <List className="w-12 h-12" />,
+      color: "from-purple-500 to-purple-600",
+      href: "/layanan/makam",
+    },
+    {
+      title: "Denah Makam",
+      icon: <MapPin className="w-12 h-12" />,
+      color: "from-amber-500 to-amber-600",
+      href: "/layanan/denah",
+    },
+    {
+      title: "Pembayaran",
+      icon: <CreditCard className="w-12 h-12" />,
+      color: "from-rose-500 to-rose-600",
+      href: "/layanan/pembayaran",
+    },
+    {
+      title: "Daftar Penanggung Jawab",
+      icon: <Users className="w-12 h-12" />,
+      color: "from-indigo-500 to-indigo-600",
+      href: "/layanan/histori",
+    },
+    {
+      title: "Kontak Admin",
+      icon: <Phone className="w-12 h-12" />,
+      color: "from-teal-500 to-teal-600",
+      href: "/layanan/kontak",
+    },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <Header />
 
-      {user?.role !== "guest" && (
-        <div>
-          <div className="text-center text-gray-700">
-            <h1 className="text-4xl font-bold mb-6">Pemberitahuan</h1>
-          </div>
-          <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 mt-8">
-            <NotificationBoard
-              notifications={notifications}
-              onMarkAsRead={handleMarkAsRead}
-              backgroundImage="/images/18930348_rm435-030-1.png"
-            />
-          </div>
-        </div>
-      )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Notifications Section */}
+        <NotificationBoard notifications={notifications} handleMarkAsRead={handleMarkAsRead} />
 
-      <main className="flex-1 p-4 sm:p-8 lg:p-24 pb-28 relative bg-white">
-        <div className="text-center text-gray-700">
-          <h1 className="text-4xl font-bold mb-18">Layanan</h1>
-        </div>
-
-        <div className="w-full px-2 sm:px-4 mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8 max-w-[1200px] mx-auto">
-            {cards.map(({ title, imgSrc, href }, i) => {
-              const isLastOdd = cards.length % 2 === 1 && i === cards.length - 1;
+        {/* Services Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Layanan</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service, index) => {
+              const isLastCard = index === services.length - 1;
               return (
-                <Link
-                  key={i}
-                  href={href}
-                  className={`w-full ${isLastOdd ? "sm:col-span-2 justify-self-center" : ""}`}
+                <a
+                  key={index}
+                  href={service.href}
+                  className={`group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
+                    isLastCard ? "lg:col-start-2" : ""
+                  }`}
                 >
-                  <div className="bg-white border border-gray-400 rounded-xl transition duration-300 transform hover:-translate-y-1 flex flex-col items-center p-4 sm:p-6 w-full h-full">
-                    <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg bg-white flex items-center justify-center">
-                      <Image src={imgSrc} alt={title} fill className="object-contain" priority />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+                  ></div>
+                  <div className="p-8 flex flex-col items-center text-center relative z-10">
+                    <div
+                      className={`bg-gradient-to-br ${service.color} text-white p-6 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      {service.icon}
                     </div>
-                    <h3 className="text-lg font-semibold text-center">{title}</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
+                      {service.title}
+                    </h3>
                   </div>
-                </Link>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                </a>
               );
             })}
           </div>
-        </div>
-      </main>
+        </section>
+      </div>
 
       <Footer />
     </div>

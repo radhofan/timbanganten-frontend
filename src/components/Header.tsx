@@ -139,7 +139,9 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
             fill
             style={{ objectFit: "cover" }}
             priority
+            sizes="(max-width: 1024px) 100vw, 1920px"
           />
+
           <div className="absolute inset-0 bg-black opacity-60 pointer-events-none"></div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 z-10">
             <h1 className="text-xl md:text-6xl font-bold mb-4 leading-relaxed">

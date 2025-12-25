@@ -1,18 +1,5 @@
 "use client";
-
-import { FC } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Badge as ShadcnBadge } from "@/components/ui/badge";
-import { Badge } from "antd";
-import { FiBell } from "react-icons/fi";
-import {
-  FiCreditCard,
-  FiRefreshCcw,
-  FiAlertTriangle,
-  FiCheckCircle,
-  FiXCircle,
-} from "react-icons/fi";
+import { Bell, CheckCircle, XCircle, AlertTriangle, X } from "lucide-react";
 
 interface Notification {
   id: number;
@@ -25,108 +12,90 @@ interface Notification {
 
 interface NotificationBoardProps {
   notifications: Notification[];
-  onMarkAsRead: (id: number) => void;
-  backgroundImage?: string;
+  handleMarkAsRead: (id: number) => void;
 }
 
-const typeIcon = (type: string) => {
-  switch (type) {
-    case "pembayaran":
-      return <FiCreditCard size={20} />;
-    case "perpanjangan":
-      return <FiRefreshCcw size={20} />;
-    case "lewat-pembayaran":
-    case "lewat-perpanjangan":
-      return <FiAlertTriangle size={20} className="text-red-600" />;
-    case "approved":
-      return <FiCheckCircle size={20} className="text-green-600" />;
-    case "tidak-approved":
-      return <FiXCircle size={20} className="text-red-600" />;
-    default:
-      return <FiCreditCard size={20} />;
-  }
-};
-
-export const NotificationBoard: FC<NotificationBoardProps> = ({
+export default function NotificationBoard({
   notifications,
-  onMarkAsRead,
-  backgroundImage,
-}) => {
-  return (
-    <div className="flex flex-col gap-4 w-full">
-      <Card className="w-full rounded-lg overflow-hidden shadow-lg m-0 p-0">
-        <CardHeader className="flex items-center justify-between bg-[#223D3C] text-white p-4">
-          <div className="flex items-center space-x-2">
-            <Badge
-              count={notifications.length}
-              overflowCount={99}
-              style={{ backgroundColor: "#ff4d4f" }}
-            >
-              <FiBell size={30} className="text-white" />
-            </Badge>
-            <h2 className="text-lg font-semibold ml-6">Pemberitahuan</h2>
-          </div>
-        </CardHeader>
-        <CardContent
-          className="p-4 -mt-6"
-          style={
-            backgroundImage
-              ? {
-                  backgroundImage: `url(${backgroundImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }
-              : {}
-          }
-        >
-          <ScrollArea className="max-h-[400px] w-full overflow-y-auto m-0">
-            <div className="space-y-3">
-              {notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-gray-300/70 hover:bg-gray-500/80 transition"
-                >
-                  <div className="flex items-start space-x-3 w-full">
-                    <div className="flex-shrink-0 mt-1">{typeIcon(notif.type)}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{notif.user}</p>
-                      <p className="text-sm text-gray-700">{notif.message}</p>
-                      <span className="text-xs text-gray-800 mr-2">{notif.date}</span>
-                      <span className="text-xs text-gray-500">{notif.time}</span>
-                    </div>
-                  </div>
-                  <ShadcnBadge
-                    variant="outline"
-                    className="mt-2 sm:mt-0 sm:ml-4 cursor-pointer"
-                    onClick={() => onMarkAsRead(notif.id)}
-                  >
-                    Mark as read
-                  </ShadcnBadge>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+  handleMarkAsRead,
+}: NotificationBoardProps) {
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "approved":
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case "tidak-approved":
+        return <XCircle className="w-5 h-5 text-red-600" />;
+      case "lewat-pembayaran":
+      case "lewat-perpanjangan":
+        return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+      default:
+        return <Bell className="w-5 h-5 text-blue-600" />;
+    }
+  };
 
-      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
-        <Card className="p-4 bg-white rounded-lg shadow w-full">
-          <h3 className="text-sm font-medium text-gray-600">Slot Makam Ditempati</h3>
-          <p className="text-xl font-semibold text-gray-900">37</p>
-        </Card>
-        <Card className="p-4 bg-white rounded-lg shadow w-full">
-          <h3 className="text-sm font-medium text-gray-600">Slot Makam Kosong</h3>
-          <p className="text-xl font-semibold text-gray-900">55</p>
-        </Card>
-        <Card className="p-4 bg-white rounded-lg shadow w-full">
-          <h3 className="text-sm font-medium text-gray-600">Slot Makam Ditempati</h3>
-          <p className="text-xl font-semibold text-gray-900">37</p>
-        </Card>
-        <Card className="p-4 bg-white rounded-lg shadow w-full">
-          <h3 className="text-sm font-medium text-gray-600">Slot Makam Kosong</h3>
-          <p className="text-xl font-semibold text-gray-900">55</p>
-        </Card>
-      </div> */}
-    </div>
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case "approved":
+        return "bg-green-50 border-green-200";
+      case "tidak-approved":
+        return "bg-red-50 border-red-200";
+      case "lewat-pembayaran":
+      case "lewat-perpanjangan":
+        return "bg-orange-50 border-orange-200";
+      default:
+        return "bg-blue-50 border-blue-200";
+    }
+  };
+
+  return (
+    <section className="mb-16">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-3xl font-bold text-slate-800 flex items-center">
+          <Bell className="w-8 h-8 mr-3 text-blue-600" />
+          Pemberitahuan
+        </h2>
+        {notifications.length > 0 && (
+          <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+            {notifications.length} baru
+          </span>
+        )}
+      </div>
+
+      {notifications.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <Bell className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500 text-lg">Tidak ada pemberitahuan</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {notifications.map((notif) => (
+            <div
+              key={notif.id}
+              className={`${getNotificationColor(notif.type)} border rounded-xl p-5 flex items-start justify-between transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer`}
+            >
+              <div className="flex items-start space-x-4 flex-1">
+                <div className="mt-1">{getNotificationIcon(notif.type)}</div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-semibold text-slate-800">{notif.user}</span>
+                    <span className="text-slate-400">•</span>
+                    <span className="text-sm text-slate-500">
+                      {notif.date} {notif.time}
+                    </span>
+                  </div>
+                  <p className="text-slate-700">{notif.message}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleMarkAsRead(notif.id)}
+                className="ml-4 text-slate-400 hover:text-slate-600 transition p-1 rounded-lg hover:bg-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
-};
+}
