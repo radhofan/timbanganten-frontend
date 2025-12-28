@@ -5,8 +5,10 @@ import Footer from "@/components/Footer";
 import { User } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "antd";
+import { UserAddOutlined } from "@ant-design/icons";
 
-export default function Histori() {
+export default function PenanggungJawab() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -100,16 +102,31 @@ export default function Histori() {
       <main className="flex-1 p-6 relative bg-white flex flex-col items-center gap-4">
         <div className="text-xl text-center">Daftar Penanggung Jawab</div>
 
-        {/* Search Filter */}
-        <div className="w-full max-w-2xl mb-4">
-          <label className="block text-xs font-medium text-gray-600 mb-1">Cari Nama Pengguna</label>
-          <input
-            type="text"
-            placeholder="Contoh: John Doe"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
+        {/* Search Filter with Add Button */}
+        <div className="w-full max-w-2xl mb-4 flex gap-3">
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Cari Nama Pengguna
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: John Doe"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+          </div>
+          <div className="flex items-end">
+            <Button
+              type="primary"
+              icon={<UserAddOutlined />}
+              size="large"
+              onClick={() => router.push("/layanan/penanggung-jawab/add")}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Tambah PJ
+            </Button>
+          </div>
         </div>
 
         {!loading && (
@@ -155,20 +172,18 @@ export default function Histori() {
 
                   {/* Makam List */}
                   {totalMakams > 0 ? (
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-3 space-y-1.5">
                       {(user.makams ?? []).map((m) => (
                         <div
                           key={`aktif-${m.id}`}
-                          className="p-2 bg-green-50 border border-green-200 rounded-lg"
+                          className="flex justify-between items-center py-2 px-3 hover:bg-green-50 rounded-md transition-colors border-l-2 border-green-500"
                         >
-                          <div className="flex justify-between items-start gap-2">
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-800">{m.nama}</div>
-                              <div className="text-xs text-gray-600">{m.lokasi}</div>
-                            </div>
-                            <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                              AKTIF
-                            </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-gray-800">{m.nama}</div>
+                            <div className="text-xs text-gray-600">{m.lokasi}</div>
+                          </div>
+                          <div className="flex-shrink-0 text-xs font-semibold text-green-700">
+                            AKTIF
                           </div>
                         </div>
                       ))}
@@ -176,16 +191,14 @@ export default function Histori() {
                       {(user.statuses ?? []).map((s) => (
                         <div
                           key={`pesan-${s.id}`}
-                          className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg"
+                          className="flex justify-between items-center py-2 px-3 hover:bg-yellow-50 rounded-md transition-colors border-l-2 border-yellow-500"
                         >
-                          <div className="flex justify-between items-start gap-2">
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-800">{s.nama}</div>
-                              <div className="text-xs text-gray-600">{s.lokasi}</div>
-                            </div>
-                            <div className="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
-                              PESAN
-                            </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-gray-800">{s.nama}</div>
+                            <div className="text-xs text-gray-600">{s.lokasi}</div>
+                          </div>
+                          <div className="flex-shrink-0 text-xs font-semibold text-yellow-700">
+                            PESAN
                           </div>
                         </div>
                       ))}
@@ -200,7 +213,7 @@ export default function Histori() {
                     <button
                       type="button"
                       className="bg-blue-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-blue-700 transition"
-                      onClick={() => router.push(`/layanan/histori/user/${user.id}`)}
+                      onClick={() => router.push(`/layanan/penanggung-jawab/${user.id}`)}
                     >
                       Edit Pengguna
                     </button>

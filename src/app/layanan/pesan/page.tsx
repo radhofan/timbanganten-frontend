@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 
 import { Button, DatePicker } from "antd";
 
@@ -20,6 +20,18 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { User } from "@prisma/client";
+import {
+  UserCircle,
+  MapPin,
+  Calendar,
+  FileText,
+  Building2,
+  Mail,
+  Phone,
+  CreditCard,
+  Users,
+  Hash,
+} from "lucide-react";
 
 export default function Pemesanan() {
   const [blokList, setBlokList] = useState<
@@ -31,35 +43,36 @@ export default function Pemesanan() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const normalizeDate = (date: Date) =>
-    new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  // const normalizeDate = (date: Date) =>
+  //   new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-  const today = normalizeDate(new Date());
-  const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
-  const fiveYearsLater = new Date(
-    sixMonthsLater.getFullYear() + 5,
-    sixMonthsLater.getMonth(),
-    sixMonthsLater.getDate()
-  );
+  // const today = normalizeDate(new Date());
+  // const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
+  // const fiveYearsLater = new Date(
+  //   sixMonthsLater.getFullYear() + 5,
+  //   sixMonthsLater.getMonth(),
+  //   sixMonthsLater.getDate()
+  // );
 
-  const minDate = normalizeDate(sixMonthsLater);
-  const maxDate = normalizeDate(fiveYearsLater);
+  // const minDate = normalizeDate(sixMonthsLater);
+  // const maxDate = normalizeDate(fiveYearsLater);
 
-  const disableDate = (current: dayjs.Dayjs) => {
-    if (!current) return false;
-    return current.isBefore(dayjs(minDate), "day") || current.isAfter(dayjs(maxDate), "day");
-  };
+  // const disableDate = (current: dayjs.Dayjs) => {
+  //   if (!current) return false;
+  //   return current.isBefore(dayjs(minDate), "day") || current.isAfter(dayjs(maxDate), "day");
+  // };
 
-  const [masaAktif, setMasaAktif] = useState({
-    day: minDate.getDate(),
-    month: minDate.getMonth() + 1,
-    year: minDate.getFullYear(),
-  });
+  // const [masaAktif, setMasaAktif] = useState({
+  //   day: minDate.getDate(),
+  //   month: minDate.getMonth() + 1,
+  //   year: minDate.getFullYear(),
+  // });
 
   const [useExisting, setUseExisting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [blokListFetched, setBlokListFetched] = useState(false);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -87,7 +100,10 @@ export default function Pemesanan() {
 
     fetch(url)
       .then((res) => res.json())
-      .then((data) => setBlokList(data))
+      .then((data) => {
+        setBlokList(data);
+        setBlokListFetched(true);
+      })
       .catch(console.error);
   }, [lokasi, jenisMakam]);
 
@@ -98,14 +114,14 @@ export default function Pemesanan() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    const selectedDate = new Date(masaAktif.year, masaAktif.month - 1, masaAktif.day);
-    if (selectedDate < minDate || selectedDate > maxDate) {
-      alert(
-        `Masa aktif harus antara ${minDate.toLocaleDateString("id-ID")} dan ${maxDate.toLocaleDateString("id-ID")}`
-      );
-      setLoading(false);
-      return;
-    }
+    // const selectedDate = new Date(masaAktif.year, masaAktif.month - 1, masaAktif.day);
+    // if (selectedDate < minDate || selectedDate > maxDate) {
+    //   alert(
+    //     `Masa aktif harus antara ${minDate.toLocaleDateString("id-ID")} dan ${maxDate.toLocaleDateString("id-ID")}`
+    //   );
+    //   setLoading(false);
+    //   return;
+    // }
 
     const diriSendiri = (formData.get("silsilah") as string) === "diri sendiri";
 
@@ -117,7 +133,7 @@ export default function Pemesanan() {
       lokasi: string;
       silsilah: string;
       notes: string;
-      masaAktif: string;
+      // masaAktif: string;
       diriSendiri: boolean;
       existingUserId?: string;
       pjName?: string;
@@ -139,7 +155,7 @@ export default function Pemesanan() {
       lokasi: formData.get("lokasi") as string,
       silsilah: formData.get("silsilah") as string,
       notes: formData.get("notes") as string,
-      masaAktif: `${masaAktif.year}-${masaAktif.month.toString().padStart(2, "0")}-${masaAktif.day.toString().padStart(2, "0")}`,
+      // masaAktif: `${masaAktif.year}-${masaAktif.month.toString().padStart(2, "0")}-${masaAktif.day.toString().padStart(2, "0")}`,
       diriSendiri,
       tanggalPemakaman: formData.get("tanggalPemakaman")
         ? new Date(formData.get("tanggalPemakaman") as string)
@@ -206,24 +222,29 @@ export default function Pemesanan() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <Header hideBanner />
 
       <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-400 p-8 space-y-10"
+          className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 space-y-10"
         >
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-800">Form Pemesanan Makam</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-2xl font-bold text-slate-800">Form Pemesanan Makam</h2>
+            <p className="text-sm text-gray-600 mt-1">
               Silakan lengkapi data di bawah ini untuk melakukan pemesanan.
             </p>
           </div>
 
           {/* Penanggung Jawab Section */}
           <section className="space-y-5">
-            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Penanggung Jawab</h3>
+            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg shadow-md">
+                <UserCircle className="w-5 h-5 text-white" />
+              </div>
+              Penanggung Jawab
+            </h3>
 
             <RadioGroup
               defaultValue={useExisting ? "existing" : "new"}
@@ -243,15 +264,20 @@ export default function Pemesanan() {
             {useExisting ? (
               <div className="space-y-2">
                 <div className="flex flex-col">
-                  <Label htmlFor="userSearch" className="mb-2">
+                  <Label htmlFor="userSearch" className="mb-2 flex items-center gap-2">
+                    <Users className="w-4 h-4 text-blue-600" />
                     Cari Penanggung Jawab
                   </Label>
-                  <Input
-                    id="userSearch"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Ketik nama atau kontak..."
-                  />
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="userSearch"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Ketik nama atau kontak..."
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
 
                 <ul className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100 max-h-56 overflow-y-auto shadow-sm">
@@ -276,39 +302,69 @@ export default function Pemesanan() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col col-span-2">
-                  <Label htmlFor="namapj" className="mb-2">
+                  <Label htmlFor="namapj" className="mb-2 flex items-center gap-2">
+                    <UserCircle className="w-4 h-4 text-purple-600" />
                     Nama Penanggung Jawab
                   </Label>
-                  <Input id="namapj" name="namapj" placeholder="Masukkan Nama PJ" required />
+                  <div className="relative">
+                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="namapj"
+                      name="namapj"
+                      placeholder="Masukkan Nama PJ"
+                      required
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col">
-                  <Label htmlFor="kontak" className="mb-2">
+                  <Label htmlFor="kontak" className="mb-2 flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-green-600" />
                     No. Kontak
                   </Label>
-                  <Input id="kontak" name="kontak" placeholder="08XXXXXXXXX" required />
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="kontak"
+                      name="kontak"
+                      placeholder="08XXXXXXXXX"
+                      required
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col">
-                  <Label htmlFor="email" className="mb-2">
+                  <Label htmlFor="email" className="mb-2 flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-blue-600" />
                     Email
                   </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="user@gmail.com"
-                    required
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="user@gmail.com"
+                      required
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label htmlFor="ktp_num" className="mb-2">
+                  <Label htmlFor="ktp_num" className="mb-2 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-amber-600" />
                     No KTP Pemesan
                   </Label>
-                  <Input
-                    id="ktp_num"
-                    name="ktp_num"
-                    maxLength={16}
-                    placeholder="Masukkan 16 digit nomor KTP"
-                  />
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="ktp_num"
+                      name="ktp_num"
+                      maxLength={16}
+                      placeholder="Masukkan 16 digit nomor KTP"
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -316,16 +372,32 @@ export default function Pemesanan() {
 
           {/* Data Pemesanan Section */}
           <section className="space-y-5">
-            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Data Pemesanan</h3>
+            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2 rounded-lg shadow-md">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              Data Pemesanan
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col col-span-2">
-                <Label htmlFor="namajenazah" className="mb-2">
+                <Label htmlFor="namajenazah" className="mb-2 flex items-center gap-2">
+                  <UserCircle className="w-4 h-4 text-rose-600" />
                   Nama Jenazah
                 </Label>
-                <Input id="namajenazah" name="namajenazah" required placeholder="Nama Jenazah" />
+                <div className="relative">
+                  <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    id="namajenazah"
+                    name="namajenazah"
+                    required
+                    placeholder="Nama Jenazah"
+                    className="pl-10"
+                  />
+                </div>
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="id_blok" className="mb-2">
+                <Label htmlFor="id_blok" className="mb-2 flex items-center gap-2">
+                  <Hash className="w-4 h-4 text-indigo-600" />
                   Blok Kavling
                 </Label>
                 <Select name="id_blok" required>
@@ -333,16 +405,23 @@ export default function Pemesanan() {
                     <SelectValue placeholder="Pilih Blok" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    {blokList.map((b) => (
-                      <SelectItem key={b.id_blok} value={b.id_blok}>
-                        {b.id_blok} ({b.lokasi}) ({b.status_blok})
+                    {blokList.length > 0 ? (
+                      blokList.map((b) => (
+                        <SelectItem key={b.id_blok} value={b.id_blok}>
+                          {b.id_blok} ({b.lokasi}) ({b.status_blok})
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-blok-available" disabled>
+                        {blokListFetched ? "Tidak ada blok tersedia" : "Memuat data blok..."}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="lokasi" className="mb-2">
+                <Label htmlFor="lokasi" className="mb-2 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-red-600" />
                   Lokasi Pemakaman
                 </Label>
                 <Select name="lokasi" required onValueChange={(value) => setLokasi(value)}>
@@ -357,7 +436,8 @@ export default function Pemesanan() {
                 </Select>
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="silsilah" className="mb-2">
+                <Label htmlFor="silsilah" className="mb-2 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-teal-600" />
                   Hubungan dengan pemesan
                 </Label>
                 <Select name="silsilah" required>
@@ -381,7 +461,8 @@ export default function Pemesanan() {
               </div>
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col flex-1">
-                  <Label htmlFor="jenismakam" className="mb-2">
+                  <Label htmlFor="jenismakam" className="mb-2 flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-cyan-600" />
                     Jenis Makam
                   </Label>
                   <Select
@@ -402,62 +483,36 @@ export default function Pemesanan() {
             </div>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col flex-1">
-                <Label htmlFor="tanggalPemesan" className="mb-2">
+                <Label htmlFor="tanggalPemesan" className="mb-2 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-emerald-600" />
                   Tanggal Pemesanan
                 </Label>
                 <DatePicker
                   id="tanggalPemesanan"
                   name="tanggalPemesanan"
-                  className="w-full border border-black"
+                  className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
                   onChange={() => {}}
                 />
               </div>
               <div className="flex flex-col flex-1">
-                <Label htmlFor="tanggalPemakaman" className="mb-2">
+                <Label htmlFor="tanggalPemakaman" className="mb-2 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-orange-600" />
                   Tanggal Pemakaman
                 </Label>
 
                 <DatePicker
                   id="tanggalPemakaman"
                   name="tanggalPemakaman"
-                  className="w-full border border-black"
+                  className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
                   onChange={() => {}}
                 />
 
-                <span className="text-sm text-gray-600 mt-1">
-                  *Diisi jika pemesan telah dimakamkan.
-                </span>
+                <span className="text-sm text-gray-600 mt-1">*Diisi jika telah dimakamkan.</span>
               </div>
             </div>
-          </section>
-
-          {/* Detail Tambahan Section */}
-          <section className="space-y-5">
-            <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Detail Tambahan</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col">
-                <Label className="block text-sm text-gray-600 mb-3 w-full">
-                  Masa berlaku makam sampai dengan
-                </Label>
-
-                <DatePicker
-                  className="w-full"
-                  format="DD MM YYYY"
-                  disabledDate={disableDate}
-                  onChange={(value) => {
-                    if (!value) return;
-                    setMasaAktif({
-                      day: value.date(),
-                      month: value.month() + 1,
-                      year: value.year(),
-                    });
-                  }}
-                />
-              </div>
-            </div>
-
             <div className="flex flex-col">
-              <Label htmlFor="notes" className="mb-2">
+              <Label htmlFor="notes" className="mb-2 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-violet-600" />
                 Penjelasan Tambahan
               </Label>
               <Textarea
@@ -466,6 +521,7 @@ export default function Pemesanan() {
                 rows={4}
                 required
                 placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
+                className="resize-none"
               />
             </div>
           </section>

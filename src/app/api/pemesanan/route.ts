@@ -8,9 +8,12 @@ export async function POST(request: Request) {
     where: { id_blok: body.id_blok },
   });
 
-  const existingPJ = await prisma.penanggung_Jawab.findUnique({
-    where: { id_user: body.existingUserId },
-  });
+  let existingPJ = null;
+  if (body.existingUserId) {
+    existingPJ = await prisma.penanggung_Jawab.findUnique({
+      where: { id_user: body.existingUserId },
+    });
+  }
 
   let finalJenazahStatus;
   let finalStatusBlok: string;

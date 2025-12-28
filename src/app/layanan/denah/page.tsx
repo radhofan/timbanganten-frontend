@@ -93,7 +93,7 @@ const Denah = () => {
 
             <div
               ref={containerRef}
-              className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-8"
+              className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-24"
             >
               <Stage width={stageSize.width} height={stageSize.height}>
                 <Layer>

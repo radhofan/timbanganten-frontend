@@ -88,7 +88,7 @@ export default function Admin() {
       title: "Daftar Penanggung Jawab",
       icon: <Users className="w-12 h-12" />,
       color: "from-indigo-500 to-indigo-600",
-      href: "/layanan/histori",
+      href: "/layanan/penanggung-jawab",
     },
     {
       title: "Kontak Admin",
