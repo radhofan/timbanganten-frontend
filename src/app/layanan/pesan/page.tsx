@@ -167,7 +167,7 @@ export default function Pemesanan() {
 
     if (useExisting && selectedUser) {
       payload.existingUserId = selectedUser.id;
-      payload.pjName = selectedUser.name;
+      payload.pjName = selectedUser.name || undefined;
       payload.pjContact = selectedUser.contact || undefined;
 
       payload.userPAName = formData.get("namapj") as string;
@@ -287,7 +287,7 @@ export default function Pemesanan() {
                         key={u.id}
                         onClick={() => {
                           setSelectedUser(u);
-                          setSearchTerm(u.name);
+                          setSearchTerm(u.name || "");
                         }}
                         className={`px-4 py-2 text-sm cursor-pointer transition ${selectedUser?.id === u.id ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}`}
                       >

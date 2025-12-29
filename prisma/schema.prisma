@@ -32,7 +32,7 @@ model Pengawas {
 
 model User {
   id                String       @id @default(uuid())
-  name              String
+  name              String?
   contact           String?
   email             String?    @unique
   status            String?
@@ -100,18 +100,18 @@ model Blok {
 // Makam Aktif
 model makam {
   id                      Int      @id @default(autoincrement())
-  nama                    String
-  lokasi                  String
-  silsilah                String
+  nama                    String?
+  lokasi                  String?
+  silsilah                String?
   ext                     String?
   masa_aktif              DateTime?
-  nama_penanggung_jawab   String
-  kontak_penanggung_jawab String
-  description             String
-  payment                 String
-  approved                String
-  created_at              DateTime @default(now())
-  updated_at              DateTime @updatedAt
+  nama_penanggung_jawab   String?
+  kontak_penanggung_jawab String?
+  description             String?
+  payment                 String?
+  approved                String?
+  created_at              DateTime? @default(now()) @db.Timestamp(6)
+  updated_at              DateTime? @default(now()) @updatedAt @db.Timestamp(6)
   tanggal_pemesanan       DateTime?
 
   // RELATION ID
@@ -130,18 +130,18 @@ model makam {
 // Makam Sedang Dipesan
 model makamStatus {
   id                      Int      @id(map: "makamstatus_pkey") @default(autoincrement())
-  nama                    String
-  lokasi                  String
-  silsilah                String
+  nama                    String?
+  lokasi                  String?
+  silsilah                String?
   ext                     String?
   masa_aktif              DateTime?
-  nama_penanggung_jawab   String
-  kontak_penanggung_jawab String
-  description             String
-  payment                 String
-  approved                String
-  created_at              DateTime @default(now()) @db.Timestamp(6)
-  updated_at              DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  nama_penanggung_jawab   String?
+  kontak_penanggung_jawab String?
+  description             String?
+  payment                 String?
+  approved                String?
+  created_at              DateTime? @default(now()) @db.Timestamp(6)
+  updated_at              DateTime? @default(now()) @updatedAt @db.Timestamp(6)
   tanggal_pemesanan       DateTime?
 
   // RELATION ID

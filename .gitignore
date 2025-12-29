@@ -22,7 +22,6 @@
 
 # misc
 .DS_Store
-# *.pem
 
 # debug
 npm-debug.log*
@@ -45,8 +44,6 @@ notes.txt
 /prisma/schema_old.txt
 /src/app/admin/layanan/pesan/page_old.txt
 
-# prisma build
+# prisma
 /prisma/generated
-
-# old route
-/src/app/admin
+/prisma/seed.sql

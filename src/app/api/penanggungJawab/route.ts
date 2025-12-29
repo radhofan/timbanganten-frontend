@@ -56,10 +56,30 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const data = await prisma.penanggung_Jawab.create({
+
+  const { name, contact, email, status, ktp_num } = body;
+
+  const newUser = await prisma.user.create({
     data: {
-      id_user: body.id_user ?? null,
+      name,
+      contact,
+      email,
+      status: status || "PESAN",
+      ktp_num,
     },
   });
-  return NextResponse.json(data);
+
+  const newPJ = await prisma.penanggung_Jawab.create({
+    data: {
+      id_user: newUser.id,
+    },
+  });
+
+  return NextResponse.json(
+    {
+      user: newUser,
+      penanggung_jawab: newPJ,
+    },
+    { status: 201 }
+  );
 }

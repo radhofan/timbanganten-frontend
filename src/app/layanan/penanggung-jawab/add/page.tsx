@@ -46,22 +46,25 @@ export default function AddPenanggungJawab() {
     };
 
     try {
-      // TODO: Add API call here
-      // const res = await fetch("/api/penanggungJawab", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // });
+      const res = await fetch("/api/penanggungJawab", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: payload.name,
+          contact: payload.contact,
+          email: payload.email,
+          ktp_num: payload.ktp_num,
+        }),
+      });
 
-      // if (res.ok) {
-      console.log(payload);
-      alert("Penanggung Jawab berhasil ditambahkan!");
-      router.push("/layanan/histori");
-      form.reset();
-      // } else {
-      //   const data = await res.json();
-      //   alert(data?.error || "Terjadi kesalahan saat menyimpan data.");
-      // }
+      if (res.ok) {
+        alert("Penanggung Jawab berhasil ditambahkan!");
+        router.push("/layanan/penanggung-jawab");
+        form.reset();
+      } else {
+        const data = await res.json();
+        alert(data?.error || "Terjadi kesalahan saat menyimpan data.");
+      }
     } catch (err) {
       console.error(err);
       alert("Gagal mengirim permintaan.");
