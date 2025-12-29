@@ -21,8 +21,8 @@ export async function GET(request: Request) {
   const data = await prisma.blok.findMany({
     where: {
       ...(lokasi ? { lokasi } : {}),
-      status_blok: { in: availabilityList },
-      status_pesanan: "TIDAK DIPESAN",
+      statusBlok: { in: availabilityList },
+      statusPesanan: "TIDAK DIPESAN",
       availability: "TERSEDIA",
     },
   });

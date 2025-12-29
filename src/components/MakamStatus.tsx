@@ -60,28 +60,6 @@ function Input({
   );
 }
 
-// function StatusCard({ title, status }: { title: string; status: string; onResolve: () => void }) {
-//   const color =
-//     status === "YES"
-//       ? "bg-green-100 text-green-700"
-//       : status === "PAID"
-//         ? "bg-green-100 text-green-700"
-//         : status === "APPROVED"
-//           ? "bg-green-100 text-green-700"
-//           : status === "PENDING"
-//             ? "bg-yellow-100 text-yellow-800"
-//             : "bg-yellow-100 text-yellow-800";
-
-//   return (
-//     <div className="text-center">
-//       <label className="block text-sm font-medium text-gray-700 mb-2">{title}</label>
-//       <div className="flex items-center justify-center gap-3">
-//         <span className={`px-4 py-2 text-sm rounded-full font-semibold ${color}`}>{status}</span>
-//       </div>
-//     </div>
-//   );
-// }
-
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
   const endpoint = page === "pesan-status" ? "makamStatus" : "makam";
@@ -121,23 +99,23 @@ export default function MakamStatus({ page }: { page: string }) {
       const data = await res.json();
 
       setFormData({
-        namapj: data.nama_penanggung_jawab || "",
-        kontak: data.kontak_penanggung_jawab || "",
+        namapj: data.namaPenanggungJawab || "",
+        kontak: data.kontakPenanggungJawab || "",
         namajenazah: data.nama || "",
         silsilah: data.silsilah || "",
         lokasi: data.lokasi || "",
         notes: data.description || "",
         payment: data.payment || "",
         ext: data.ext || "",
-        tanggalPemesanan: data.tanggal_pemesanan || "",
-        tanggalPemakaman: data.jenazah.tanggal_pemakaman || "",
+        tanggalPemesanan: data.tanggalPemesanan || "",
+        tanggalPemakaman: data.jenazah.tanggalPemakaman || "",
         approved: data.approved,
-        blok: data.blok.id_blok,
-        statusBlok: data.blok.status_blok || "",
-        statusJenazah: data.jenazah.status_jenazah || "",
-        statusPembayaranPesanan: data.jenazah.status_pembayaran_pesanan || "",
-        statusPembayaranIuranTahunan: data.jenazah.status_pembayaran_iuran_tahunan || "",
-        jenazahId: data.jenazah.id_jenazah || "",
+        blok: data.blok.id,
+        statusBlok: data.blok.statusBlok || "",
+        statusJenazah: data.jenazah.statusJenazah || "",
+        statusPembayaranPesanan: data.jenazah.statusPembayaranPesanan || "",
+        statusPembayaranIuranTahunan: data.jenazah.statusPembayaranIuranTahunan || "",
+        jenazahId: data.jenazah.id || "",
       });
     } catch (err) {
       console.error("Failed to fetch data:", err);
@@ -149,34 +127,6 @@ export default function MakamStatus({ page }: { page: string }) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  // async function approveMakam(id: string): Promise<boolean> {
-  //   try {
-  //     const res = await fetch("/api/approveMakam", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ id }),
-  //     });
-
-  //     if (!res.ok) {
-  //       const error = await res.json();
-  //       throw new Error(error?.error || "Approval failed");
-  //     }
-
-  //     return true;
-  //   } catch (err: unknown) {
-  //     if (err instanceof Error) {
-  //       console.error("Approval error:", err);
-  //       alert("Gagal menyetujui makam: " + err.message);
-  //     } else {
-  //       console.error("Unknown error:", err);
-  //       alert("Terjadi kesalahan tidak dikenal.");
-  //     }
-  //     return false;
-  //   }
-  // }
 
   async function convertMakam(id: string): Promise<boolean> {
     try {
@@ -269,32 +219,6 @@ export default function MakamStatus({ page }: { page: string }) {
       alert("An error occurred while submitting the form.");
     }
   };
-
-  // const markAsResolving = async (id: string): Promise<boolean> => {
-  //   try {
-  //     const res = await fetch("/api/resolving", {
-  //       method: "PUT",
-  //       body: JSON.stringify({ id }),
-  //     });
-
-  //     if (!res.ok) {
-  //       const error = await res.json();
-  //       throw new Error(error?.error || "Failed to mark as resolving");
-  //     }
-
-  //     await fetchData();
-  //     return true;
-  //   } catch (err: unknown) {
-  //     if (err instanceof Error) {
-  //       console.error("Resolving error:", err);
-  //       alert("Gagal menandai sebagai resolving: " + err.message);
-  //     } else {
-  //       console.error("Unknown error:", err);
-  //       alert("Terjadi kesalahan tidak dikenal.");
-  //     }
-  //     return false;
-  //   }
-  // };
 
   const bayarPesanan = async (id: string): Promise<boolean> => {
     try {
@@ -525,26 +449,6 @@ export default function MakamStatus({ page }: { page: string }) {
               />
             </section>
 
-            {/* {page === "pesan-status" && (
-              <section className="flex flex-wrap gap-6">
-                <StatusCard
-                  title="Status Approval"
-                  status={formData.approved}
-                  onResolve={() => {}}
-                />
-                <StatusCard
-                  title="Status Pembayaran Pesanan"
-                  status={formData.payment}
-                  onResolve={() => {}}
-                />
-                <StatusCard
-                  title="Status Perpanjangan"
-                  status={formData.ext}
-                  onResolve={() => {}}
-                />
-              </section>
-            )} */}
-
             <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
               <button
                 type="button"
@@ -556,70 +460,6 @@ export default function MakamStatus({ page }: { page: string }) {
 
               {role === "admin" && (
                 <div className="flex flex-col sm:flex-row gap-3">
-                  {/* {page === "pesan-status" && (
-                    <>
-                      {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const success = await markAsResolving(id as string);
-                            if (success) {
-                              router.refresh();
-                            }
-                          }}
-                          className="px-6 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition"
-                        >
-                          Mark as Resolving
-                        </button>
-                      )}
-
-                      {formData.payment === "PENDING" && formData.approved === "APPROVED" && (
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const success = await markAsResolved(id as string);
-                            if (success) {
-                              router.refresh();
-                            }
-                          }}
-                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                        >
-                          Approve Payment
-                        </button>
-                      )}
-
-                      {formData.payment === "RESOLVING" && formData.approved === "APPROVED" && (
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const success = await markAsResolved(id as string);
-                            if (success) {
-                              router.refresh();
-                            }
-                          }}
-                          className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
-                        >
-                          Mark as Resolved
-                        </button>
-                      )}
-
-                      {formData.payment === "PAID" &&
-                        formData.ext === "PAID" &&
-                        formData.approved === "APPROVED" && (
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              const success = await convertMakam(id as string);
-                              if (success) router.push("/layanan/makam");
-                            }}
-                            className="px-6 py-2 rounded-lg bg-green-700 text-white font-medium hover:bg-green-800 transition"
-                          >
-                            Aktifkan Makam
-                          </button>
-                        )}
-                    </>
-                  )} */}
-
                   {page === "pesan-status" && !formData.statusPembayaranPesanan && (
                     <button
                       type="button"
@@ -671,8 +511,6 @@ export default function MakamStatus({ page }: { page: string }) {
                       }
                       const success = await convertMakam(id as string);
                       if (success) router.push("/layanan/makam");
-                      // const success = await approveMakam(id as string);
-                      // if (success) router.push("/layanan/pesan/status");
                     }}
                     className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
                   >

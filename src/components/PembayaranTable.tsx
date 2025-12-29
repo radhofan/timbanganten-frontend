@@ -3,18 +3,13 @@
 import { useState, useEffect, useMemo, JSX } from "react";
 import { Table, Input, Select, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { User, Blok, Jenazah } from "@prisma/client";
+import { Jenazah } from "@/lib/types";
 
 const { Search } = Input;
 const { Option } = Select;
 
-interface JenazahRow extends Jenazah {
-  user: User | null;
-  blok: Blok | null;
-}
-
 export default function JenazahTable(): JSX.Element {
-  const [data, setData] = useState<JenazahRow[]>([]);
+  const [data, setData] = useState<Jenazah[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
   const [pageSize, setPageSize] = useState<number>(12);
@@ -25,7 +20,7 @@ export default function JenazahTable(): JSX.Element {
     let mounted = true;
     fetch("/api/jenazah")
       .then((r) => r.json())
-      .then((res: JenazahRow[]) => {
+      .then((res: Jenazah[]) => {
         if (!mounted) return;
         setData(Array.isArray(res) ? res : []);
         setLoading(false);
@@ -44,7 +39,7 @@ export default function JenazahTable(): JSX.Element {
     const q = search.trim().toLowerCase();
     return data.filter((item) => {
       const name = item.user?.name?.toLowerCase() || "";
-      const block = item.blok?.id_blok?.toLowerCase() || "";
+      const block = item.blok?.id?.toLowerCase() || "";
       const matchesSearch = name.includes(q) || block.includes(q);
       const matchesLocation =
         selectedLocation === "Semua" || item.blok?.lokasi === selectedLocation;
@@ -56,15 +51,15 @@ export default function JenazahTable(): JSX.Element {
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
 
-  const columns: ColumnsType<JenazahRow> = [];
+  const columns: ColumnsType<Jenazah> = [];
 
   columns.push({
     title: "Blok",
     dataIndex: "blok",
     key: "blok",
     align: "center",
-    sorter: (a, b) => (a.blok?.id_blok || "").localeCompare(b.blok?.id_blok || ""),
-    render: (_, record) => record.blok?.id_blok || "",
+    sorter: (a, b) => (a.blok?.id || "").localeCompare(b.blok?.id || ""),
+    render: (_, record) => record.blok?.id || "",
   });
 
   columns.push({
@@ -72,8 +67,8 @@ export default function JenazahTable(): JSX.Element {
     dataIndex: "blok",
     key: "status_blok",
     align: "center",
-    sorter: (a, b) => (a.blok?.status_blok || "").localeCompare(b.blok?.status_blok || ""),
-    render: (_, record) => record.blok?.status_blok || "",
+    sorter: (a, b) => (a.blok?.statusBlok || "").localeCompare(b.blok?.statusBlok || ""),
+    render: (_, record) => record.blok?.statusBlok || "",
   });
 
   columns.push({
@@ -81,8 +76,8 @@ export default function JenazahTable(): JSX.Element {
     dataIndex: "status_jenazah",
     key: "status_jenazah",
     align: "center",
-    sorter: (a, b) => (a.status_jenazah || "").localeCompare(b.status_jenazah || ""),
-    render: (_, record) => record.status_jenazah || "",
+    sorter: (a, b) => (a.statusJenazah || "").localeCompare(b.statusJenazah || ""),
+    render: (_, record) => record.statusJenazah || "",
   });
 
   columns.push({
@@ -91,14 +86,12 @@ export default function JenazahTable(): JSX.Element {
     key: "tanggal_pemakaman",
     align: "center",
     sorter: (a, b) => {
-      const ta = recordToDate(a.tanggal_pemakaman);
-      const tb = recordToDate(b.tanggal_pemakaman);
+      const ta = recordToDate(a.tanggalPemakaman);
+      const tb = recordToDate(b.tanggalPemakaman);
       return ta - tb;
     },
     render: (_, record) =>
-      record.tanggal_pemakaman
-        ? new Date(record.tanggal_pemakaman).toLocaleDateString("id-ID")
-        : "-",
+      record.tanggalPemakaman ? new Date(record.tanggalPemakaman).toLocaleDateString("id-ID") : "-",
   });
 
   columns.push({
@@ -116,10 +109,10 @@ export default function JenazahTable(): JSX.Element {
     key: "masa_aktif",
     align: "center",
     sorter: (a, b) =>
-      (a.masa_aktif ? new Date(a.masa_aktif).getTime() : 0) -
-      (b.masa_aktif ? new Date(b.masa_aktif).getTime() : 0),
+      (a.masaAktif ? new Date(a.masaAktif).getTime() : 0) -
+      (b.masaAktif ? new Date(b.masaAktif).getTime() : 0),
     render: (_, record) =>
-      record.masa_aktif ? new Date(record.masa_aktif).toLocaleDateString() : "-",
+      record.masaAktif ? new Date(record.masaAktif).toLocaleDateString() : "-",
   });
 
   columns.push({
@@ -128,9 +121,9 @@ export default function JenazahTable(): JSX.Element {
     key: "status_pembayaran_pesanan",
     align: "center",
     sorter: (a, b) =>
-      (a.status_pembayaran_pesanan || "").localeCompare(b.status_pembayaran_pesanan || ""),
+      (a.statusPembayaranPesanan || "").localeCompare(b.statusPembayaranPesanan || ""),
     render: (_, record) => {
-      const val = record.status_pembayaran_pesanan ?? "";
+      const val = record.statusPembayaranPesanan ?? "";
       const color =
         val === "PAID"
           ? "green"
@@ -150,11 +143,9 @@ export default function JenazahTable(): JSX.Element {
     key: "status_pembayaran_iuran_tahunan",
     align: "center",
     sorter: (a, b) =>
-      (a.status_pembayaran_iuran_tahunan || "").localeCompare(
-        b.status_pembayaran_iuran_tahunan || ""
-      ),
+      (a.statusPembayaranIuranTahunan || "").localeCompare(b.statusPembayaranIuranTahunan || ""),
     render: (_, record) => {
-      const val = record.status_pembayaran_iuran_tahunan ?? "";
+      const val = record.statusPembayaranIuranTahunan ?? "";
       const color =
         val === "PAID"
           ? "green"
@@ -216,7 +207,7 @@ export default function JenazahTable(): JSX.Element {
         </Select>
       </div>
 
-      <Table<JenazahRow>
+      <Table<Jenazah>
         columns={columns}
         dataSource={visibleData}
         loading={loading}

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
 
   if (search) {
     const data = await prisma.jenazah.findUnique({
-      where: { id_jenazah: search },
+      where: { id: search },
       include: {
         user: true,
         blok: true,
@@ -30,13 +30,13 @@ export async function POST(request: Request) {
   const body = await request.json();
   const data = await prisma.jenazah.create({
     data: {
-      id_user: body.id_user ?? null,
-      tanggal_pemakaman: body.tanggal_pemakaman ? new Date(body.tanggal_pemakaman) : null,
-      status_jenazah: body.status_jenazah ?? null,
-      masa_aktif: body.masa_aktif ?? null,
-      id_blok: body.id_blok ?? null,
-      status_pembayaran_pesanan: body.status_pembayaran_pesanan ?? null,
-      status_pembayaran_iuran_tahunan: body.status_pembayaran_iuran_tahunan ?? null,
+      id: body.id_user ?? null,
+      tanggalPemakaman: body.tanggal_pemakaman ? new Date(body.tanggal_pemakaman) : null,
+      statusJenazah: body.status_jenazah ?? null,
+      masaAktif: body.masa_aktif ?? null,
+      blokId: body.id_blok ?? null,
+      statusPembayaranPesanan: body.status_pembayaran_pesanan ?? null,
+      statusPembayaranIuranTahunan: body.status_pembayaran_iuran_tahunan ?? null,
     },
   });
   return NextResponse.json(data);

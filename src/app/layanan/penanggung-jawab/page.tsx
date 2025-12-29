@@ -43,7 +43,7 @@ export default function PenanggungJawab() {
   }, []);
 
   const filteredData = users.filter((user) =>
-    user.name.toLowerCase().includes(search.toLowerCase())
+    user.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / usersPerPage) || 1;

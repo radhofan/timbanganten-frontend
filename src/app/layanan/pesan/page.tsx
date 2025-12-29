@@ -34,45 +34,21 @@ import {
 } from "lucide-react";
 
 export default function Pemesanan() {
-  const [blokList, setBlokList] = useState<
-    { id_blok: string; lokasi: string; status_blok: string }[]
-  >([]);
+  const [blokList, setBlokList] = useState<{ id: string; lokasi: string; statusBlok: string }[]>(
+    []
+  );
   const [lokasi, setLokasi] = useState<string>("");
   const [jenisMakam, setJenisMakam] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // const normalizeDate = (date: Date) =>
-  //   new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-  // const today = normalizeDate(new Date());
-  // const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
-  // const fiveYearsLater = new Date(
-  //   sixMonthsLater.getFullYear() + 5,
-  //   sixMonthsLater.getMonth(),
-  //   sixMonthsLater.getDate()
-  // );
-
-  // const minDate = normalizeDate(sixMonthsLater);
-  // const maxDate = normalizeDate(fiveYearsLater);
-
-  // const disableDate = (current: dayjs.Dayjs) => {
-  //   if (!current) return false;
-  //   return current.isBefore(dayjs(minDate), "day") || current.isAfter(dayjs(maxDate), "day");
-  // };
-
-  // const [masaAktif, setMasaAktif] = useState({
-  //   day: minDate.getDate(),
-  //   month: minDate.getMonth() + 1,
-  //   year: minDate.getFullYear(),
-  // });
-
   const [useExisting, setUseExisting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [blokListFetched, setBlokListFetched] = useState(false);
+  const [selectedBlok, setSelectedBlok] = useState<string>("");
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -113,16 +89,6 @@ export default function Pemesanan() {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-
-    // const selectedDate = new Date(masaAktif.year, masaAktif.month - 1, masaAktif.day);
-    // if (selectedDate < minDate || selectedDate > maxDate) {
-    //   alert(
-    //     `Masa aktif harus antara ${minDate.toLocaleDateString("id-ID")} dan ${maxDate.toLocaleDateString("id-ID")}`
-    //   );
-    //   setLoading(false);
-    //   return;
-    // }
-
     const diriSendiri = (formData.get("silsilah") as string) === "diri sendiri";
 
     console.log(diriSendiri);
@@ -133,7 +99,6 @@ export default function Pemesanan() {
       lokasi: string;
       silsilah: string;
       notes: string;
-      // masaAktif: string;
       diriSendiri: boolean;
       existingUserId?: string;
       pjName?: string;
@@ -151,11 +116,10 @@ export default function Pemesanan() {
 
     const payload: PemesananPayload = {
       namaJenazah: formData.get("namajenazah") as string,
-      id_blok: formData.get("id_blok") as string,
+      id_blok: selectedBlok,
       lokasi: formData.get("lokasi") as string,
       silsilah: formData.get("silsilah") as string,
       notes: formData.get("notes") as string,
-      // masaAktif: `${masaAktif.year}-${masaAktif.month.toString().padStart(2, "0")}-${masaAktif.day.toString().padStart(2, "0")}`,
       diriSendiri,
       tanggalPemakaman: formData.get("tanggalPemakaman")
         ? new Date(formData.get("tanggalPemakaman") as string)
@@ -400,15 +364,19 @@ export default function Pemesanan() {
                   <Hash className="w-4 h-4 text-indigo-600" />
                   Blok Kavling
                 </Label>
-                <Select name="id_blok" required>
+                <Select
+                  name="id_blok"
+                  required
+                  onValueChange={(value) => setSelectedBlok(value)} // Keep this for state tracking if needed
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Blok" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
                     {blokList.length > 0 ? (
                       blokList.map((b) => (
-                        <SelectItem key={b.id_blok} value={b.id_blok}>
-                          {b.id_blok} ({b.lokasi}) ({b.status_blok})
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.id} ({b.lokasi}) ({b.statusBlok})
                         </SelectItem>
                       ))
                     ) : (

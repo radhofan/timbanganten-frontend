@@ -10,13 +10,13 @@ export async function GET(request: Request) {
     const user = await prisma.user.findUnique({
       where: { id: String(id) },
       include: {
-        penanggung_jawab: true,
+        penanggungJawab: true,
         makams: true,
         statuses: true,
       },
     });
 
-    if (!user || !user.penanggung_jawab) {
+    if (!user || !user.penanggungJawab) {
       return NextResponse.json({ error: "PJ not found" }, { status: 404 });
     }
 
@@ -28,23 +28,23 @@ export async function GET(request: Request) {
   if (query) {
     users = await prisma.user.findMany({
       where: {
-        penanggung_jawab: { isNot: null },
+        penanggungJawab: { isNot: null },
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { contact: { contains: query, mode: "insensitive" } },
         ],
       },
       include: {
-        penanggung_jawab: true,
+        penanggungJawab: true,
         makams: true,
         statuses: true,
       },
     });
   } else {
     users = await prisma.user.findMany({
-      where: { penanggung_jawab: { isNot: null } },
+      where: { penanggungJawab: { isNot: null } },
       include: {
-        penanggung_jawab: true,
+        penanggungJawab: true,
         makams: true,
         statuses: true,
       },
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
 
-  const { name, contact, email, status, ktp_num } = body;
+  const { name, contact, email, status, ktpNum } = body;
 
   const newUser = await prisma.user.create({
     data: {
@@ -65,13 +65,13 @@ export async function POST(request: Request) {
       contact,
       email,
       status: status || "PESAN",
-      ktp_num,
+      ktpNum,
     },
   });
 
-  const newPJ = await prisma.penanggung_Jawab.create({
+  const newPJ = await prisma.penanggungJawab.create({
     data: {
-      id_user: newUser.id,
+      userId: newUser.id,
     },
   });
 

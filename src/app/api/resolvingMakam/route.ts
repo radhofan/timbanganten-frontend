@@ -1,22 +1,19 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const id = body.id;
-
-    if (!id || isNaN(parseInt(id, 10))) {
+    if (!id || typeof id !== "string") {
       return NextResponse.json({ error: "Invalid or missing ID" }, { status: 400 });
     }
-
     const updated = await prisma.makam.update({
-      where: { id: parseInt(id, 10) },
+      where: { id: String(id) },
       data: {
         ext: "RESOLVING",
       },
     });
-
     return NextResponse.json(updated);
   } catch (err) {
     console.error("[PUT /api/resolvingMakam]", err);

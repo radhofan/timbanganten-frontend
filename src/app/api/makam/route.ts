@@ -5,15 +5,12 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
-
   if (id) {
-    const parsedId = parseInt(id, 10);
-    if (isNaN(parsedId)) {
+    if (typeof id !== "string" || !id.trim()) {
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
-
     const data = await prisma.makam.findUnique({
-      where: { id: parsedId },
+      where: { id: id },
       include: {
         user: true,
         pj: true,
@@ -21,14 +18,11 @@ export async function GET(request: Request) {
         blok: true,
       },
     });
-
     if (!data) {
       return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
-
     return NextResponse.json(data);
   }
-
   const data = await prisma.makam.findMany({
     include: {
       user: true,
@@ -37,7 +31,6 @@ export async function GET(request: Request) {
       blok: true,
     },
   });
-
   return NextResponse.json(data);
 }
 
@@ -51,9 +44,9 @@ export async function POST(req: Request) {
       lokasi: body.lokasi,
       silsilah: body.silsilah,
       ext: body.ext ?? null,
-      masa_aktif: new Date(body.masa_aktif),
-      nama_penanggung_jawab: body.nama_penanggung_jawab,
-      kontak_penanggung_jawab: body.kontak_penanggung_jawab,
+      masaAktif: new Date(body.masa_aktif),
+      namaPenanggungJawab: body.nama_penanggung_jawab,
+      kontakPenanggungJawab: body.kontak_penanggung_jawab,
       description: body.description,
       payment: body.payment,
       approved: body.approved,
@@ -67,26 +60,23 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   const body = await req.json();
   const id = body.id;
-
-  if (!id || isNaN(parseInt(id, 10))) {
+  if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "Invalid or missing ID" }, { status: 400 });
   }
-
   try {
     const updatedEntry = await prisma.makam.update({
       where: {
-        id: parseInt(id, 10),
+        id: String(id),
       },
       data: {
         nama: body.nama,
         lokasi: body.lokasi,
         silsilah: body.silsilah,
-        nama_penanggung_jawab: body.nama_penanggung_jawab,
-        kontak_penanggung_jawab: body.kontak_penanggung_jawab,
+        namaPenanggungJawab: body.nama_penanggung_jawab,
+        kontakPenanggungJawab: body.kontak_penanggung_jawab,
         description: body.description,
       },
     });
-
     return NextResponse.json(updatedEntry);
   } catch (err) {
     console.error("Update failed:", err);

@@ -5,10 +5,10 @@ import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Makam } from "@/lib/types";
-
+// import { MakamStatus } from "@prisma/client";
+import { MakamStatus } from "@/lib/types";
 export default function Status() {
-  const [data, setData] = useState<Makam[]>([]);
+  const [data, setData] = useState<MakamStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +21,11 @@ export default function Status() {
       try {
         const res = await fetch("/api/makamStatus");
         const result = await res.json();
-        const sortedResult = result.sort((a: Makam, b: Makam) => b.id - a.id);
+        const sortedResult = result.sort((a: MakamStatus, b: MakamStatus) => {
+          const aId = typeof a.id === "string" ? a.id : String(a.id);
+          const bId = typeof b.id === "string" ? b.id : String(b.id);
+          return bId.localeCompare(aId);
+        });
         setData(sortedResult);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -35,12 +39,13 @@ export default function Status() {
 
   const filteredData = data.filter((item) => {
     const query = searchName.toLowerCase();
-    const matchNama = item.nama.toLowerCase().includes(query);
-    const matchPenanggungJawab = item.nama_penanggung_jawab.toLowerCase().includes(query);
-    const matchBlok = item.blok?.id_blok.toLowerCase().includes(query);
+    const matchNama = item.nama?.toLowerCase().includes(query);
+    const matchPenanggungJawab = item.namaPenanggungJawab?.toLowerCase().includes(query);
+    const matchBlok = item.blok?.id.toLowerCase().includes(query);
 
-    const matchApproval = filterApproved.length === 0 || filterApproved.includes(item.approved);
-    const matchPayment = filterPayment.length === 0 || filterPayment.includes(item.payment);
+    const matchApproval =
+      filterApproved.length === 0 || filterApproved.includes(item.approved || "");
+    const matchPayment = filterPayment.length === 0 || filterPayment.includes(item.payment || "");
 
     return (matchNama || matchPenanggungJawab || matchBlok) && matchApproval && matchPayment;
   });
@@ -218,14 +223,14 @@ export default function Status() {
                       <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full border ${
-                          item.jenazah.status_pembayaran_pesanan === "PAID"
+                          item.jenazah?.statusPembayaranPesanan === "PAID"
                             ? "border-green-400 text-green-700 bg-green-50"
-                            : item.jenazah.status_pembayaran_pesanan === "UNPAID"
+                            : item.jenazah?.statusPembayaranPesanan === "UNPAID"
                               ? "border-red-400 text-red-700 bg-red-50"
                               : "border-gray-300 text-gray-500 bg-gray-100"
                         }`}
                       >
-                        {item.jenazah.status_pembayaran_pesanan || "UNKNOWN"}
+                        {item.jenazah?.statusPembayaranPesanan || "UNKNOWN"}
                       </span>
                     </div>
 
@@ -233,14 +238,14 @@ export default function Status() {
                       <div className="text-sm font-medium">Status Iuran Tahunan:</div>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full border ${
-                          item.jenazah.status_pembayaran_iuran_tahunan === "PAID"
+                          item.jenazah?.statusPembayaranIuranTahunan === "PAID"
                             ? "border-green-400 text-green-700 bg-green-50"
-                            : item.jenazah.status_pembayaran_iuran_tahunan === "UNPAID"
+                            : item.jenazah?.statusPembayaranIuranTahunan === "UNPAID"
                               ? "border-red-400 text-red-700 bg-red-50"
                               : "border-gray-300 text-gray-500 bg-gray-100"
                         }`}
                       >
-                        {item.jenazah.status_pembayaran_iuran_tahunan || "UNKNOWN"}
+                        {item.jenazah?.statusPembayaranIuranTahunan || "UNKNOWN"}
                       </span>
                     </div>
                   </div>
@@ -259,13 +264,13 @@ export default function Status() {
                   <p>
                     <span className="font-medium">Tanggal Pemesanan:</span>{" "}
                     {/* {new Date(item.created_at).toLocaleDateString("id-ID")} */}
-                    {item.tanggal_pemesanan
-                      ? new Date(item.tanggal_pemesanan).toLocaleDateString("id-ID")
+                    {item.tanggalPemesanan
+                      ? new Date(item.tanggalPemesanan).toLocaleDateString("id-ID")
                       : "-"}
                   </p>
                   <p className="col-span-2">
                     <span className="font-medium">Penanggung Jawab:</span>{" "}
-                    {item.nama_penanggung_jawab} ({item.kontak_penanggung_jawab})
+                    {item.namaPenanggungJawab} ({item.kontakPenanggungJawab})
                   </p>
                 </div>
 

@@ -4,14 +4,14 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const id = parseInt(body.id, 10);
+    const id = body.id;
 
-    if (isNaN(id)) {
+    if (!id || typeof id !== "string" || id.trim() === "") {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
     }
 
     const status = await prisma.makamStatus.findUnique({
-      where: { id },
+      where: { id: id },
     });
 
     if (!status) {
@@ -24,15 +24,14 @@ export async function POST(request: Request) {
         lokasi: status.lokasi,
         silsilah: status.silsilah,
         ext: status.ext,
-        masa_aktif: status.masa_aktif,
-        nama_penanggung_jawab: status.nama_penanggung_jawab,
-        kontak_penanggung_jawab: status.kontak_penanggung_jawab,
+        masaAktif: status.masaAktif,
+        namaPenanggungJawab: status.namaPenanggungJawab,
+        kontakPenanggungJawab: status.kontakPenanggungJawab,
         description: status.description,
         payment: status.payment,
-        tanggal_pemesanan: status.tanggal_pemesanan,
+        tanggalPemesanan: status.tanggalPemesanan,
         approved: status.approved,
         userId: status.userId,
-        pjId: status.pjId,
         jenazahId: status.jenazahId,
         blokId: status.blokId,
       },
@@ -56,38 +55,38 @@ export async function POST(request: Request) {
     // --- UPDATE JENAZAH STATUS IF DIPESAN ---
     if (status.jenazahId) {
       const jenazahData = await prisma.jenazah.findUnique({
-        where: { id_jenazah: status.jenazahId },
+        where: { id: status.jenazahId },
       });
 
-      if (jenazahData && jenazahData.status_jenazah === "DIPESAN" && jenazahData.id_blok) {
+      if (jenazahData && jenazahData.statusJenazah === "DIPESAN" && jenazahData.blokId) {
         // Get related blok
         const blokData = await prisma.blok.findUnique({
-          where: { id_blok: jenazahData.id_blok },
+          where: { id: jenazahData.blokId },
         });
 
         let newJenazahStatus: string | null = null;
         let newBlokStatus: string | null = null;
 
-        if (blokData?.status_blok === "KOSONG") {
+        if (blokData?.statusBlok === "KOSONG") {
           newJenazahStatus = "DIKUBURKAN";
           newBlokStatus = "DIGUNAKAN-1";
-        } else if (blokData?.status_blok === "DIGUNAKAN-1") {
+        } else if (blokData?.statusBlok === "DIGUNAKAN-1") {
           newJenazahStatus = "DITUMPUK-2";
           newBlokStatus = "DIGUNAKAN-2";
-        } else if (blokData?.status_blok === "DIGUNAKAN-2") {
+        } else if (blokData?.statusBlok === "DIGUNAKAN-2") {
           newJenazahStatus = "DITUMPUK-3";
           newBlokStatus = "DIGUNAKAN-3";
         }
 
-        if (jenazahData.tanggal_pemakaman) {
-          const oneYearLater = new Date(jenazahData.tanggal_pemakaman);
+        if (jenazahData.tanggalPemakaman) {
+          const oneYearLater = new Date(jenazahData.tanggalPemakaman);
           oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
 
           await prisma.jenazah.update({
-            where: { id_jenazah: jenazahData.id_jenazah },
+            where: { id: jenazahData.id },
             data: {
-              status_jenazah: newJenazahStatus,
-              masa_aktif: oneYearLater,
+              statusJenazah: newJenazahStatus,
+              masaAktif: oneYearLater,
             },
           });
         }
@@ -101,12 +100,12 @@ export async function POST(request: Request) {
 
         if (newBlokStatus && blokData) {
           await prisma.blok.update({
-            where: { id_blok: blokData.id_blok },
+            where: { id: blokData.id },
             data: {
-              status_blok: newBlokStatus,
-              status_pesanan: "TIDAK DIPESAN",
+              statusBlok: newBlokStatus,
+              statusPesanan: "TIDAK DIPESAN",
               availability: newBlokAvailability,
-              tanggal_pemakaman_terakhir: new Date(),
+              tanggalPemakamanTerakhir: new Date(),
             },
           });
         }

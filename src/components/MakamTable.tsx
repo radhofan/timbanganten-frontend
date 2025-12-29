@@ -7,33 +7,10 @@ import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
-import { Jenazah, Penanggung_Jawab, User, Blok } from "@prisma/client";
+import { Makam } from "@/lib/types";
 
 const { Search } = Input;
 const { Option } = Select;
-
-export interface Makam {
-  id: number;
-  nama: string;
-  lokasi: string;
-  silsilah: string;
-  ext?: string | null;
-  masa_aktif?: string | null;
-  nama_penanggung_jawab: string;
-  kontak_penanggung_jawab?: string | null;
-  description?: string | null;
-  payment?: string | null;
-  approved?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-  userId?: string | null;
-  pjId?: string | null;
-  jenazahId?: string | null;
-  user: User | null;
-  pj: Penanggung_Jawab | null;
-  jenazah: Jenazah | null;
-  blok: Blok | null;
-}
 
 export default function MakamTable(): JSX.Element {
   const [data, setData] = useState<Makam[]>([]);
@@ -72,7 +49,7 @@ export default function MakamTable(): JSX.Element {
     const q = search.trim().toLowerCase();
     return data.filter((item) => {
       const matchesSearch =
-        item.nama.toLowerCase().includes(q) || item.nama_penanggung_jawab.toLowerCase().includes(q);
+        item.nama?.toLowerCase().includes(q) || item.namaPenanggungJawab?.toLowerCase().includes(q);
       const matchesLocation = selectedLocation === "Semua" || item.lokasi === selectedLocation;
       return matchesSearch && matchesLocation;
     });
@@ -92,13 +69,13 @@ export default function MakamTable(): JSX.Element {
     key: "blok",
     align: "center",
     sorter: (a, b) =>
-      (a.blok?.id_blok ?? "").localeCompare(b.blok?.id_blok ?? "", undefined, {
+      (a.blok?.id ?? "").localeCompare(b.blok?.id ?? "", undefined, {
         numeric: true,
         sensitivity: "base",
       }),
     defaultSortOrder: "ascend",
     sortDirections: ["ascend", "descend"],
-    render: (value, record) => <span>{record.blok?.id_blok}</span>,
+    render: (value, record) => <span>{record.blok?.id}</span>,
   });
 
   columns.push({
@@ -107,12 +84,12 @@ export default function MakamTable(): JSX.Element {
     key: "blok",
     align: "center",
     sorter: (a, b) => {
-      const sa = a.blok?.status_blok || "";
-      const sb = b.blok?.status_blok || "";
+      const sa = a.blok?.statusBlok || "";
+      const sb = b.blok?.statusBlok || "";
       return sa.localeCompare(sb);
     },
     render: (_, record) => {
-      const status = record.blok?.status_blok || "";
+      const status = record.blok?.statusBlok || "";
       return <span className="font-medium">{status}</span>;
     },
   });
@@ -122,8 +99,8 @@ export default function MakamTable(): JSX.Element {
     dataIndex: "nama",
     key: "nama",
     align: "center",
-    sorter: (a, b) => a.nama.localeCompare(b.nama),
-    render: (value, record) => <span className="font-medium">{record.nama}</span>,
+    sorter: (a, b) => (a.nama || "").localeCompare(b.nama || ""),
+    render: (value, record) => <span className="font-medium">{record.nama || "-"}</span>,
   });
 
   columns.push({
@@ -132,10 +109,8 @@ export default function MakamTable(): JSX.Element {
     key: "status_jenazah",
     align: "center",
     sorter: (a, b) =>
-      (a.jenazah?.status_jenazah ?? "").localeCompare(b.jenazah?.status_jenazah ?? ""),
-    render: (value, record) => (
-      <span className="font-medium">{record.jenazah?.status_jenazah}</span>
-    ),
+      (a.jenazah?.statusJenazah ?? "").localeCompare(b.jenazah?.statusJenazah ?? ""),
+    render: (value, record) => <span className="font-medium">{record.jenazah?.statusJenazah}</span>,
   });
 
   columns.push({
@@ -143,17 +118,16 @@ export default function MakamTable(): JSX.Element {
     dataIndex: "lokasi",
     key: "lokasi",
     align: "center",
-    sorter: (a, b) => a.lokasi.localeCompare(b.lokasi),
-    render: (value, record) => <span>{record.lokasi}</span>,
+    sorter: (a, b) => (a.lokasi || "").localeCompare(b.lokasi || ""),
+    render: (value, record) => <span>{record.lokasi || "-"}</span>,
   });
-
   columns.push({
     title: "Nama PJ",
-    dataIndex: "nama_penanggung_jawab",
-    key: "nama_penanggung_jawab",
+    dataIndex: "namaPenanggungJawab",
+    key: "namaPenanggungJawab",
     align: "center",
-    sorter: (a, b) => a.nama_penanggung_jawab.localeCompare(b.nama_penanggung_jawab),
-    render: (value, record) => <span>{record.nama_penanggung_jawab}</span>,
+    sorter: (a, b) => (a.namaPenanggungJawab || "").localeCompare(b.namaPenanggungJawab || ""),
+    render: (value, record) => <span>{record.namaPenanggungJawab || "-"}</span>,
   });
 
   columns.push({
@@ -161,23 +135,23 @@ export default function MakamTable(): JSX.Element {
     dataIndex: "silsilah",
     key: "silsilah",
     align: "center",
-    sorter: (a, b) => a.silsilah.localeCompare(b.silsilah),
-    render: (value, record) => <span>{record.silsilah}</span>,
+    sorter: (a, b) => (a.silsilah || "").localeCompare(b.silsilah || ""),
+    render: (value, record) => <span>{record.silsilah || "-"}</span>,
   });
 
   if (!isGuest) {
     columns.push({
       title: "No. Kontak PJ",
-      dataIndex: "kontak_penanggung_jawab",
-      key: "kontak_penanggung_jawab",
+      dataIndex: "kontakPenanggungJawab",
+      key: "kontakPenanggungJawab",
       align: "center",
       sorter: (a, b) => {
-        const aa = a.kontak_penanggung_jawab ?? "";
-        const bb = b.kontak_penanggung_jawab ?? "";
+        const aa = a.kontakPenanggungJawab ?? "";
+        const bb = b.kontakPenanggungJawab ?? "";
         return aa.localeCompare(bb);
       },
       render: (_, record) => {
-        const num = record.kontak_penanggung_jawab;
+        const num = record.kontakPenanggungJawab;
         if (!num) return "-";
         return (
           <a
@@ -216,18 +190,18 @@ export default function MakamTable(): JSX.Element {
 
     columns.push({
       title: "Masa Aktif",
-      dataIndex: "masa_aktif",
-      key: "masa_aktif",
+      dataIndex: "masaAktif",
+      key: "masaAktif",
       align: "center",
       sorter: (a, b) => {
-        const ta = a.masa_aktif ? new Date(a.masa_aktif).getTime() : 0;
-        const tb = b.masa_aktif ? new Date(b.masa_aktif).getTime() : 0;
+        const ta = a.masaAktif ? new Date(a.masaAktif).getTime() : 0;
+        const tb = b.masaAktif ? new Date(b.masaAktif).getTime() : 0;
         return ta - tb;
       },
       render: (value, record) =>
-        record.masa_aktif ? (
-          <Tag color={new Date(record.masa_aktif) >= new Date() ? "green" : "red"}>
-            {new Date(record.masa_aktif).toLocaleDateString("id-ID")}
+        record.masaAktif ? (
+          <Tag color={new Date(record.masaAktif) >= new Date() ? "green" : "red"}>
+            {new Date(record.masaAktif).toLocaleDateString("id-ID")}
           </Tag>
         ) : (
           <span>-</span>
@@ -239,7 +213,7 @@ export default function MakamTable(): JSX.Element {
       key: "penjelasan",
       align: "center",
       render: (_, record: Makam) => {
-        const userId = record.pjId;
+        const userId = record.userId;
 
         return (
           <span

@@ -11,13 +11,16 @@ export async function POST(request: Request) {
     }
 
     const updated = await prisma.makamStatus.update({
-      where: { id },
+      where: { id: String(id) },
       data: { approved: "APPROVED" },
     });
 
     return NextResponse.json({ message: "Berhasil disetujui", status: updated });
   } catch (err) {
     console.error("[approveMakamStatus]", err);
-    return NextResponse.json({ error: "Terjadi kesalahan saat menyetujui status makam." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat menyetujui status makam." },
+      { status: 500 }
+    );
   }
 }
