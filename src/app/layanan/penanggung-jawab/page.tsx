@@ -22,14 +22,25 @@ export default function PenanggungJawab() {
         const res = await fetch("/api/penanggungJawab");
         const data = await res.json();
 
-        const formattedData = data.map((user: User) => ({
-          id: user.id,
-          name: user.name,
-          contact: user.contact,
-          status: user.status,
-          makams: user.makams,
-          statuses: user.statuses,
-        }));
+        const formattedData = data.map((user: User) => {
+          const pjList = Array.isArray(user.penanggungJawab)
+            ? user.penanggungJawab
+            : user.penanggungJawab
+              ? [user.penanggungJawab]
+              : [];
+
+          const makams = pjList.filter((pj) => pj.makam).map((pj) => pj.makam);
+
+          const statuses = pjList.filter((pj) => pj.makamStatus).map((pj) => pj.makamStatus);
+
+          return {
+            id: user.id,
+            name: user.name,
+            contact: user.contact,
+            makams,
+            statuses,
+          };
+        });
 
         setUsers(formattedData);
       } catch (error) {

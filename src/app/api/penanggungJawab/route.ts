@@ -10,7 +10,12 @@ export async function GET(request: Request) {
     const user = await prisma.user.findUnique({
       where: { id: String(id) },
       include: {
-        penanggungJawab: true,
+        penanggungJawab: {
+          include: {
+            makam: true,
+            makamStatus: true,
+          },
+        },
         makams: true,
         statuses: true,
       },
@@ -35,7 +40,12 @@ export async function GET(request: Request) {
         ],
       },
       include: {
-        penanggungJawab: true,
+        penanggungJawab: {
+          include: {
+            makam: true,
+            makamStatus: true,
+          },
+        },
         makams: true,
         statuses: true,
       },
@@ -44,7 +54,12 @@ export async function GET(request: Request) {
     users = await prisma.user.findMany({
       where: { penanggungJawab: { isNot: null } },
       include: {
-        penanggungJawab: true,
+        penanggungJawab: {
+          include: {
+            makam: true,
+            makamStatus: true,
+          },
+        },
         makams: true,
         statuses: true,
       },
