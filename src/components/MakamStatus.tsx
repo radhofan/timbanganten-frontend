@@ -88,6 +88,7 @@ export default function MakamStatus({ page }: { page: string }) {
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
   const canEdit = role === "admin";
+  const isTanggalPemakamanLocked = !!formData.tanggalPemakaman;
 
   const fetchData = useCallback(async () => {
     if (!id) return;
@@ -195,6 +196,7 @@ export default function MakamStatus({ page }: { page: string }) {
       kontak_penanggung_jawab: formData.kontak,
       description: formData.notes,
       tanggal_pemakaman: formData.tanggalPemakaman,
+      tanggalPemesanan: formData.tanggalPemesanan,
     };
 
     try {
@@ -406,8 +408,10 @@ export default function MakamStatus({ page }: { page: string }) {
                   <DatePicker
                     id="tanggal_pemakaman"
                     value={formData.tanggalPemakaman ? dayjs(formData.tanggalPemakaman) : null}
-                    disabled={!canEdit}
+                    disabled={!canEdit || isTanggalPemakamanLocked}
                     onChange={(value) => {
+                      if (isTanggalPemakamanLocked) return;
+
                       setFormData((prev) => ({
                         ...prev,
                         tanggalPemakaman: value ? value.toISOString() : "",

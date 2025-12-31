@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Makam status tidak ditemukan" }, { status: 404 });
     }
 
+    // --- CREATE NEW MAKAM ---
     const newMakam = await prisma.makam.create({
       data: {
         nama: status.nama,
@@ -37,8 +38,21 @@ export async function POST(request: Request) {
       },
     });
 
+    // --- UPDATE PENANGGUNG JAWAB BY MAKAMSTATUS ID ---
+    await prisma.penanggungJawab.updateMany({
+      where: {
+        makamStatusId: status.id,
+      },
+      data: {
+        makamId: newMakam.id,
+        makamStatusId: null,
+      },
+    });
+
+    // --- DELETE OLD MAKAM ---
     await prisma.makamStatus.delete({ where: { id } });
 
+    // --- UPDATE USER STATUS (REDUNDANT) ---
     if (status.userId) {
       const remainingStatusCount = await prisma.makamStatus.count({
         where: { userId: status.userId },
@@ -110,6 +124,28 @@ export async function POST(request: Request) {
           });
         }
       }
+    }
+
+    // --- UPDATE BLOK REGARDLESS ---
+    if (status.jenazahId) {
+      const jenazahData = await prisma.jenazah.findUnique({
+        where: { id: status.jenazahId },
+      });
+
+      if (!jenazahData?.blokId) return;
+
+      const blokData = await prisma.blok.findUnique({
+        where: { id: jenazahData.blokId },
+      });
+
+      if (!blokData) return;
+
+      await prisma.blok.update({
+        where: { id: blokData.id },
+        data: {
+          statusPesanan: "TIDAK DIPESAN",
+        },
+      });
     }
 
     return NextResponse.json({

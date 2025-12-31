@@ -72,7 +72,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
 
-  const { name, contact, email, status, ktpNum } = body;
+  const { name, contact, email, status, ktpNum, emergencyName, emergencyContact } = body;
 
   const newUser = await prisma.user.create({
     data: {
@@ -81,6 +81,8 @@ export async function POST(request: Request) {
       email,
       status: status || "PESAN",
       ktpNum,
+      emergencyName,
+      emergencyContact,
     },
   });
 

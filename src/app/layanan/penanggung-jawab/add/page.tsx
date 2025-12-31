@@ -9,8 +9,7 @@ import { Button } from "antd";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { UserCircle, Mail, Phone, CreditCard, MapPin, Home } from "lucide-react";
+import { UserCircle, Mail, Phone, CreditCard, Home } from "lucide-react";
 
 export default function AddPenanggungJawab() {
   const [loading, setLoading] = useState(false);
@@ -27,22 +26,26 @@ export default function AddPenanggungJawab() {
       name: string;
       contact: string;
       email: string;
-      ktp_num?: string;
+      ktpNum?: string;
       alamat?: string;
       kontakDarurat?: string;
       namaKontakDarurat?: string;
       notes?: string;
+      emergencyName?: string;
+      emergencyContact?: string;
     }
 
     const payload: AddPJPayload = {
       name: formData.get("name") as string,
       contact: formData.get("contact") as string,
       email: formData.get("email") as string,
-      ktp_num: formData.get("ktp_num") as string,
+      ktpNum: formData.get("ktpNum") as string,
       alamat: formData.get("alamat") as string,
       kontakDarurat: formData.get("kontakDarurat") as string,
       namaKontakDarurat: formData.get("namaKontakDarurat") as string,
       notes: formData.get("notes") as string,
+      emergencyName: formData.get("emergencyName") as string,
+      emergencyContact: formData.get("emergencyContact") as string,
     };
 
     try {
@@ -53,7 +56,9 @@ export default function AddPenanggungJawab() {
           name: payload.name,
           contact: payload.contact,
           email: payload.email,
-          ktp_num: payload.ktp_num,
+          ktpNum: payload.ktpNum,
+          emergencyName: payload.emergencyName,
+          emergencyContact: payload.emergencyContact,
         }),
       });
 
@@ -152,15 +157,15 @@ export default function AddPenanggungJawab() {
               </div>
 
               <div className="flex flex-col col-span-2">
-                <Label htmlFor="ktp_num" className="mb-2 flex items-center gap-2">
+                <Label htmlFor="ktpNum" className="mb-2 flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-amber-600" />
                   No KTP
                 </Label>
                 <div className="relative">
                   <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
-                    id="ktp_num"
-                    name="ktp_num"
+                    id="ktpNum"
+                    name="ktpNum"
                     maxLength={16}
                     placeholder="Masukkan 16 digit nomor KTP"
                     className="pl-10"
@@ -173,30 +178,20 @@ export default function AddPenanggungJawab() {
                   <Home className="w-4 h-4 text-rose-600" />
                   Alamat
                 </Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Textarea
-                    id="alamat"
-                    name="alamat"
-                    rows={3}
-                    placeholder="Masukkan alamat lengkap..."
-                    className="resize-none pl-10"
-                  />
-                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col">
-                <Label htmlFor="namaKontakDarurat" className="mb-2 flex items-center gap-2">
+                <Label htmlFor="emergencyName" className="mb-2 flex items-center gap-2">
                   <UserCircle className="w-4 h-4 text-indigo-600" />
                   Nama Kontak Darurat
                 </Label>
                 <div className="relative">
                   <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
-                    id="namaKontakDarurat"
-                    name="namaKontakDarurat"
+                    id="emergencyName"
+                    name="emergencyName"
                     placeholder="Masukkan Nama"
                     className="pl-10"
                   />
@@ -204,15 +199,15 @@ export default function AddPenanggungJawab() {
               </div>
 
               <div className="flex flex-col">
-                <Label htmlFor="kontakDarurat" className="mb-2 flex items-center gap-2">
+                <Label htmlFor="emergencyContact" className="mb-2 flex items-center gap-2">
                   <Phone className="w-4 h-4 text-teal-600" />
                   No. Kontak Darurat
                 </Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
-                    id="kontakDarurat"
-                    name="kontakDarurat"
+                    id="emergencyContact"
+                    name="emergencyContact"
                     placeholder="08XXXXXXXXX"
                     className="pl-10"
                   />

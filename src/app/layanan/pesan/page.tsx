@@ -95,12 +95,14 @@ export default function Pemesanan() {
 
     interface PemesananPayload {
       namaJenazah: string;
-      id_blok: string;
+      blokId: string;
       lokasi: string;
       silsilah: string;
       notes: string;
       diriSendiri: boolean;
       existingUserId?: string;
+      emergencyName?: string;
+      emergencyContact?: string;
       pjName?: string;
       pjContact?: string;
       userPAName?: string;
@@ -116,10 +118,12 @@ export default function Pemesanan() {
 
     const payload: PemesananPayload = {
       namaJenazah: formData.get("namajenazah") as string,
-      id_blok: selectedBlok,
+      blokId: selectedBlok,
       lokasi: formData.get("lokasi") as string,
       silsilah: formData.get("silsilah") as string,
       notes: formData.get("notes") as string,
+      emergencyName: formData.get("emergencyName") as string,
+      emergencyContact: formData.get("emergencyContact") as string,
       diriSendiri,
       tanggalPemakaman: formData.get("tanggalPemakaman")
         ? new Date(formData.get("tanggalPemakaman") as string)
@@ -133,11 +137,13 @@ export default function Pemesanan() {
       payload.existingUserId = selectedUser.id;
       payload.pjName = selectedUser.name || undefined;
       payload.pjContact = selectedUser.contact || undefined;
+      payload.emergencyName = selectedUser.emergencyName || undefined;
+      payload.emergencyContact = selectedUser.emergencyContact || undefined;
 
       payload.userPAName = formData.get("namapj") as string;
       payload.userPAContact = formData.get("kontak") as string;
       payload.userPAEmail = formData.get("email") as string;
-      payload.userPAKTP = formData.get("ktp_num") as string;
+      payload.userPAKTP = formData.get("ktpNum") as string;
 
       if (!diriSendiri) {
         payload.userPBName = formData.get("namajenazah") as string;
@@ -148,9 +154,11 @@ export default function Pemesanan() {
       payload.userPAName = formData.get("namapj") as string;
       payload.userPAContact = formData.get("kontak") as string;
       payload.userPAEmail = formData.get("email") as string;
-      payload.userPAKTP = formData.get("ktp_num") as string;
+      payload.userPAKTP = formData.get("ktpNum") as string;
       payload.pjName = formData.get("namapj") as string;
       payload.pjContact = formData.get("kontak") as string;
+      payload.emergencyName = formData.get("emergencyName") as string;
+      payload.emergencyContact = formData.get("emergencyContact") as string;
 
       if (!diriSendiri) {
         payload.userPBName = formData.get("namajenazah") as string;
@@ -265,7 +273,7 @@ export default function Pemesanan() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col">
                   <Label htmlFor="namapj" className="mb-2 flex items-center gap-2">
                     <UserCircle className="w-4 h-4 text-purple-600" />
                     Nama Penanggung Jawab
@@ -281,6 +289,7 @@ export default function Pemesanan() {
                     />
                   </div>
                 </div>
+
                 <div className="flex flex-col">
                   <Label htmlFor="kontak" className="mb-2 flex items-center gap-2">
                     <Phone className="w-4 h-4 text-green-600" />
@@ -297,7 +306,8 @@ export default function Pemesanan() {
                     />
                   </div>
                 </div>
-                <div className="flex flex-col">
+
+                <div className="flex flex-col col-span-2">
                   <Label htmlFor="email" className="mb-2 flex items-center gap-2">
                     <Mail className="w-4 h-4 text-blue-600" />
                     Email
@@ -314,16 +324,49 @@ export default function Pemesanan() {
                     />
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="ktp_num" className="mb-2 flex items-center gap-2">
+
+                <div className="flex flex-col">
+                  <Label htmlFor="emergencyName" className="mb-2 flex items-center gap-2">
+                    <UserCircle className="w-4 h-4 text-indigo-600" />
+                    Nama Kontak Darurat
+                  </Label>
+                  <div className="relative">
+                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="emergencyNamet"
+                      name="emergencyName"
+                      placeholder="Masukkan Nama"
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col">
+                  <Label htmlFor="emergencyContact" className="mb-2 flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-teal-600" />
+                    No. Kontak Darurat
+                  </Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="emergencyContact"
+                      name="emergencyContact"
+                      placeholder="08XXXXXXXXX"
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col col-span-2">
+                  <Label htmlFor="ktpNum" className="mb-2 flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-amber-600" />
                     No KTP Pemesan
                   </Label>
                   <div className="relative">
                     <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
-                      id="ktp_num"
-                      name="ktp_num"
+                      id="ktpNum"
+                      name="ktpNum"
                       maxLength={16}
                       placeholder="Masukkan 16 digit nomor KTP"
                       className="pl-10"
@@ -360,12 +403,12 @@ export default function Pemesanan() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="id_blok" className="mb-2 flex items-center gap-2">
+                <Label htmlFor="blokId" className="mb-2 flex items-center gap-2">
                   <Hash className="w-4 h-4 text-indigo-600" />
                   Blok Kavling
                 </Label>
                 <Select
-                  name="id_blok"
+                  name="blokId"
                   required
                   onValueChange={(value) => setSelectedBlok(value)} // Keep this for state tracking if needed
                 >

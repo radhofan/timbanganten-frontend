@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   const blokData = await prisma.blok.findUnique({
-    where: { id: body.id_blok },
+    where: { id: body.blokId },
   });
 
   let existingPJ = null;
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       const useExistingPJ = !!body.existingUserId;
       const diriSendiri = body.diriSendiri === true;
 
-      // --- PESAN MAKAM USER BARU ---
+      // --- PESAN MAKAM USER BARU --- //////////////////////////////////////////////////////////////////////////////////////////////////////////
       if (!useExistingPJ) {
         // 1. Buat Akun User (PA)
         const newUserPA = await prisma.user.create({
@@ -53,16 +53,18 @@ export async function POST(request: Request) {
             email: body.userPAEmail,
             status: "PESAN",
             ktpNum: body.userPAKTP ?? null,
+            emergencyName: body.emergencyName,
+            emergencyContact: body.emergencyContact,
           },
         });
         paId = newUserPA.id;
 
         if (!diriSendiri) {
+          // --- ORANG LAIN--- //////////////////////////
           // 2. Buat Akun User (PB)
           const newUserPB = await prisma.user.create({
             data: {
               name: body.userPBName,
-              status: "PENDING",
             },
           });
           pbId = newUserPB.id;
@@ -73,22 +75,31 @@ export async function POST(request: Request) {
               id: pbId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
-              blokId: body.id_blok,
+              blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
+              masaAktif: new Date(
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+              ),
+              userId: pbId,
             },
           });
           jenazahId = newJenazahPB.id;
         } else {
+          // --- DIRI SENDIRI --- //////////////////////////
           // diri sendiri: jenazah = PA
           const newJenazahPA = await prisma.jenazah.create({
             data: {
               id: paId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
-              blokId: body.id_blok,
+              blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
+              masaAktif: new Date(
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+              ),
+              userId: paId,
             },
           });
           jenazahId = newJenazahPA.id;
@@ -100,16 +111,13 @@ export async function POST(request: Request) {
             nama: body.namaJenazah,
             lokasi: body.lokasi,
             silsilah: body.silsilah,
-            ext: "PENDING",
-            payment: "PENDING",
-            approved: "PENDING",
             description: body.notes,
             namaPenanggungJawab: body.pjName,
             kontakPenanggungJawab: body.pjContact,
             tanggalPemesanan: body.tanggalPemesanan,
             userId: paId ?? null,
             jenazahId: jenazahId ?? null,
-            blokId: body.id_blok ?? null,
+            blokId: body.blokId ?? null,
           },
         });
 
@@ -124,7 +132,7 @@ export async function POST(request: Request) {
 
         // Update Blok
         await prisma.blok.update({
-          where: { id: body.id_blok },
+          where: { id: body.blokId },
           data: {
             ...(body.tanggalPemakaman ? { tanggalPemakamanTerakhir: body.tanggalPemakaman } : {}),
             ...(finalStatusBlok ? { statusBlok: finalStatusBlok } : {}),
@@ -136,16 +144,16 @@ export async function POST(request: Request) {
         return makamStatus;
       }
 
-      // --- PESAN MAKAM USER EXISTING PJ ---
+      // --- PESAN MAKAM USER EXISTING PJ --- //////////////////////////////////////////////////////////////////////////////////////////////////////////
       if (useExistingPJ) {
         pjId = existingPJ?.id;
 
         if (!diriSendiri) {
+          // --- ORANG LAIN --- //////////////////////////
           // 1. Buat Akun User (PB)
           const newUserPB = await prisma.user.create({
             data: {
               name: body.userPBName,
-              status: "PENDING",
             },
           });
           pbId = newUserPB.id;
@@ -156,23 +164,32 @@ export async function POST(request: Request) {
               id: pbId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
-              blokId: body.id_blok,
+              blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
+              masaAktif: new Date(
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+              ),
+              userId: pbId,
             },
           });
           paId = body.existingUserId;
           jenazahId = newJenazahPB.id;
         } else {
+          // --- DIRI SENDIRI --- //////////////////////////
           // diri sendiri: jenazah = PJ user
           const newJenazahPA = await prisma.jenazah.create({
             data: {
               id: pjId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
-              blokId: body.id_blok,
+              blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
+              masaAktif: new Date(
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+              ),
+              userId: pjId,
             },
           });
 
@@ -186,16 +203,13 @@ export async function POST(request: Request) {
             nama: body.namaJenazah,
             lokasi: body.lokasi,
             silsilah: body.silsilah,
-            ext: "PENDING",
-            payment: "PENDING",
-            approved: "PENDING",
             description: body.notes,
             namaPenanggungJawab: body.pjName,
             kontakPenanggungJawab: body.pjContact,
             tanggalPemesanan: body.tanggalPemesanan,
             userId: paId ?? null,
             jenazahId: jenazahId ?? null,
-            blokId: body.id_blok ?? null,
+            blokId: body.blokId ?? null,
           },
         });
 
@@ -209,7 +223,7 @@ export async function POST(request: Request) {
 
         // Update Blok
         await prisma.blok.update({
-          where: { id: body.id_blok },
+          where: { id: body.blokId },
           data: {
             ...(body.tanggalPemakaman ? { tanggalPemakamanTerakhir: body.tanggalPemakaman } : {}),
             ...(finalStatusBlok ? { statusBlok: finalStatusBlok } : {}),

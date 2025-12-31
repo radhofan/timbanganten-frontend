@@ -12,7 +12,6 @@ export default function Status() {
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterApproved, setFilterApproved] = useState<string[]>([]);
   const [filterPayment, setFilterPayment] = useState<string[]>([]);
   const itemsPerPage = 5;
 
@@ -43,11 +42,9 @@ export default function Status() {
     const matchPenanggungJawab = item.namaPenanggungJawab?.toLowerCase().includes(query);
     const matchBlok = item.blok?.id.toLowerCase().includes(query);
 
-    const matchApproval =
-      filterApproved.length === 0 || filterApproved.includes(item.approved || "");
     const matchPayment = filterPayment.length === 0 || filterPayment.includes(item.payment || "");
 
-    return (matchNama || matchPenanggungJawab || matchBlok) && matchApproval && matchPayment;
+    return (matchNama || matchPenanggungJawab || matchBlok) && matchPayment;
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -121,41 +118,6 @@ export default function Status() {
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* Approval filter */}
-            <div className="flex flex-col">
-              <span className="text-xs font-medium text-gray-600 mb-1">Filter Approval</span>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-1 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filterApproved.includes("APPROVED")}
-                    onChange={(e) =>
-                      setFilterApproved((prev) =>
-                        e.target.checked
-                          ? [...prev, "APPROVED"]
-                          : prev.filter((x) => x !== "APPROVED")
-                      )
-                    }
-                  />
-                  APPROVED
-                </label>
-                <label className="flex items-center gap-1 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filterApproved.includes("PENDING")}
-                    onChange={(e) =>
-                      setFilterApproved((prev) =>
-                        e.target.checked
-                          ? [...prev, "PENDING"]
-                          : prev.filter((x) => x !== "PENDING")
-                      )
-                    }
-                  />
-                  PENDING
-                </label>
-              </div>
-            </div>
-
             {/* Payment filter */}
             <div className="flex flex-col">
               <span className="text-xs font-medium text-gray-600 mb-1">Filter Pembayaran</span>

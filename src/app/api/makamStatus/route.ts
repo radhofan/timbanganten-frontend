@@ -71,7 +71,7 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Invalid or missing ID" }, { status: 400 });
   }
   try {
-    // update makamStatus first and get jenazahId
+    // --- UPDATE MAKAMSTATUS ---
     const makamStatus = await prisma.makamStatus.update({
       where: {
         id: String(id),
@@ -88,17 +88,62 @@ export async function PUT(req: Request) {
         jenazahId: true,
       },
     });
-    // update jenazah.tanggalPemakaman explicitly
+
+    // ONLY do next-status logic here
     if (body.tanggal_pemakaman && makamStatus.jenazahId) {
+      const blokData = await prisma.blok.findUnique({
+        where: { id: body.blok },
+      });
+
+      // --- NEXT STATUS PROCESSING ---
+      let finalJenazahStatus;
+      let finalStatusBlok: string;
+
+      if (blokData?.statusBlok === "DIGUNAKAN-1") {
+        finalJenazahStatus = "DITUMPUK-2";
+        finalStatusBlok = "DIGUNAKAN-2";
+      } else if (blokData?.statusBlok === "DIGUNAKAN-2") {
+        finalJenazahStatus = "DITUMPUK-3";
+        finalStatusBlok = "DIGUNAKAN-3";
+      } else {
+        finalJenazahStatus = "DIKUBURKAN";
+        finalStatusBlok = "DIGUNAKAN-1";
+      }
+
+      const oneYearLater = new Date(body.tanggalPemesanan);
+      oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
+      let newBlokAvailability: string | null = null;
+      if (finalStatusBlok === "DIGUNAKAN-3") {
+        newBlokAvailability = "TIDAK TERSEDIA";
+      } else {
+        newBlokAvailability = "TERSEDIA";
+      }
+
+      // --- UPDATE JENAZAH ---
       await prisma.jenazah.update({
         where: {
           id: makamStatus.jenazahId,
         },
         data: {
           tanggalPemakaman: new Date(body.tanggal_pemakaman),
+          statusJenazah: finalJenazahStatus,
+          blokId: body.blok,
+          masaAktif: oneYearLater,
+        },
+      });
+
+      // --- UPDATE BLOK ---
+      await prisma.blok.update({
+        where: { id: body.blok },
+        data: {
+          tanggalPemakamanTerakhir: new Date(body.tanggal_pemakaman),
+          statusBlok: finalStatusBlok,
+          availability: newBlokAvailability,
         },
       });
     }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Update failed:", err);
