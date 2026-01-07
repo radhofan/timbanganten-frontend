@@ -5,9 +5,9 @@ import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { MakamStatusWithPJ } from "@/lib/types";
+import { MakamStatus } from "@/lib/types";
 export default function Status() {
-  const [data, setData] = useState<MakamStatusWithPJ[]>([]);
+  const [data, setData] = useState<MakamStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,7 +19,7 @@ export default function Status() {
       try {
         const res = await fetch("/api/makamStatus");
         const result = await res.json();
-        const sortedResult = result.sort((a: MakamStatusWithPJ, b: MakamStatusWithPJ) => {
+        const sortedResult = result.sort((a: MakamStatus, b: MakamStatus) => {
           const aId = typeof a.id === "string" ? a.id : String(a.id);
           const bId = typeof b.id === "string" ? b.id : String(b.id);
           return bId.localeCompare(aId);

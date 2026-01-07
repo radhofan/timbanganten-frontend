@@ -121,7 +121,9 @@ export async function POST(request: Request) {
         const newPJ = await prisma.penanggungJawab.create({
           data: {
             userId: paId,
-            makamStatusId: makamStatus.id, // ✅ Link to MakamStatus
+            makamStatus: {
+              connect: { id: makamStatus.id }, // ✅ Connect via relation
+            },
           },
         });
         pjId = newPJ.id;
@@ -219,7 +221,9 @@ export async function POST(request: Request) {
         await prisma.penanggungJawab.update({
           where: { id: pjId },
           data: {
-            makamStatusId: makamStatus.id, // ✅ Link existing PJ to new MakamStatus
+            makamStatus: {
+              connect: { id: makamStatus.id }, // ✅ Connect via relation
+            },
           },
         });
 

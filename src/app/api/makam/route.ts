@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 // GET
+// GET
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
@@ -13,37 +14,29 @@ export async function GET(request: Request) {
 
     const makam = await prisma.makam.findUnique({
       where: { id },
-      include: { jenazah: true, blok: true },
+      include: {
+        jenazah: true,
+        blok: true,
+        pj: { include: { user: true } }, // <-- include all PJs linked to this makam
+      },
     });
 
     if (!makam) {
       return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
 
-    const pj = await prisma.penanggungJawab.findMany({
-      where: { makamId: id },
-      include: { user: true },
-    });
-
-    return NextResponse.json({ ...makam, pj });
+    return NextResponse.json(makam);
   }
 
   const makams = await prisma.makam.findMany({
-    include: { jenazah: true, blok: true },
+    include: {
+      jenazah: true,
+      blok: true,
+      pj: { include: { user: true } }, // <-- include all PJs for each makam
+    },
   });
 
-  const allIds = makams.map((m) => m.id);
-  const pjs = await prisma.penanggungJawab.findMany({
-    where: { makamId: { in: allIds } },
-    include: { user: true },
-  });
-
-  const result = makams.map((m) => ({
-    ...m,
-    pj: pjs.filter((p) => p.makamId === m.id),
-  }));
-
-  return NextResponse.json(result);
+  return NextResponse.json(makams);
 }
 
 // POST

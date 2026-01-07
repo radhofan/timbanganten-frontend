@@ -2,22 +2,23 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { MakamStatusWithPJ, MakamWithPJ, User } from "@/lib/types";
+import { Makam, MakamStatus, User } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "antd";
 import { UserAddOutlined } from "@ant-design/icons";
 
-type FormattedPJ = {
-  id: string; // user ID
-  name: string | null; // can be null
-  contact: string | null; // can be null
-  makams: MakamWithPJ[]; // array of makam IDs
-  statuses: MakamStatusWithPJ[]; // array of corresponding makam statuses
+type PenanggungJawabData = {
+  userId: string; // User ID
+  pjId: string; // PJ ID
+  userName: string | null;
+  userContact: string | null;
+  makams: Makam[]; // array of active makams
+  makamStatuses: MakamStatus[]; // array of reserved makams
 };
 
 export default function PenanggungJawab() {
-  const [users, setUsers] = useState<FormattedPJ[]>([]);
+  const [penanggungJawabList, setPenanggungJawabList] = useState<PenanggungJawabData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,28 +32,21 @@ export default function PenanggungJawab() {
         const data = await res.json();
 
         const formattedData = data.map((user: User) => {
-          const pjList = Array.isArray(user.penanggungJawab)
-            ? user.penanggungJawab
-            : user.penanggungJawab
-              ? [user.penanggungJawab]
-              : [];
-
-          const makams = pjList.filter((pj) => pj.makam).map((pj) => pj.makam);
-
-          const statuses = pjList.filter((pj) => pj.makamStatus).map((pj) => pj.makamStatus);
+          const pj = user.penanggungJawab;
 
           return {
-            id: user.id,
-            name: user.name,
-            contact: user.contact,
-            makams,
-            statuses,
+            userId: user.id,
+            pjId: pj?.id || "",
+            userName: user.name || null,
+            userContact: user.contact || null,
+            makams: Array.isArray(pj?.makam) ? pj.makam : [],
+            makamStatuses: Array.isArray(pj?.makamStatus) ? pj.makamStatus : [],
           };
         });
 
-        setUsers(formattedData);
+        setPenanggungJawabList(formattedData);
       } catch (error) {
-        console.error("Failed to fetch users:", error);
+        console.error("Failed to fetch penanggung jawab:", error);
       } finally {
         setLoading(false);
       }
@@ -61,14 +55,18 @@ export default function PenanggungJawab() {
     fetchData();
   }, []);
 
-  const filteredData = users.filter((user) =>
-    user.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredData = penanggungJawabList.filter((pj) => {
+    if (!search) return true;
+    const userName = pj.userName?.toLowerCase() || "";
+    const userContact = pj.userContact?.toLowerCase() || "";
+    const searchLower = search.toLowerCase();
+    return userName.includes(searchLower) || userContact.includes(searchLower);
+  });
 
   const totalPages = Math.ceil(filteredData.length / usersPerPage) || 1;
   const startIndex = (currentPage - 1) * usersPerPage;
   const endIndex = startIndex + usersPerPage;
-  const currentUsers = filteredData.slice(startIndex, endIndex);
+  const currentPJList = filteredData.slice(startIndex, endIndex);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -150,8 +148,9 @@ export default function PenanggungJawab() {
 
         {!loading && (
           <div className="w-full max-w-2xl mb-2 text-sm text-gray-600">
-            Menampilkan {currentUsers.length} dari {filteredData.length} pengguna
-            {filteredData.length !== users.length && ` (difilter dari ${users.length} total)`}
+            Menampilkan {currentPJList.length} dari {filteredData.length} pengguna
+            {filteredData.length !== penanggungJawabList.length &&
+              ` (difilter dari ${penanggungJawabList.length} total)`}
           </div>
         )}
 
@@ -161,13 +160,13 @@ export default function PenanggungJawab() {
           ) : filteredData.length === 0 ? (
             <p className="text-sm text-gray-500 text-center">Tidak ada pengguna ditemukan.</p>
           ) : (
-            currentUsers.map((user) => {
-              const totalMakams = (user.makams ?? []).length + (user.statuses ?? []).length;
-              const hasActiveMakams = (user.makams ?? []).length > 0;
+            currentPJList.map((pj) => {
+              const totalMakams = pj.makams.length + pj.makamStatuses.length;
+              const hasActiveMakams = pj.makams.length > 0;
 
               return (
                 <div
-                  key={user.id}
+                  key={pj.userId}
                   className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01]"
                   style={{
                     borderColor: hasActiveMakams ? "#22c55e" : "#facc15",
@@ -175,8 +174,12 @@ export default function PenanggungJawab() {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h2 className="text-base font-semibold text-gray-800">{user.name}</h2>
-                      <p className="text-xs text-gray-600">{user.contact}</p>
+                      <h2 className="text-base font-semibold text-gray-800">
+                        {pj.userName || "Nama Tidak Tersedia"}
+                      </h2>
+                      <p className="text-xs text-gray-600">
+                        {pj.userContact || "Kontak Tidak Tersedia"}
+                      </p>
                     </div>
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full border ${
@@ -192,7 +195,7 @@ export default function PenanggungJawab() {
                   {/* Makam List */}
                   {totalMakams > 0 ? (
                     <div className="mt-3 space-y-1.5">
-                      {(user.makams ?? []).map((m) => (
+                      {pj.makams.map((m) => (
                         <div
                           key={`aktif-${m.id}`}
                           className="flex justify-between items-center py-2 px-3 hover:bg-green-50 rounded-md transition-colors border-l-2 border-green-500"
@@ -207,7 +210,7 @@ export default function PenanggungJawab() {
                         </div>
                       ))}
 
-                      {(user.statuses ?? []).map((s) => (
+                      {pj.makamStatuses.map((s) => (
                         <div
                           key={`pesan-${s.id}`}
                           className="flex justify-between items-center py-2 px-3 hover:bg-yellow-50 rounded-md transition-colors border-l-2 border-yellow-500"
@@ -232,7 +235,7 @@ export default function PenanggungJawab() {
                     <button
                       type="button"
                       className="bg-blue-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-blue-700 transition"
-                      onClick={() => router.push(`/layanan/penanggung-jawab/${user.id}`)}
+                      onClick={() => router.push(`/layanan/penanggung-jawab/${pj.userId}`)}
                     >
                       Edit Pengguna
                     </button>

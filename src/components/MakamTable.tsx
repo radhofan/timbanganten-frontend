@@ -7,13 +7,13 @@ import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
-import { MakamWithPJ } from "@/lib/types";
+import { Makam } from "@/lib/types";
 
 const { Search } = Input;
 const { Option } = Select;
 
 export default function MakamTable(): JSX.Element {
-  const [data, setData] = useState<MakamWithPJ[]>([]);
+  const [data, setData] = useState<Makam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
   const [pageSize, setPageSize] = useState<number>(12);
@@ -29,7 +29,7 @@ export default function MakamTable(): JSX.Element {
     let mounted = true;
     fetch("/api/makam")
       .then((r) => r.json())
-      .then((res: MakamWithPJ[]) => {
+      .then((res: Makam[]) => {
         console.log("API returned", res);
         if (!mounted) return;
         setData(Array.isArray(res) ? res : []);
@@ -64,7 +64,7 @@ export default function MakamTable(): JSX.Element {
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
 
-  const columns: ColumnsType<MakamWithPJ> = [];
+  const columns: ColumnsType<Makam> = [];
 
   // <-- REPLACED: Blok Makam sorter uses numeric-aware localeCompare -->
   columns.push({
@@ -127,6 +127,15 @@ export default function MakamTable(): JSX.Element {
   });
 
   columns.push({
+    title: "Hubungan",
+    dataIndex: "silsilah",
+    key: "silsilah",
+    align: "center",
+    sorter: (a, b) => (a.silsilah || "").localeCompare(b.silsilah || ""),
+    render: (value, record) => <span>{record.silsilah || "-"}</span>,
+  });
+
+  columns.push({
     title: "Nama PJ",
     key: "namaPJ",
     align: "center",
@@ -147,15 +156,6 @@ export default function MakamTable(): JSX.Element {
           : "-"}
       </span>
     ),
-  });
-
-  columns.push({
-    title: "Hubungan",
-    dataIndex: "silsilah",
-    key: "silsilah",
-    align: "center",
-    sorter: (a, b) => (a.silsilah || "").localeCompare(b.silsilah || ""),
-    render: (value, record) => <span>{record.silsilah || "-"}</span>,
   });
 
   if (!isGuest) {
@@ -196,7 +196,7 @@ export default function MakamTable(): JSX.Element {
       title: "Penjelasan",
       key: "penjelasan",
       align: "center",
-      render: (_, record: MakamWithPJ) => {
+      render: (_, record: Makam) => {
         if (!record.pj || record.pj.length === 0) return "-";
 
         return record.pj.map((pj, index) => {
@@ -283,7 +283,7 @@ export default function MakamTable(): JSX.Element {
         </Select>
       </div>
 
-      <Table<MakamWithPJ>
+      <Table<Makam>
         columns={columns}
         dataSource={visibleData}
         loading={loading}

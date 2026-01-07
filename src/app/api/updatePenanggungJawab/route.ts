@@ -52,11 +52,15 @@ export async function POST(req: Request) {
     const updatedPJ = await prisma.penanggungJawab.update({
       where: { id: pjId },
       data: {
-        makamId: makamId,
+        makam: {
+          connect: [{ id: makamId }], // ✅ link PJ to this Makam
+          // OR use `set` if you want to replace all existing Makam links:
+          // set: [{ id: makamId }],
+        },
       },
       include: {
         user: true,
-        makam: true,
+        makam: true, // will now return an array
       },
     });
 
@@ -76,29 +80,36 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "pjId and makamId are required" }, { status: 400 });
     }
 
+    // 1. Check if PJ exists
     const pj = await prisma.penanggungJawab.findUnique({
       where: { id: pjId },
+      include: { makam: true }, // include all linked Makams
     });
 
     if (!pj) {
       return NextResponse.json({ error: "PenanggungJawab not found" }, { status: 404 });
     }
 
-    if (pj.makamId !== makamId) {
+    // 2. Check if the PJ is linked to this Makam
+    const isLinked = pj.makam.some((m) => m.id === makamId);
+    if (!isLinked) {
       return NextResponse.json(
         { error: "Makam does not belong to this PenanggungJawab" },
         { status: 400 }
       );
     }
 
+    // 3. Remove the link in the many-to-many table
     const updatedPJ = await prisma.penanggungJawab.update({
       where: { id: pjId },
       data: {
-        makamId: null,
+        makam: {
+          disconnect: { id: makamId }, // ✅ disconnect from this Makam
+        },
       },
       include: {
         user: true,
-        makam: true,
+        makam: true, // updated array of linked Makams
       },
     });
 

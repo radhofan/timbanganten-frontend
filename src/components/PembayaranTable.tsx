@@ -96,11 +96,28 @@ export default function JenazahTable(): JSX.Element {
 
   columns.push({
     title: "Penanggung Jawab",
-    dataIndex: "user",
-    key: "user",
+    key: "pj",
     align: "center",
-    sorter: (a, b) => (a.user?.name || "").localeCompare(b.user?.name || ""),
-    render: (_, record) => record.user?.name || "",
+    sorter: (a, b) => {
+      const allA = [...(a.makam?.pj || []), ...(a.makamStatus?.pj || [])];
+      const allB = [...(b.makam?.pj || []), ...(b.makamStatus?.pj || [])];
+
+      const nameA = allA.map((p) => p.user?.name || "").join(", ");
+      const nameB = allB.map((p) => p.user?.name || "").join(", ");
+      return nameA.localeCompare(nameB);
+    },
+    render: (_, record) => {
+      const allPJs = [...(record.makam?.pj || []), ...(record.makamStatus?.pj || [])];
+
+      return allPJs.length > 0
+        ? allPJs.map((p, i) => (
+            <span key={p.id}>
+              {p.user?.name || "-"}
+              {i < allPJs.length - 1 ? ", " : ""}
+            </span>
+          ))
+        : "-";
+    },
   });
 
   columns.push({

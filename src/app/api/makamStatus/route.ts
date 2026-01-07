@@ -14,12 +14,9 @@ export async function GET(request: Request) {
     const makamStatus = await prisma.makamStatus.findUnique({
       where: { id },
       include: {
-        jenazah: {
-          include: {
-            user: true,
-          },
-        },
+        jenazah: { include: { user: true } },
         blok: true,
+        pj: { include: { user: true } }, // <-- include all PJs linked to this MakamStatus
       },
     });
 
@@ -27,37 +24,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
 
-    const pj = await prisma.penanggungJawab.findMany({
-      where: { makamStatusId: id },
-      include: { user: true },
-    });
-
-    return NextResponse.json({ ...makamStatus, pj });
+    return NextResponse.json(makamStatus);
   }
 
+  // Fetch all MakamStatuses
   const makamStatuses = await prisma.makamStatus.findMany({
     include: {
-      jenazah: {
-        include: {
-          user: true,
-        },
-      },
+      jenazah: { include: { user: true } },
       blok: true,
+      pj: { include: { user: true } }, // <-- include all PJs for each MakamStatus
     },
   });
 
-  const allIds = makamStatuses.map((ms) => ms.id);
-  const pjs = await prisma.penanggungJawab.findMany({
-    where: { makamStatusId: { in: allIds } },
-    include: { user: true },
-  });
-
-  const result = makamStatuses.map((ms) => ({
-    ...ms,
-    pj: pjs.filter((p) => p.makamStatusId === ms.id),
-  }));
-
-  return NextResponse.json(result);
+  return NextResponse.json(makamStatuses);
 }
 
 // POST

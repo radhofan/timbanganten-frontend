@@ -32,15 +32,23 @@ export async function POST(request: Request) {
     });
 
     // --- UPDATE PENANGGUNG JAWAB BY MAKAMSTATUS ID ---
-    await prisma.penanggungJawab.updateMany({
-      where: {
-        makamStatusId: status.id,
-      },
-      data: {
-        makamId: newMakam.id,
-        makamStatusId: null,
-      },
+    // 1. Find all PJs linked to the old MakamStatus
+    const pjs = await prisma.penanggungJawab.findMany({
+      where: { makamStatus: { some: { id: status.id } } },
     });
+
+    // 2. Update each PJ: connect new Makam and disconnect old MakamStatus
+    await Promise.all(
+      pjs.map((pj) =>
+        prisma.penanggungJawab.update({
+          where: { id: pj.id },
+          data: {
+            makam: { connect: { id: newMakam.id } },
+            makamStatus: { disconnect: { id: status.id } },
+          },
+        })
+      )
+    );
 
     // --- DELETE OLD MAKAM ---
     await prisma.makamStatus.delete({ where: { id } });

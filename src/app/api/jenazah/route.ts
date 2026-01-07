@@ -11,8 +11,23 @@ export async function GET(request: Request) {
       include: {
         user: true,
         blok: true,
+        makam: {
+          include: {
+            pj: {
+              include: { user: true },
+            },
+          },
+        },
+        makamStatus: {
+          include: {
+            pj: {
+              include: { user: true },
+            },
+          },
+        },
       },
     });
+
     return NextResponse.json(data);
   }
 
@@ -20,6 +35,20 @@ export async function GET(request: Request) {
     include: {
       user: true,
       blok: true,
+      makam: {
+        include: {
+          pj: {
+            include: { user: true },
+          },
+        },
+      },
+      makamStatus: {
+        include: {
+          pj: {
+            include: { user: true },
+          },
+        },
+      },
     },
   });
 

@@ -34,14 +34,11 @@ model User {
   name             String?
   contact          String?
   email            String? @unique
-  // status           String?
   ktpNum           String? @unique @db.Char(16)  
   emergencyName    String? @db.VarChar(255)     
   emergencyContact String? @unique @db.VarChar(255)
   
   // OUT RELATION
-  // makams          Makam[]
-  // statuses        MakamStatus[]
   jenazah         Jenazah?
   penanggungJawab PenanggungJawab?
 }
@@ -51,13 +48,11 @@ model PenanggungJawab {
   
   // RELATION ID
   userId        String? @unique
-  makamId       String?      
-  makamStatusId String?      
   
   // IN RELATION
   user        User?        @relation(fields: [userId], references: [id])
-  makam       Makam?       @relation(fields: [makamId], references: [id])
-  makamStatus MakamStatus? @relation(fields: [makamStatusId], references: [id])
+  makam       Makam[]       @relation("PJ_Makam")
+  makamStatus MakamStatus[] @relation("PJ_MakamStatus")
 }
 
 model Jenazah {
@@ -88,7 +83,6 @@ model Blok {
   statusBlok               String?   @db.VarChar(255)
   statusPesanan            String?   @db.VarChar(255)
   availability             String?   @db.VarChar(255)
-  // statusPembayaran         String?   @db.VarChar(255)
   
   // OUT RELATION
   jenazah     Jenazah[]
@@ -102,29 +96,21 @@ model MakamStatus {
   nama                  String?
   lokasi                String?
   silsilah              String?
-  // ext                   String?
-  // masaAktif             DateTime?
-  // namaPenanggungJawab   String?
-  // kontakPenanggungJawab String?
   description           String?
-  // payment               String?
-  // approved              String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)
   updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
   tanggalPemesanan      DateTime?
 
   // RELATION ID
-  // userId    String? 
   jenazahId String? @unique
   blokId    String? 
   
   // IN RELATION
-  // user    User?    @relation(fields: [userId], references: [id])
   jenazah Jenazah? @relation(fields: [jenazahId], references: [id])
   blok    Blok?    @relation(fields: [blokId], references: [id])
 
   // OUT RELATION
-  pj PenanggungJawab[]
+  pj PenanggungJawab[] @relation("PJ_MakamStatus")
 }
 
 // Makam Aktif
@@ -133,27 +119,19 @@ model Makam {
   nama                  String?
   lokasi                String?
   silsilah              String?
-  // ext                   String?
-  // masaAktif             DateTime?
-  // namaPenanggungJawab   String?
-  // kontakPenanggungJawab String?
   description           String?
-  // payment               String?
-  // approved              String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)
   updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
   tanggalPemesanan      DateTime?
 
   // RELATION ID
-  // userId    String? 
   jenazahId String? @unique
   blokId    String? 
   
   // IN RELATION
-  // user    User?    @relation(fields: [userId], references: [id])
   jenazah Jenazah? @relation(fields: [jenazahId], references: [id])
   blok    Blok?    @relation(fields: [blokId], references: [id])
 
   // OUT RELATION
-  pj PenanggungJawab[]
+  pj PenanggungJawab[] @relation("PJ_Makam")
 }

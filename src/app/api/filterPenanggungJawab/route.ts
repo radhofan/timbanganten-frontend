@@ -31,9 +31,6 @@ export async function GET(request: Request) {
   if (query) {
     users = await prisma.user.findMany({
       where: {
-        penanggungJawab: {
-          makamStatusId: null,
-        },
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { contact: { contains: query, mode: "insensitive" } },
@@ -50,11 +47,6 @@ export async function GET(request: Request) {
     });
   } else {
     users = await prisma.user.findMany({
-      where: {
-        penanggungJawab: {
-          makamStatusId: null,
-        },
-      },
       include: {
         penanggungJawab: {
           include: {

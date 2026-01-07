@@ -13,7 +13,7 @@ import {
 import { Modal, Input, Button, message } from "antd";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { User, Makam, PenanggungJawab } from "@/lib/types";
+import { User, Makam, PenanggungJawab, MakamStatus } from "@/lib/types";
 import { useParams } from "next/navigation";
 
 // Union type for both Makam and MakamStatus with a discriminator
@@ -61,15 +61,17 @@ export default function UserDetail() {
 
       const data = await response.json();
 
-      // Transform the data to separate makams and makamStatuses
+      // Transform data to separate Makam and MakamStatus
       const makams: MakamOrStatus[] = [];
 
       data.forEach((pj: PenanggungJawab) => {
-        if (pj.makam) {
-          makams.push({ ...pj.makam, __isMakam: true as const });
+        // pj.makam is now an array
+        if (pj.makam?.length) {
+          pj.makam.forEach((m: Makam) => makams.push({ ...m, __isMakam: true }));
         }
-        if (pj.makamStatus) {
-          makams.push({ ...pj.makamStatus, __isMakam: false as const });
+        // pj.makamStatus is still likely one-to-many (array too)
+        if (pj.makamStatus?.length) {
+          pj.makamStatus.forEach((ms: MakamStatus) => makams.push({ ...ms, __isMakam: false }));
         }
       });
 
@@ -180,9 +182,10 @@ export default function UserDetail() {
   };
 
   const getSupervisors = (makamId: string): PenanggungJawab[] => {
-    return penanggungJawabs.filter((pj) => pj.makamId !== null && pj.makamId === makamId);
+    return penanggungJawabs.filter(
+      (pj) => pj.makam?.some((m) => m.id === makamId) // ✅ check array of makams
+    );
   };
-
   // const filteredSupervisors = availableSupervisors.filter(
   //   (s) =>
   //     s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -502,13 +505,16 @@ export default function UserDetail() {
                 />
 
                 <div className="space-y-3 max-h-[400px] overflow-y-auto mt-4">
-                  {penanggungJawabs.filter((pj) => pj.user && pj.makamId === null).length > 0 ? (
+                  {penanggungJawabs.filter((pj) => pj.user && (!pj.makam || pj.makam.length === 0))
+                    .length > 0 ? (
                     penanggungJawabs
-                      .filter((pj) => pj.user && pj.makamId === null)
+                      .filter((pj) => pj.user && (!pj.makam || pj.makam.length === 0))
                       .map((pj) => {
+                        // Check if this supervisor is already assigned to the selected Makam
                         const isAlreadyAdded = currentSupervisors.some(
                           (existing) => existing.userId === pj.userId
                         );
+
                         return (
                           <div
                             key={pj.id}
