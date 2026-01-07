@@ -67,64 +67,64 @@ export async function POST(request: Request) {
     }
 
     // --- UPDATE JENAZAH STATUS IF DIPESAN ---
-    if (status.jenazahId) {
-      const jenazahData = await prisma.jenazah.findUnique({
-        where: { id: status.jenazahId },
-      });
+    // if (status.jenazahId) {
+    //   const jenazahData = await prisma.jenazah.findUnique({
+    //     where: { id: status.jenazahId },
+    //   });
 
-      if (jenazahData && jenazahData.statusJenazah === "DIPESAN" && jenazahData.blokId) {
-        // Get related blok
-        const blokData = await prisma.blok.findUnique({
-          where: { id: jenazahData.blokId },
-        });
+    //   if (jenazahData && jenazahData.statusJenazah === "DIPESAN" && jenazahData.blokId) {
+    //     // Get related blok
+    //     const blokData = await prisma.blok.findUnique({
+    //       where: { id: jenazahData.blokId },
+    //     });
 
-        let newJenazahStatus: string | null = null;
-        let newBlokStatus: string | null = null;
+    //     let newJenazahStatus: string | null = null;
+    //     let newBlokStatus: string | null = null;
 
-        if (blokData?.statusBlok === "KOSONG") {
-          newJenazahStatus = "DIKUBURKAN";
-          newBlokStatus = "DIGUNAKAN-1";
-        } else if (blokData?.statusBlok === "DIGUNAKAN-1") {
-          newJenazahStatus = "DITUMPUK-2";
-          newBlokStatus = "DIGUNAKAN-2";
-        } else if (blokData?.statusBlok === "DIGUNAKAN-2") {
-          newJenazahStatus = "DITUMPUK-3";
-          newBlokStatus = "DIGUNAKAN-3";
-        }
+    //     if (blokData?.statusBlok === "KOSONG") {
+    //       newJenazahStatus = "DIKUBURKAN";
+    //       newBlokStatus = "DIGUNAKAN-1";
+    //     } else if (blokData?.statusBlok === "DIGUNAKAN-1") {
+    //       newJenazahStatus = "DITUMPUK-2";
+    //       newBlokStatus = "DIGUNAKAN-2";
+    //     } else if (blokData?.statusBlok === "DIGUNAKAN-2") {
+    //       newJenazahStatus = "DITUMPUK-3";
+    //       newBlokStatus = "DIGUNAKAN-3";
+    //     }
 
-        if (jenazahData.tanggalPemakaman) {
-          const oneYearLater = new Date(jenazahData.tanggalPemakaman);
-          oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+    //     if (jenazahData.tanggalPemakaman) {
+    //       const oneYearLater = new Date(jenazahData.tanggalPemakaman);
+    //       oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
 
-          await prisma.jenazah.update({
-            where: { id: jenazahData.id },
-            data: {
-              statusJenazah: newJenazahStatus,
-              masaAktif: oneYearLater,
-            },
-          });
-        }
+    //       await prisma.jenazah.update({
+    //         where: { id: jenazahData.id },
+    //         data: {
+    //           statusJenazah: newJenazahStatus,
+    //           masaAktif: oneYearLater,
+    //         },
+    //       });
+    //     }
 
-        let newBlokAvailability: string | null = null;
-        if (newBlokStatus === "DIGUNAKAN-3") {
-          newBlokAvailability = "TIDAK TERSEDIA";
-        } else {
-          newBlokAvailability = "TERSEDIA";
-        }
+    //     let newBlokAvailability: string | null = null;
+    //     if (newBlokStatus === "DIGUNAKAN-3") {
+    //       newBlokAvailability = "TIDAK TERSEDIA";
+    //     } else {
+    //       newBlokAvailability = "TERSEDIA";
+    //     }
 
-        if (newBlokStatus && blokData) {
-          await prisma.blok.update({
-            where: { id: blokData.id },
-            data: {
-              statusBlok: newBlokStatus,
-              statusPesanan: "TIDAK DIPESAN",
-              availability: newBlokAvailability,
-              tanggalPemakamanTerakhir: new Date(),
-            },
-          });
-        }
-      }
-    }
+    //     if (newBlokStatus && blokData) {
+    //       await prisma.blok.update({
+    //         where: { id: blokData.id },
+    //         data: {
+    //           statusBlok: newBlokStatus,
+    //           statusPesanan: "TIDAK DIPESAN",
+    //           availability: newBlokAvailability,
+    //           tanggalPemakamanTerakhir: new Date(),
+    //         },
+    //       });
+    //     }
+    //   }
+    // }
 
     // --- UPDATE BLOK REGARDLESS ---
     if (status.jenazahId) {
@@ -137,13 +137,13 @@ export async function POST(request: Request) {
       const blokData = await prisma.blok.findUnique({
         where: { id: jenazahData.blokId },
       });
-
       if (!blokData) return;
 
       await prisma.blok.update({
         where: { id: blokData.id },
         data: {
           statusPesanan: "TIDAK DIPESAN",
+          availability: blokData.statusBlok === "DIGUNAKAN-3" ? "TIDAK TERSEDIA" : "TERSEDIA",
         },
       });
     }

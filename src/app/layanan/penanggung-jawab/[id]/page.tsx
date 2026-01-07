@@ -314,7 +314,7 @@ export default function UserDetail() {
                               key={m.id}
                               className={`${isEven ? "bg-slate-50" : "bg-white"} hover:bg-blue-50 transition-colors`}
                             >
-                              <td className="px-4 py-3 font-medium text-slate-800">{m.nama}</td>
+                              <td className="px-4 py-3 font-medium text-slate-800">{m.blok?.id}</td>
                               <td className="px-4 py-3">
                                 <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                   {m.blok?.statusBlok || ""}

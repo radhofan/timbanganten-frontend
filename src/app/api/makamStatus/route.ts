@@ -113,13 +113,6 @@ export async function PUT(req: Request) {
       const oneYearLater = new Date(body.tanggalPemesanan);
       oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
 
-      let newBlokAvailability: string | null = null;
-      if (finalStatusBlok === "DIGUNAKAN-3") {
-        newBlokAvailability = "TIDAK TERSEDIA";
-      } else {
-        newBlokAvailability = "TERSEDIA";
-      }
-
       // --- UPDATE JENAZAH ---
       await prisma.jenazah.update({
         where: {
@@ -139,7 +132,6 @@ export async function PUT(req: Request) {
         data: {
           tanggalPemakamanTerakhir: new Date(body.tanggal_pemakaman),
           statusBlok: finalStatusBlok,
-          availability: newBlokAvailability,
         },
       });
     }

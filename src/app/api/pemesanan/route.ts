@@ -13,6 +13,8 @@ export async function POST(request: Request) {
     existingPJ = await prisma.penanggungJawab.findUnique({
       where: { userId: body.existingUserId },
     });
+    console.log("existingUserId from body:", body.existingUserId);
+    console.log("existingPJ fetched:", existingPJ);
   }
 
   let finalJenazahStatus;
@@ -72,14 +74,13 @@ export async function POST(request: Request) {
           // 3. Buat Akun Jenazah (PB) minimal
           const newJenazahPB = await prisma.jenazah.create({
             data: {
-              id: pbId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
               blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
               masaAktif: new Date(
-                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 1 : 4))
               ),
               userId: pbId,
             },
@@ -90,14 +91,13 @@ export async function POST(request: Request) {
           // diri sendiri: jenazah = PA
           const newJenazahPA = await prisma.jenazah.create({
             data: {
-              id: paId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
               blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
               masaAktif: new Date(
-                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 1 : 4))
               ),
               userId: paId,
             },
@@ -161,14 +161,13 @@ export async function POST(request: Request) {
           // 2. Buat Akun Jenazah (PB) minimal
           const newJenazahPB = await prisma.jenazah.create({
             data: {
-              id: pbId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
               blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
               masaAktif: new Date(
-                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 1 : 4))
               ),
               userId: pbId,
             },
@@ -178,22 +177,32 @@ export async function POST(request: Request) {
         } else {
           // --- DIRI SENDIRI --- //////////////////////////
           // diri sendiri: jenazah = PJ user
+          // --- DIRI SENDIRI --- //////////////////////////
+          console.log("=== DIRI SENDIRI BRANCH ===");
+          console.log("body.existingUserId:", body.existingUserId);
+          console.log("existingPJ:", existingPJ);
+          console.log("blokData:", blokData);
+          console.log("finalJenazahStatus:", finalJenazahStatus);
+          console.log("finalStatusBlok:", finalStatusBlok);
+          console.log("paId before jenazah.create:", paId);
+          console.log("pjId before jenazah.create:", pjId);
+          console.log("body.tanggalPemakaman:", body.tanggalPemakaman);
+          console.log("body.blokId:", body.blokId);
           const newJenazahPA = await prisma.jenazah.create({
             data: {
-              id: pjId,
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
               blokId: body.blokId,
               statusPembayaranPesanan: "UNPAID",
               statusPembayaranIuranTahunan: "UNPAID",
               masaAktif: new Date(
-                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 4 : 1))
+                new Date().setFullYear(new Date().getFullYear() + (body.tanggalPemakaman ? 1 : 4))
               ),
-              userId: pjId,
+              userId: body.existingUserId,
             },
           });
 
-          paId = pjId;
+          paId = body.existingUserId;
           jenazahId = newJenazahPA.id;
         }
 

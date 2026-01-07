@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, JSX } from "react";
-import { Table, Input, Select, Tag, Button } from "antd";
+import { Table, Input, Select, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 import { useStore } from "zustand";
@@ -164,48 +164,6 @@ export default function MakamTable(): JSX.Element {
           </a>
         );
       },
-    });
-
-    columns.push({
-      title: "Perpanjangan",
-      dataIndex: "ext",
-      key: "ext",
-      align: "center",
-      sorter: (a, b) => (a.ext ?? "").localeCompare(b.ext ?? ""),
-      render: (value, record) => {
-        const ext = record.ext ?? "";
-        const color =
-          ext === "PAID"
-            ? "green"
-            : ext === "LEWAT BATAS"
-              ? "red"
-              : ext === "BELUM AKTIF"
-                ? "default"
-                : ["PENDING", "VERIFICATION", "RESOLVING"].includes(ext)
-                  ? "gold"
-                  : "default";
-        return <Tag color={color === "default" ? undefined : color}>{ext || "-"}</Tag>;
-      },
-    });
-
-    columns.push({
-      title: "Masa Aktif",
-      dataIndex: "masaAktif",
-      key: "masaAktif",
-      align: "center",
-      sorter: (a, b) => {
-        const ta = a.masaAktif ? new Date(a.masaAktif).getTime() : 0;
-        const tb = b.masaAktif ? new Date(b.masaAktif).getTime() : 0;
-        return ta - tb;
-      },
-      render: (value, record) =>
-        record.masaAktif ? (
-          <Tag color={new Date(record.masaAktif) >= new Date() ? "green" : "red"}>
-            {new Date(record.masaAktif).toLocaleDateString("id-ID")}
-          </Tag>
-        ) : (
-          <span>-</span>
-        ),
     });
 
     columns.push({

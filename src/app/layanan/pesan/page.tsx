@@ -54,8 +54,8 @@ export default function Pemesanan() {
     const delayDebounceFn = setTimeout(() => {
       if (!useExisting) return;
       const endpoint = searchTerm.trim()
-        ? `/api/penanggungJawab?query=${encodeURIComponent(searchTerm)}`
-        : "/api/penanggungJawab";
+        ? `/api/filterPenanggungJawab?query=${encodeURIComponent(searchTerm)}`
+        : "/api/filterPenanggungJawab";
 
       fetch(endpoint)
         .then((res) => res.json())

@@ -4,9 +4,9 @@ import { prisma } from "@/lib/db";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
-  const query = url.searchParams.get("query");
 
   if (id) {
+    // Get a single user by ID
     const user = await prisma.user.findUnique({
       where: { id: String(id) },
       include: {
@@ -28,43 +28,24 @@ export async function GET(request: Request) {
     return NextResponse.json(user);
   }
 
-  let users;
-
-  if (query) {
-    users = await prisma.user.findMany({
-      where: {
-        penanggungJawab: { isNot: null },
-        OR: [
-          { name: { contains: query, mode: "insensitive" } },
-          { contact: { contains: query, mode: "insensitive" } },
-        ],
+  // Get all users who have a PenanggungJawab
+  const users = await prisma.user.findMany({
+    where: {
+      penanggungJawab: {
+        isNot: null, // only users with a PJ record
       },
-      include: {
-        penanggungJawab: {
-          include: {
-            makam: true,
-            makamStatus: true,
-          },
+    },
+    include: {
+      penanggungJawab: {
+        include: {
+          makam: true,
+          makamStatus: true,
         },
-        makams: true,
-        statuses: true,
       },
-    });
-  } else {
-    users = await prisma.user.findMany({
-      where: { penanggungJawab: { isNot: null } },
-      include: {
-        penanggungJawab: {
-          include: {
-            makam: true,
-            makamStatus: true,
-          },
-        },
-        makams: true,
-        statuses: true,
-      },
-    });
-  }
+      makams: true,
+      statuses: true,
+    },
+  });
 
   return NextResponse.json(users);
 }
