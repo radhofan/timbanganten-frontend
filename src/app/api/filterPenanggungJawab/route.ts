@@ -16,12 +16,10 @@ export async function GET(request: Request) {
             makamStatus: true,
           },
         },
-        makams: true,
-        statuses: true,
       },
     });
 
-    if (!user || !user.penanggungJawab) {
+    if (!user) {
       return NextResponse.json({ error: "PJ not found" }, { status: 404 });
     }
 
@@ -48,8 +46,6 @@ export async function GET(request: Request) {
             makamStatus: true,
           },
         },
-        makams: true,
-        statuses: true,
       },
     });
   } else {
@@ -66,8 +62,6 @@ export async function GET(request: Request) {
             makamStatus: true,
           },
         },
-        makams: true,
-        statuses: true,
       },
     });
   }

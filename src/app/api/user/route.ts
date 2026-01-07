@@ -11,10 +11,6 @@ export async function GET(request: Request) {
   if (id) {
     const user = await prisma.user.findUnique({
       where: { id: String(id) },
-      include: {
-        makams: true,
-        statuses: true,
-      },
     });
 
     if (!user) {
@@ -32,18 +28,9 @@ export async function GET(request: Request) {
           { contact: { contains: query, mode: "insensitive" } },
         ],
       },
-      include: {
-        makams: true,
-        statuses: true,
-      },
     });
   } else {
-    users = await prisma.user.findMany({
-      include: {
-        makams: true,
-        statuses: true,
-      },
-    });
+    users = await prisma.user.findMany({});
   }
 
   return NextResponse.json(users);
@@ -53,14 +40,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
 
-  const { name, contact, email, status, ktpNum } = body;
+  const { name, contact, email, ktpNum } = body;
 
   const newUser = await prisma.user.create({
     data: {
       name,
       contact,
       email,
-      status: status || "PESAN",
       ktpNum,
     },
   });
@@ -78,16 +64,12 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { name, contact, email, status } = body;
+  const { name, contact, email } = body;
 
   const userId = String(id);
 
   const existingUser = await prisma.user.findUnique({
     where: { id: userId },
-    include: {
-      makams: true,
-      statuses: true,
-    },
   });
 
   if (!existingUser) {
@@ -100,32 +82,11 @@ export async function PUT(request: Request) {
       name,
       contact,
       email,
-      status,
-    },
-  });
-
-  await prisma.makam.updateMany({
-    where: { userId },
-    data: {
-      namaPenanggungJawab: name,
-      kontakPenanggungJawab: contact,
-    },
-  });
-
-  await prisma.makamStatus.updateMany({
-    where: { userId },
-    data: {
-      namaPenanggungJawab: name,
-      kontakPenanggungJawab: contact,
     },
   });
 
   const finalUser = await prisma.user.findUnique({
     where: { id: userId },
-    include: {
-      makams: true,
-      statuses: true,
-    },
   });
 
   return NextResponse.json(finalUser);

@@ -98,11 +98,12 @@ export default function MakamStatus({ page }: { page: string }) {
 
       const res = await fetch(`/api/${endpoint}?id=${id}`);
       const data = await res.json();
+      console.log(data);
 
       setFormData({
-        namapj: data.namaPenanggungJawab || "",
-        kontak: data.kontakPenanggungJawab || "",
-        namajenazah: data.nama || "",
+        namapj: data.pj?.[0]?.user?.name || "",
+        kontak: data.pj?.[0]?.user?.contact || "",
+        namajenazah: data.jenazah.user.name || "",
         silsilah: data.silsilah || "",
         lokasi: data.lokasi || "",
         notes: data.description || "",

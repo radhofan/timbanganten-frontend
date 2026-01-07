@@ -24,15 +24,8 @@ export async function POST(request: Request) {
         nama: status.nama,
         lokasi: status.lokasi,
         silsilah: status.silsilah,
-        ext: status.ext,
-        masaAktif: status.masaAktif,
-        namaPenanggungJawab: status.namaPenanggungJawab,
-        kontakPenanggungJawab: status.kontakPenanggungJawab,
         description: status.description,
-        payment: status.payment,
         tanggalPemesanan: status.tanggalPemesanan,
-        approved: status.approved,
-        userId: status.userId,
         jenazahId: status.jenazahId,
         blokId: status.blokId,
       },
@@ -51,20 +44,6 @@ export async function POST(request: Request) {
 
     // --- DELETE OLD MAKAM ---
     await prisma.makamStatus.delete({ where: { id } });
-
-    // --- UPDATE USER STATUS (REDUNDANT) ---
-    if (status.userId) {
-      const remainingStatusCount = await prisma.makamStatus.count({
-        where: { userId: status.userId },
-      });
-
-      const newStatus = remainingStatusCount > 0 ? "AKTIF/PESAN" : "AKTIF";
-
-      await prisma.user.update({
-        where: { id: status.userId },
-        data: { status: newStatus },
-      });
-    }
 
     // --- UPDATE JENAZAH STATUS IF DIPESAN ---
     // if (status.jenazahId) {

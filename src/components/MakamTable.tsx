@@ -7,13 +7,13 @@ import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
-import { Makam } from "@/lib/types";
+import { MakamWithPJ } from "@/lib/types";
 
 const { Search } = Input;
 const { Option } = Select;
 
 export default function MakamTable(): JSX.Element {
-  const [data, setData] = useState<Makam[]>([]);
+  const [data, setData] = useState<MakamWithPJ[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
   const [pageSize, setPageSize] = useState<number>(12);
@@ -29,7 +29,7 @@ export default function MakamTable(): JSX.Element {
     let mounted = true;
     fetch("/api/makam")
       .then((r) => r.json())
-      .then((res: Makam[]) => {
+      .then((res: MakamWithPJ[]) => {
         console.log("API returned", res);
         if (!mounted) return;
         setData(Array.isArray(res) ? res : []);
@@ -47,10 +47,14 @@ export default function MakamTable(): JSX.Element {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+
     return data.filter((item) => {
       const matchesSearch =
-        item.nama?.toLowerCase().includes(q) || item.namaPenanggungJawab?.toLowerCase().includes(q);
+        item.nama?.toLowerCase().includes(q) ||
+        item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(q));
+
       const matchesLocation = selectedLocation === "Semua" || item.lokasi === selectedLocation;
+
       return matchesSearch && matchesLocation;
     });
   }, [data, search, selectedLocation]);
@@ -60,7 +64,7 @@ export default function MakamTable(): JSX.Element {
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
 
-  const columns: ColumnsType<Makam> = [];
+  const columns: ColumnsType<MakamWithPJ> = [];
 
   // <-- REPLACED: Blok Makam sorter uses numeric-aware localeCompare -->
   columns.push({
@@ -121,13 +125,28 @@ export default function MakamTable(): JSX.Element {
     sorter: (a, b) => (a.lokasi || "").localeCompare(b.lokasi || ""),
     render: (value, record) => <span>{record.lokasi || "-"}</span>,
   });
+
   columns.push({
     title: "Nama PJ",
-    dataIndex: "namaPenanggungJawab",
-    key: "namaPenanggungJawab",
+    key: "namaPJ",
     align: "center",
-    sorter: (a, b) => (a.namaPenanggungJawab || "").localeCompare(b.namaPenanggungJawab || ""),
-    render: (value, record) => <span>{record.namaPenanggungJawab || "-"}</span>,
+    sorter: (a, b) => {
+      const nameA = a.pj.map((pj) => pj.user?.name || "").join(", ");
+      const nameB = b.pj.map((pj) => pj.user?.name || "").join(", ");
+      return nameA.localeCompare(nameB);
+    },
+    render: (_, record) => (
+      <span>
+        {record.pj.length > 0
+          ? record.pj.map((pj, index) => (
+              <span key={pj.id}>
+                {pj.user?.name || "-"}
+                {index < record.pj.length - 1 ? ", " : ""}
+              </span>
+            ))
+          : "-"}
+      </span>
+    ),
   });
 
   columns.push({
@@ -142,27 +161,34 @@ export default function MakamTable(): JSX.Element {
   if (!isGuest) {
     columns.push({
       title: "No. Kontak PJ",
-      dataIndex: "kontakPenanggungJawab",
-      key: "kontakPenanggungJawab",
+      key: "kontakPJ",
       align: "center",
       sorter: (a, b) => {
-        const aa = a.kontakPenanggungJawab ?? "";
-        const bb = b.kontakPenanggungJawab ?? "";
-        return aa.localeCompare(bb);
+        const aContacts = a.pj.map((pj) => pj.user?.contact || "").join(", ");
+        const bContacts = b.pj.map((pj) => pj.user?.contact || "").join(", ");
+        return aContacts.localeCompare(bContacts);
       },
       render: (_, record) => {
-        const num = record.kontakPenanggungJawab;
-        if (!num) return "-";
-        return (
-          <a
-            href={`https://wa.me/${num}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: "underline" }}
-          >
-            {num}
-          </a>
-        );
+        if (!record.pj || record.pj.length === 0) return "-";
+
+        return record.pj.map((pj, index) => {
+          const num = pj.user?.contact;
+          if (!num) return null;
+
+          return (
+            <span key={pj.id}>
+              <a
+                href={`https://wa.me/${num}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "underline" }}
+              >
+                {num}
+              </a>
+              {index < record.pj.length - 1 ? ", " : ""}
+            </span>
+          );
+        });
       },
     });
 
@@ -170,17 +196,26 @@ export default function MakamTable(): JSX.Element {
       title: "Penjelasan",
       key: "penjelasan",
       align: "center",
-      render: (_, record: Makam) => {
-        const userId = record.userId;
+      render: (_, record: MakamWithPJ) => {
+        if (!record.pj || record.pj.length === 0) return "-";
 
-        return (
-          <span
-            className="cursor-pointer text-blue-600 underline"
-            onClick={() => router.push(`/layanan/histori/user/${userId}`)}
-          >
-            Lihat Detail
-          </span>
-        );
+        return record.pj.map((pj, index) => {
+          const userId = pj.user?.id;
+          const userName = pj.user?.name || "-";
+          if (!userId) return null;
+
+          return (
+            <span key={pj.id} className="mr-2">
+              <span
+                className="cursor-pointer text-blue-600 underline"
+                onClick={() => router.push(`/layanan/histori/user/${userId}`)}
+              >
+                {userName}
+              </span>
+              {index < record.pj.length - 1 ? ", " : ""}
+            </span>
+          );
+        });
       },
     });
 
@@ -248,7 +283,7 @@ export default function MakamTable(): JSX.Element {
         </Select>
       </div>
 
-      <Table<Makam>
+      <Table<MakamWithPJ>
         columns={columns}
         dataSource={visibleData}
         loading={loading}

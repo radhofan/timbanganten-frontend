@@ -24,8 +24,9 @@ export default function UserDetail() {
   const id = params.id as string;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [availableSupervisors, setAvailableSupervisors] = useState<User[]>([]);
+  // const [availableSupervisors, setAvailableSupervisors] = useState<User[]>([]);
   const [penanggungJawabs, setPenanggungJawabs] = useState<PenanggungJawab[]>([]);
+  const [userMakams, setUserMakams] = useState<MakamOrStatus[]>([]);
   const [selectedMakam, setSelectedMakam] = useState<MakamOrStatus | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingNew, setIsAddingNew] = useState(false);
@@ -46,23 +47,57 @@ export default function UserDetail() {
     }
   }, [id]);
 
+  const fetchUserMakams = useCallback(async () => {
+    try {
+      const response = await fetch("/api/fetchPenanggungJawabMakams", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: id }),
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch user makams");
+
+      const data = await response.json();
+
+      // Transform the data to separate makams and makamStatuses
+      const makams: MakamOrStatus[] = [];
+
+      data.forEach((pj: PenanggungJawab) => {
+        if (pj.makam) {
+          makams.push({ ...pj.makam, __isMakam: true as const });
+        }
+        if (pj.makamStatus) {
+          makams.push({ ...pj.makamStatus, __isMakam: false as const });
+        }
+      });
+
+      setUserMakams(makams);
+    } catch (error) {
+      console.error("Error fetching user makams:", error);
+      message.error("Gagal memuat data makam");
+    }
+  }, [id]);
+
   useEffect(() => {
     if (!id) return;
     fetchUserData();
-    fetchAvailableSupervisors();
+    fetchUserMakams();
+    // fetchAvailableSupervisors();
     fetchPenanggungJawabs();
-  }, [id, fetchUserData]);
+  }, [id, fetchUserData, fetchUserMakams]);
 
-  const fetchAvailableSupervisors = async () => {
-    try {
-      const response = await fetch("/api/user");
-      if (!response.ok) throw new Error("Failed to fetch supervisors");
-      const data = await response.json();
-      setAvailableSupervisors(data);
-    } catch (error) {
-      console.error("Error fetching supervisors:", error);
-    }
-  };
+  // const fetchAvailableSupervisors = async () => {
+  //   try {
+  //     const response = await fetch("/api/user");
+  //     if (!response.ok) throw new Error("Failed to fetch supervisors");
+  //     const data = await response.json();
+  //     setAvailableSupervisors(data);
+  //   } catch (error) {
+  //     console.error("Error fetching supervisors:", error);
+  //   }
+  // };
 
   const fetchPenanggungJawabs = async () => {
     try {
@@ -148,18 +183,12 @@ export default function UserDetail() {
     return penanggungJawabs.filter((pj) => pj.makamId !== null && pj.makamId === makamId);
   };
 
-  const filteredSupervisors = availableSupervisors.filter(
-    (s) =>
-      s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.contact?.includes(searchTerm) ||
-      s.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Tag makams and statuses with discriminator
-  const allMakams: MakamOrStatus[] = [
-    ...(user?.makams || []).map((m) => ({ ...m, __isMakam: true as const })),
-    ...(user?.statuses || []).map((s) => ({ ...s, __isMakam: false as const })),
-  ];
+  // const filteredSupervisors = availableSupervisors.filter(
+  //   (s) =>
+  //     s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     s.contact?.includes(searchTerm) ||
+  //     s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const currentSupervisors = selectedMakam ? getSupervisors(selectedMakam.id) : [];
 
@@ -236,10 +265,6 @@ export default function UserDetail() {
                       <div className="bg-purple-100 p-2 rounded-lg mt-0.5">
                         <MapPin className="w-5 h-5 text-purple-600" />
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Status</p>
-                        <p className="text-gray-800 font-medium">{user?.status || "-"}</p>
-                      </div>
                     </div>
 
                     <div className="flex items-start gap-3">
@@ -303,8 +328,8 @@ export default function UserDetail() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {allMakams.length > 0 ? (
-                        allMakams.map((m, index) => {
+                      {userMakams.length > 0 ? (
+                        userMakams.map((m, index) => {
                           const supervisors = getSupervisors(m.id);
                           const isEven = index % 2 === 0;
                           const isMakam = m.__isMakam;
@@ -321,7 +346,7 @@ export default function UserDetail() {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-gray-700">
-                                {m.namaPenanggungJawab || user?.name || "-"}
+                                {m.jenazah?.user?.name || "-"}
                               </td>
                               <td className="px-4 py-3 text-gray-700">{m.silsilah || "-"}</td>
                               <td className="px-4 py-3 text-gray-700">
@@ -331,16 +356,24 @@ export default function UserDetail() {
                               </td>
                               <td className="px-4 py-3">
                                 <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                  {m.payment === "lunas" ? "Lunas" : m.payment || "-"}
+                                  {m.jenazah?.statusPembayaranPesanan === "lunas"
+                                    ? "Lunas"
+                                    : m.jenazah?.statusPembayaranPesanan || "-"}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-gray-700">{m.payment || "-"}</td>
+                              <td className="px-4 py-3 text-gray-700">{"-"}</td>
                               <td className="px-4 py-3 text-gray-700">
-                                {m.masaAktif
-                                  ? new Date(m.masaAktif).toLocaleDateString("id-ID")
+                                {m.jenazah?.masaAktif
+                                  ? new Date(m.jenazah?.masaAktif).toLocaleDateString("id-ID")
                                   : "-"}
                               </td>
-                              <td className="px-4 py-3 text-gray-700">-</td>
+                              <td className="px-4 py-3 text-gray-700">
+                                <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                  {m.jenazah?.statusPembayaranIuranTahunan === "lunas"
+                                    ? "Lunas"
+                                    : m.jenazah?.statusPembayaranIuranTahunan || "-"}
+                                </span>
+                              </td>
                               <td className="px-4 py-3">
                                 {isMakam ? (
                                   <button
@@ -469,49 +502,49 @@ export default function UserDetail() {
                 />
 
                 <div className="space-y-3 max-h-[400px] overflow-y-auto mt-4">
-                  {penanggungJawabs
-                    .filter((pj) => pj.user) // selectable PJ only
-                    .map((pj) => {
-                      const isAlreadyAdded = currentSupervisors.some(
-                        (existing) => existing.userId === pj.userId
-                      );
-
-                      return (
-                        <div
-                          key={pj.id}
-                          onClick={() => {
-                            if (!isAlreadyAdded && !addingPJ) {
-                              assignSupervisor(pj);
-                            }
-                          }}
-                          className={`flex items-center justify-between p-4 border rounded-xl transition-all ${
-                            isAlreadyAdded || addingPJ
-                              ? "border-gray-300 bg-gray-100 cursor-not-allowed opacity-50"
-                              : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 cursor-pointer hover:shadow-md"
-                          }`}
-                        >
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-slate-800">{pj.user?.name}</h3>
-                            <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
-                              <Phone size={14} /> {pj.user?.contact}
-                            </p>
-                            <p className="text-sm text-gray-500 flex items-center gap-1">
-                              <Mail size={14} /> {pj.user?.email}
-                            </p>
+                  {penanggungJawabs.filter((pj) => pj.user && pj.makamId === null).length > 0 ? (
+                    penanggungJawabs
+                      .filter((pj) => pj.user && pj.makamId === null)
+                      .map((pj) => {
+                        const isAlreadyAdded = currentSupervisors.some(
+                          (existing) => existing.userId === pj.userId
+                        );
+                        return (
+                          <div
+                            key={pj.id}
+                            onClick={() => {
+                              if (!isAlreadyAdded && !addingPJ) {
+                                assignSupervisor(pj);
+                              }
+                            }}
+                            className={`flex items-center justify-between p-4 border rounded-xl transition-all ${
+                              isAlreadyAdded || addingPJ
+                                ? "border-gray-300 bg-gray-100 cursor-not-allowed opacity-50"
+                                : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 cursor-pointer hover:shadow-md"
+                            }`}
+                          >
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-slate-800">{pj.user?.name}</h3>
+                              <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                                <Phone size={14} /> {pj.user?.contact}
+                              </p>
+                              <p className="text-sm text-gray-500 flex items-center gap-1">
+                                <Mail size={14} /> {pj.user?.email}
+                              </p>
+                            </div>
+                            {isAlreadyAdded && (
+                              <span className="text-xs text-gray-500 font-medium bg-gray-200 px-3 py-1 rounded-full">
+                                Sudah ditambahkan
+                              </span>
+                            )}
                           </div>
-                          {isAlreadyAdded && (
-                            <span className="text-xs text-gray-500 font-medium bg-gray-200 px-3 py-1 rounded-full">
-                              Sudah ditambahkan
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  {filteredSupervisors.length === 0 && (
+                        );
+                      })
+                  ) : (
                     <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
                       <Users className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-500">
-                        Tidak ada penanggung jawab yang sesuai dengan pencarian.
+                        Tidak ada penanggung jawab yang tersedia untuk ditambahkan.
                       </p>
                     </div>
                   )}

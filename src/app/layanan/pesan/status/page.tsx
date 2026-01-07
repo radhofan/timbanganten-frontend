@@ -5,10 +5,9 @@ import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-// import { MakamStatus } from "@prisma/client";
-import { MakamStatus } from "@/lib/types";
+import { MakamStatusWithPJ } from "@/lib/types";
 export default function Status() {
-  const [data, setData] = useState<MakamStatus[]>([]);
+  const [data, setData] = useState<MakamStatusWithPJ[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +19,7 @@ export default function Status() {
       try {
         const res = await fetch("/api/makamStatus");
         const result = await res.json();
-        const sortedResult = result.sort((a: MakamStatus, b: MakamStatus) => {
+        const sortedResult = result.sort((a: MakamStatusWithPJ, b: MakamStatusWithPJ) => {
           const aId = typeof a.id === "string" ? a.id : String(a.id);
           const bId = typeof b.id === "string" ? b.id : String(b.id);
           return bId.localeCompare(aId);
@@ -38,11 +37,15 @@ export default function Status() {
 
   const filteredData = data.filter((item) => {
     const query = searchName.toLowerCase();
+
     const matchNama = item.nama?.toLowerCase().includes(query);
-    const matchPenanggungJawab = item.namaPenanggungJawab?.toLowerCase().includes(query);
+
+    // Check if **any pj's name matches** the search
+    const matchPenanggungJawab = item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(query));
+
     const matchBlok = item.blok?.id.toLowerCase().includes(query);
 
-    const matchPayment = filterPayment.length === 0 || filterPayment.includes(item.payment || "");
+    const matchPayment = filterPayment.length === 0 || filterPayment.includes("");
 
     return (matchNama || matchPenanggungJawab || matchBlok) && matchPayment;
   });
@@ -171,11 +174,14 @@ export default function Status() {
                 key={item.id}
                 href={`/layanan/pesan/status/${item.id}`}
                 className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] cursor-pointer"
+                // style={{
+                //   borderColor:
+                //     item.approved === "APPROVED" && item.payment === "PAID" && item.ext === "PAID"
+                //       ? "#22c55e"
+                //       : "#facc15",
+                // }}
                 style={{
-                  borderColor:
-                    item.approved === "APPROVED" && item.payment === "PAID" && item.ext === "PAID"
-                      ? "#22c55e"
-                      : "#facc15",
+                  borderColor: "#facc15",
                 }}
               >
                 <div className="flex justify-between items-start mb-1">
@@ -232,7 +238,11 @@ export default function Status() {
                   </p>
                   <p className="col-span-2">
                     <span className="font-medium">Penanggung Jawab:</span>{" "}
-                    {item.namaPenanggungJawab} ({item.kontakPenanggungJawab})
+                    {item.pj.map((pj, index) => (
+                      <span key={pj.id}>
+                        {pj.user?.name} ({pj.user?.contact}){index < item.pj.length - 1 ? ", " : ""}
+                      </span>
+                    ))}
                   </p>
                 </div>
 

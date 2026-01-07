@@ -2,14 +2,22 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { User } from "@/lib/types";
+import { MakamStatusWithPJ, MakamWithPJ, User } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "antd";
 import { UserAddOutlined } from "@ant-design/icons";
 
+type FormattedPJ = {
+  id: string; // user ID
+  name: string | null; // can be null
+  contact: string | null; // can be null
+  makams: MakamWithPJ[]; // array of makam IDs
+  statuses: MakamStatusWithPJ[]; // array of corresponding makam statuses
+};
+
 export default function PenanggungJawab() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<FormattedPJ[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

@@ -5,33 +5,45 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+
   if (id) {
-    if (typeof id !== "string" || !id.trim()) {
+    if (!id.trim()) {
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
-    const data = await prisma.makam.findUnique({
-      where: { id: id },
-      include: {
-        user: true,
-        pj: true,
-        jenazah: true,
-        blok: true,
-      },
+
+    const makam = await prisma.makam.findUnique({
+      where: { id },
+      include: { jenazah: true, blok: true },
     });
-    if (!data) {
+
+    if (!makam) {
       return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
-    return NextResponse.json(data);
+
+    const pj = await prisma.penanggungJawab.findMany({
+      where: { makamId: id },
+      include: { user: true },
+    });
+
+    return NextResponse.json({ ...makam, pj });
   }
-  const data = await prisma.makam.findMany({
-    include: {
-      user: true,
-      pj: true,
-      jenazah: true,
-      blok: true,
-    },
+
+  const makams = await prisma.makam.findMany({
+    include: { jenazah: true, blok: true },
   });
-  return NextResponse.json(data);
+
+  const allIds = makams.map((m) => m.id);
+  const pjs = await prisma.penanggungJawab.findMany({
+    where: { makamId: { in: allIds } },
+    include: { user: true },
+  });
+
+  const result = makams.map((m) => ({
+    ...m,
+    pj: pjs.filter((p) => p.makamId === m.id),
+  }));
+
+  return NextResponse.json(result);
 }
 
 // POST
@@ -43,13 +55,7 @@ export async function POST(req: Request) {
       nama: body.nama,
       lokasi: body.lokasi,
       silsilah: body.silsilah,
-      ext: body.ext ?? null,
-      masaAktif: new Date(body.masa_aktif),
-      namaPenanggungJawab: body.nama_penanggung_jawab,
-      kontakPenanggungJawab: body.kontak_penanggung_jawab,
       description: body.description,
-      payment: body.payment,
-      approved: body.approved,
     },
   });
 
@@ -72,8 +78,6 @@ export async function PUT(req: Request) {
         nama: body.nama,
         lokasi: body.lokasi,
         silsilah: body.silsilah,
-        namaPenanggungJawab: body.nama_penanggung_jawab,
-        kontakPenanggungJawab: body.kontak_penanggung_jawab,
         description: body.description,
       },
     });
