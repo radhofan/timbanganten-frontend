@@ -53,7 +53,8 @@ export default function MakamTable(): JSX.Element {
         item.nama?.toLowerCase().includes(q) ||
         item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(q));
 
-      const matchesLocation = selectedLocation === "Semua" || item.lokasi === selectedLocation;
+      const matchesLocation =
+        selectedLocation === "Semua" || item.blok?.lokasi === selectedLocation;
 
       return matchesSearch && matchesLocation;
     });
@@ -122,8 +123,8 @@ export default function MakamTable(): JSX.Element {
     dataIndex: "lokasi",
     key: "lokasi",
     align: "center",
-    sorter: (a, b) => (a.lokasi || "").localeCompare(b.lokasi || ""),
-    render: (value, record) => <span>{record.lokasi || "-"}</span>,
+    sorter: (a, b) => (a.blok?.lokasi || "").localeCompare(b.blok?.lokasi || ""),
+    render: (value, record) => <span>{record.blok?.lokasi || "-"}</span>,
   });
 
   columns.push({

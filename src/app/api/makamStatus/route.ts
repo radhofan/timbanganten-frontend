@@ -46,7 +46,6 @@ export async function POST(req: Request) {
     const newEntry = await prisma.makamStatus.create({
       data: {
         nama: body.nama,
-        lokasi: body.lokasi,
         silsilah: body.silsilah,
         description: body.description,
       },
@@ -80,7 +79,6 @@ export async function PUT(req: Request) {
       },
       data: {
         nama: body.nama,
-        lokasi: body.lokasi,
         silsilah: body.silsilah,
         description: body.description,
       },

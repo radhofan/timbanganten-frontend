@@ -63,6 +63,10 @@ function Input({
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
   const endpoint = page === "pesan-status" ? "makamStatus" : "makam";
+  const [backendHadTanggalPemakaman, setBackendHadTanggalPemakaman] = useState<boolean | null>(
+    null
+  );
+  const isTanggalPemakamanLocked = backendHadTanggalPemakaman === true;
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     namapj: "",
@@ -88,7 +92,6 @@ export default function MakamStatus({ page }: { page: string }) {
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
   const canEdit = role === "admin";
-  const isTanggalPemakamanLocked = !!formData.tanggalPemakaman;
 
   const fetchData = useCallback(async () => {
     if (!id) return;
@@ -100,12 +103,16 @@ export default function MakamStatus({ page }: { page: string }) {
       const data = await res.json();
       console.log(data);
 
+      const backendTanggal = data.jenazah?.tanggalPemakaman;
+
+      setBackendHadTanggalPemakaman((prev) => (prev === null ? Boolean(backendTanggal) : prev));
+
       setFormData({
         namapj: data.pj?.[0]?.user?.name || "",
         kontak: data.pj?.[0]?.user?.contact || "",
         namajenazah: data.jenazah.user.name || "",
         silsilah: data.silsilah || "",
-        lokasi: data.lokasi || "",
+        lokasi: data.blok.lokasi || "",
         notes: data.description || "",
         payment: data.payment || "",
         ext: data.ext || "",
@@ -407,7 +414,6 @@ export default function MakamStatus({ page }: { page: string }) {
                     Tanggal Pemakaman *(Harap diisi sebelum di approve)
                   </label>
                   <DatePicker
-                    id="tanggal_pemakaman"
                     value={formData.tanggalPemakaman ? dayjs(formData.tanggalPemakaman) : null}
                     disabled={!canEdit || isTanggalPemakamanLocked}
                     onChange={(value) => {

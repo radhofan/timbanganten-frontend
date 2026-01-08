@@ -108,7 +108,6 @@ export async function POST(request: Request) {
         const makamStatus = await prisma.makamStatus.create({
           data: {
             nama: body.namaJenazah,
-            lokasi: body.lokasi,
             silsilah: body.silsilah,
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,
@@ -208,7 +207,6 @@ export async function POST(request: Request) {
         const makamStatus = await prisma.makamStatus.create({
           data: {
             nama: body.namaJenazah,
-            lokasi: body.lokasi,
             silsilah: body.silsilah,
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,

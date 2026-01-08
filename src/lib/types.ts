@@ -89,7 +89,6 @@ export type Blok = {
 export type MakamStatus = {
   id: string;
   nama: string | null;
-  lokasi: string | null;
   silsilah: string | null;
   description: string | null;
   createdAt: Date | null;
@@ -109,7 +108,6 @@ export type MakamStatus = {
 export type Makam = {
   id: string;
   nama: string | null;
-  lokasi: string | null;
   silsilah: string | null;
   description: string | null;
   createdAt: Date | null;

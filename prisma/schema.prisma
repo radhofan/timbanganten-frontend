@@ -94,7 +94,6 @@ model Blok {
 model MakamStatus {
   id                    String    @id @default(uuid())
   nama                  String?
-  lokasi                String?
   silsilah              String?
   description           String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)
@@ -117,7 +116,6 @@ model MakamStatus {
 model Makam {
   id                    String    @id @default(uuid())
   nama                  String?
-  lokasi                String?
   silsilah              String?
   description           String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)

@@ -224,7 +224,7 @@ export default function Status() {
                     <span className="font-medium">ID:</span> {item.id}
                   </p>
                   <p>
-                    <span className="font-medium">Lokasi:</span> {item.lokasi}
+                    <span className="font-medium">Lokasi:</span> {item.blok?.lokasi}
                   </p>
                   <p>
                     <span className="font-medium">Silsilah:</span> {item.silsilah}

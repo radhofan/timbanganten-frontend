@@ -435,7 +435,7 @@ export default function Pemesanan() {
                   <MapPin className="w-4 h-4 text-red-600" />
                   Lokasi Pemakaman
                 </Label>
-                <Select name="lokasi" required onValueChange={(value) => setLokasi(value)}>
+                <Select name="lokasi" onValueChange={(value) => setLokasi(value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Lokasi Pemakaman" />
                   </SelectTrigger>
@@ -476,11 +476,7 @@ export default function Pemesanan() {
                     <Building2 className="w-4 h-4 text-cyan-600" />
                     Jenis Makam
                   </Label>
-                  <Select
-                    name="jenismakam"
-                    required
-                    onValueChange={(value) => setJenisMakam(value)}
-                  >
+                  <Select name="jenismakam" onValueChange={(value) => setJenisMakam(value)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Pilih Jenis Makam" />
                     </SelectTrigger>
