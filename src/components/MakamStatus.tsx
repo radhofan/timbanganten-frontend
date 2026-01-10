@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { DatePicker, Select } from "antd";
+import { DatePicker, Select, Tooltip } from "antd";
 import dayjs from "dayjs";
 
 function Input({
@@ -292,7 +292,7 @@ export default function MakamStatus({ page }: { page: string }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header hideBanner />
 
       <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start mb-24">
@@ -434,13 +434,15 @@ export default function MakamStatus({ page }: { page: string }) {
                   readOnly
                   disabled
                 />
-                <Input
-                  label="Status Pembayaran Iuran Tahunan"
-                  id="statusPembayaranIuranTahunan"
-                  value={formData.statusPembayaranIuranTahunan || "UNKNOWN"}
-                  readOnly
-                  disabled
-                />
+                {page !== "pesan-status" && (
+                  <Input
+                    label="Status Pembayaran Iuran Tahunan"
+                    id="statusPembayaranIuranTahunan"
+                    value={formData.statusPembayaranIuranTahunan || "UNKNOWN"}
+                    readOnly
+                    disabled
+                  />
+                )}
               </div>
             </section>
 
@@ -511,22 +513,46 @@ export default function MakamStatus({ page }: { page: string }) {
               )}
 
               {role === "approver" &&
-                formData.approved !== "APPROVED" &&
-                page === "pesan-status" && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!formData.tanggalPemakaman) {
-                        alert("Tanggal pemakaman wajib diisi sebelum approval.");
-                        return;
-                      }
-                      const success = await convertMakam(id as string);
-                      if (success) router.push("/layanan/makam");
-                    }}
-                    className="px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition"
+                page === "pesan-status" &&
+                formData.approved !== "APPROVED" && (
+                  <Tooltip
+                    placement="top"
+                    title={
+                      <div className="text-sm">
+                        {formData.statusPembayaranPesanan !== "PAID" && (
+                          <div>• Pembayaran pesanan belum PAID</div>
+                        )}
+                        {!formData.tanggalPemakaman && <div>• Tanggal pemakaman belum diisi</div>}
+                      </div>
+                    }
                   >
-                    Approve
-                  </button>
+                    <span>
+                      <button
+                        type="button"
+                        disabled={
+                          formData.statusPembayaranPesanan !== "PAID" || !formData.tanggalPemakaman
+                        }
+                        onClick={async () => {
+                          if (
+                            formData.statusPembayaranPesanan !== "PAID" ||
+                            !formData.tanggalPemakaman
+                          )
+                            return;
+
+                          const success = await convertMakam(id as string);
+                          if (success) router.push("/layanan/makam");
+                        }}
+                        className={`px-6 py-2 rounded-lg font-medium transition
+            ${
+              formData.statusPembayaranPesanan === "PAID" && formData.tanggalPemakaman
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+                      >
+                        Approve
+                      </button>
+                    </span>
+                  </Tooltip>
                 )}
             </div>
           </form>

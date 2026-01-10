@@ -237,7 +237,7 @@ export default function MakamTable(): JSX.Element {
   }
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-white p-6">
       <h2 className="text-3xl font-bold text-center mb-6">Daftar Pemakaman</h2>
 
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">

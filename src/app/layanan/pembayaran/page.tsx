@@ -7,7 +7,7 @@ export default function Admin() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 p-12">
+      <main className="flex-1 p-12 bg-white">
         <PembayaranTable />
       </main>
 

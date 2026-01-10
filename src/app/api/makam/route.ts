@@ -15,7 +15,11 @@ export async function GET(request: Request) {
     const makam = await prisma.makam.findUnique({
       where: { id },
       include: {
-        jenazah: true,
+        jenazah: {
+          include: {
+            user: true,
+          },
+        },
         blok: true,
         pj: { include: { user: true } }, // <-- include all PJs linked to this makam
       },

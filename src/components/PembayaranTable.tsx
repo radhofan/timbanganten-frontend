@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo, JSX } from "react";
 import { Table, Input, Select, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { Modal, Button, Descriptions, message } from "antd";
+
 import { Jenazah } from "@/lib/types";
 
 const { Search } = Input;
@@ -15,6 +17,12 @@ export default function JenazahTable(): JSX.Element {
   const [pageSize, setPageSize] = useState<number>(12);
   const [current, setCurrent] = useState<number>(1);
   const [selectedLocation, setSelectedLocation] = useState<string>("Semua");
+
+  const [pesananModalOpen, setPesananModalOpen] = useState(false);
+  const [selectedPesanan, setSelectedPesanan] = useState<Jenazah | null>(null);
+
+  const [iuranModalOpen, setIuranModalOpen] = useState(false);
+  const [selectedIuran, setSelectedIuran] = useState<Jenazah | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -34,6 +42,16 @@ export default function JenazahTable(): JSX.Element {
       mounted = false;
     };
   }, []);
+
+  function openPesananModal(record: Jenazah) {
+    setSelectedPesanan(record);
+    setPesananModalOpen(true);
+  }
+
+  function openIuranModal(record: Jenazah) {
+    setSelectedIuran(record);
+    setIuranModalOpen(true);
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -150,7 +168,19 @@ export default function JenazahTable(): JSX.Element {
               ? "gold"
               : "default";
 
-      return <Tag color={color}>{val || "-"}</Tag>;
+      const clickable = val !== "PAID";
+
+      return (
+        <Tag
+          color={color}
+          style={{ cursor: clickable ? "pointer" : "default" }}
+          onClick={() => {
+            if (clickable) openPesananModal(record);
+          }}
+        >
+          {val || "-"}
+        </Tag>
+      );
     },
   });
 
@@ -172,12 +202,24 @@ export default function JenazahTable(): JSX.Element {
               ? "gold"
               : "default";
 
-      return <Tag color={color}>{val || "-"}</Tag>;
+      const clickable = val !== "PAID";
+
+      return (
+        <Tag
+          color={color}
+          style={{ cursor: clickable ? "pointer" : "default" }}
+          onClick={() => {
+            if (clickable) openIuranModal(record);
+          }}
+        >
+          {val || "-"}
+        </Tag>
+      );
     },
   });
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white">
       <h2 className="text-3xl font-bold text-center mb-6">Daftar Jenazah</h2>
 
       <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
@@ -238,9 +280,132 @@ export default function JenazahTable(): JSX.Element {
             if (pageSize !== size) setPageSize(size);
           },
         }}
-        rowKey="id_jenazah"
+        rowKey="id"
         bordered
       />
+
+      <Modal
+        open={pesananModalOpen}
+        title="Pembayaran Pesanan"
+        onCancel={() => {
+          setPesananModalOpen(false);
+          setSelectedPesanan(null);
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => setPesananModalOpen(false)}>
+            Batal
+          </Button>,
+          <Button
+            key="paid"
+            type="primary"
+            onClick={async () => {
+              if (!selectedPesanan) return;
+
+              await fetch("/api/bayarPesanan", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id: selectedPesanan.id,
+                  tanggal_pemesanan: selectedPesanan.tanggalPemakaman,
+                }),
+              });
+
+              message.success("Status pesanan diperbarui");
+
+              setData((prev) =>
+                prev.map((j) =>
+                  j.id === selectedPesanan.id ? { ...j, statusPembayaranPesanan: "PAID" } : j
+                )
+              );
+
+              setPesananModalOpen(false);
+            }}
+          >
+            Tandai LUNAS
+          </Button>,
+        ]}
+      >
+        {selectedPesanan && (
+          <Descriptions column={1} bordered size="small">
+            <Descriptions.Item label="Blok">{selectedPesanan.blok?.id}</Descriptions.Item>
+
+            <Descriptions.Item label="Nama Jenazah">
+              {selectedPesanan.user?.name || "-"}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Status Saat Ini">
+              {selectedPesanan.statusPembayaranPesanan}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+      <Modal
+        open={iuranModalOpen}
+        title="Pembayaran Iuran Tahunan"
+        onCancel={() => {
+          setIuranModalOpen(false);
+          setSelectedIuran(null);
+        }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
+              setIuranModalOpen(false);
+              setSelectedIuran(null);
+            }}
+          >
+            Batal
+          </Button>,
+          <Button
+            key="paid"
+            type="primary"
+            onClick={async () => {
+              if (!selectedIuran) return;
+
+              await fetch("/api/bayarIuranTahunan", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id: selectedIuran.id,
+                }),
+              });
+
+              message.success("Iuran tahunan berhasil diperbarui");
+
+              setData((prev) =>
+                prev.map((j) =>
+                  j.id === selectedIuran.id ? { ...j, statusPembayaranIuranTahunan: "PAID" } : j
+                )
+              );
+
+              setIuranModalOpen(false);
+              setSelectedIuran(null);
+            }}
+          >
+            Tandai LUNAS
+          </Button>,
+        ]}
+      >
+        {selectedIuran && (
+          <Descriptions column={1} bordered size="small">
+            <Descriptions.Item label="Blok">{selectedIuran.blok?.id}</Descriptions.Item>
+
+            <Descriptions.Item label="Nama Jenazah">
+              {selectedIuran.user?.name || "-"}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Masa Aktif Saat Ini">
+              {selectedIuran.masaAktif
+                ? new Date(selectedIuran.masaAktif).toLocaleDateString("id-ID")
+                : "-"}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Status Saat Ini">
+              {selectedIuran.statusPembayaranIuranTahunan}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </div>
   );
 }
