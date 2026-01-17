@@ -26,6 +26,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          color: "white",
         }}
       >
         <Spin size="large" />

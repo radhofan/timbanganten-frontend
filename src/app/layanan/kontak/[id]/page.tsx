@@ -8,9 +8,14 @@ import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 
 import { Button } from "antd";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { kontakSchema, KontakPayload } from "@/validation/kontak";
+
+import { toast } from "react-hot-toast"; // toaster
 
 export default function KontakDetailPage() {
   const { id } = useParams();
@@ -19,29 +24,26 @@ export default function KontakDetailPage() {
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    contact: "",
-    password: "",
-  });
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+
+  const { control, handleSubmit, reset } = useForm<KontakPayload>({
+    defaultValues: { name: "", email: "", contact: "", password: "" },
+    resolver: zodResolver(kontakSchema),
+  });
 
   useEffect(() => {
     let mounted = true;
 
     fetch(`/api/admin?id=${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch admin data");
+        if (!res.ok) throw new Error("Gagal memuat data admin");
         return res.json();
       })
       .then((admin) => {
         if (!mounted) return;
-        setFormData({
+        reset({
           name: admin.name || "",
           email: admin.email || "",
           contact: admin.contact || "",
@@ -58,28 +60,19 @@ export default function KontakDetailPage() {
     return () => {
       mounted = false;
     };
-  }, [id]);
+  }, [id, reset]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<KontakPayload> = async (data) => {
     if (role !== "admin") return;
 
     setSaving(true);
 
     const payload: Record<string, string> = {
-      name: formData.name,
-      email: formData.email,
-      contact: formData.contact,
+      name: data.name,
+      email: data.email,
+      contact: data.contact?.trim() || "",
     };
-
-    if (formData.password.trim() !== "") {
-      payload.password = formData.password;
-    }
+    if (data.password.trim() !== "") payload.password = data.password;
 
     try {
       const res = await fetch(`/api/admin?id=${id}`, {
@@ -88,14 +81,13 @@ export default function KontakDetailPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to update admin");
+      if (!res.ok) throw new Error("Gagal memperbarui kontak");
 
-      setSuccess(true);
-      setTimeout(() => {
-        router.push("/layanan/kontak");
-      }, 1500);
+      toast.success("Kontak berhasil diperbarui", { position: "top-center" });
+      setTimeout(() => router.push("/layanan/kontak"), 1500);
     } catch (err) {
       console.error(err);
+      toast.error("Terjadi kesalahan saat memperbarui kontak", { position: "top-center" });
     } finally {
       setSaving(false);
     }
@@ -112,7 +104,7 @@ export default function KontakDetailPage() {
           <p className="text-red-600">{error}</p>
         ) : (
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-8 space-y-8"
           >
             <div className="text-center">
@@ -125,74 +117,88 @@ export default function KontakDetailPage() {
             <section className="space-y-4">
               <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Informasi Kontak</h3>
 
-              <div className="flex flex-col">
-                <Label htmlFor="name" className="mb-2">
-                  Nama
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+              {/* Name */}
+              <Controller
+                name="name"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div className="flex flex-col">
+                    <Label htmlFor="name" className="mb-2">
+                      Nama
+                    </Label>
+                    <Input {...field} id="name" />
+                    {fieldState.error && (
+                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
+                    )}
+                  </div>
+                )}
+              />
 
-              <div className="flex flex-col">
-                <Label htmlFor="email" className="mb-2">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+              {/* Email */}
+              <Controller
+                name="email"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div className="flex flex-col">
+                    <Label htmlFor="email" className="mb-2">
+                      Email
+                    </Label>
+                    <Input {...field} id="email" type="email" />
+                    {fieldState.error && (
+                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
+                    )}
+                  </div>
+                )}
+              />
 
-              <div className="flex flex-col">
-                <Label htmlFor="contact" className="mb-2">
-                  No. Kontak
-                </Label>
-                <Input
-                  id="contact"
-                  name="contact"
-                  value={formData.contact}
-                  onChange={handleChange}
-                  placeholder="08XXXXXXXXX"
-                />
-              </div>
+              {/* Contact */}
+              <Controller
+                name="contact"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div className="flex flex-col">
+                    <Label htmlFor="contact" className="mb-2">
+                      No. Kontak
+                    </Label>
+                    <Input {...field} id="contact" placeholder="08XXXXXXXXX" />
+                    {fieldState.error && (
+                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
+                    )}
+                  </div>
+                )}
+              />
             </section>
 
             <section className="space-y-4">
               <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Keamanan</h3>
 
-              <div className="flex flex-col">
-                <Label htmlFor="password" className="mb-2">
-                  Password Baru
-                </Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Kosongkan jika tidak diubah"
-                />
-              </div>
+              {/* Password */}
+              <Controller
+                name="password"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div className="flex flex-col">
+                    <Label htmlFor="password" className="mb-2">
+                      Password Baru
+                    </Label>
+                    <Input
+                      {...field}
+                      id="password"
+                      type="password"
+                      placeholder="Kosongkan jika tidak diubah"
+                    />
+                    {fieldState.error && (
+                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
+                    )}
+                  </div>
+                )}
+              />
             </section>
-
-            {success && (
-              <p className="text-green-600 text-center text-sm">✔ Kontak berhasil diperbarui</p>
-            )}
 
             <div className="flex justify-end gap-3 pt-4 border-t">
               <Button danger onClick={() => router.push("/layanan/kontak")}>
                 Batal
               </Button>
-
               <Button type="primary" htmlType="submit" loading={saving} disabled={role !== "admin"}>
                 Simpan
               </Button>

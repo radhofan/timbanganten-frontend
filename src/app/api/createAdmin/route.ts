@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   try {
@@ -20,10 +20,7 @@ export async function POST(request: Request) {
     });
 
     if (existingAdmin) {
-      return NextResponse.json(
-        { error: "Admin with this email already exists" },
-        { status: 409 } 
-      );
+      return NextResponse.json({ error: "Admin with this email already exists" }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -48,9 +45,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Admin creation error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

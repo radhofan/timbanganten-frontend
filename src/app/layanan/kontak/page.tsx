@@ -117,7 +117,7 @@ export default function AdminTable(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header hideBanner />
 
       <main className="flex-1 p-6 sm:p-12">

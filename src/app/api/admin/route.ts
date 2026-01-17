@@ -1,8 +1,8 @@
-import { prisma } from '@/lib/db';
-import { NextResponse } from 'next/server';
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 
-// GET 
+// GET
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
   return NextResponse.json(admins);
 }
 
-// POST 
+// POST
 export async function POST(request: Request) {
   const body = await request.json();
   const { name, email, password, contact } = body;
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   return NextResponse.json(newAdmin, { status: 201 });
 }
 
-// PUT 
+// PUT
 export async function PUT(request: Request) {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
@@ -82,10 +82,7 @@ export async function PUT(request: Request) {
   const { name, email, contact, password } = body;
 
   if (!name || !email || contact === undefined) {
-    return NextResponse.json(
-      { error: "Name, email, and contact are required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Name, email, and contact are required" }, { status: 400 });
   }
 
   const existingAdmin = await prisma.admin.findUnique({
@@ -121,13 +118,13 @@ export async function PUT(request: Request) {
   return NextResponse.json(safeAdmin);
 }
 
-// DELETE 
+// DELETE
 export async function DELETE(request: Request) {
   const url = new URL(request.url);
-  const id = url.searchParams.get('id');
+  const id = url.searchParams.get("id");
 
   if (!id) {
-    return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+    return NextResponse.json({ error: "Missing ID" }, { status: 400 });
   }
 
   try {
@@ -135,9 +132,9 @@ export async function DELETE(request: Request) {
       where: { id: Number(id) },
     });
 
-    return NextResponse.json({ message: 'Admin deleted successfully' });
+    return NextResponse.json({ message: "Admin deleted successfully" });
   } catch (error) {
-    console.error('Delete admin error:', error);
-    return NextResponse.json({ error: 'Failed to delete admin' }, { status: 500 });
+    console.error("Delete admin error:", error);
+    return NextResponse.json({ error: "Failed to delete admin" }, { status: 500 });
   }
 }

@@ -9,10 +9,7 @@ export default function Footer() {
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            fill="#223D3C"
-            d="M0,160 C360,0 1080,320 1440,160 L1440,320 L0,320 Z"
-          />
+          <path fill="#223D3C" d="M0,160 C360,0 1080,320 1440,160 L1440,320 L0,320 Z" />
         </svg>
       </div>
 
