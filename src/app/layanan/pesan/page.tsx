@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-// import dayjs from "dayjs";
 
 import { Button, DatePicker } from "antd";
 
@@ -32,6 +31,10 @@ import {
   Users,
   Hash,
 } from "lucide-react";
+import { pemesananDefaultValues, PemesananPayload, pemesananSchema } from "@/validation/pemesanan";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 export default function Pemesanan() {
   const [blokList, setBlokList] = useState<{ id: string; lokasi: string; statusBlok: string }[]>(
@@ -49,6 +52,16 @@ export default function Pemesanan() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [blokListFetched, setBlokListFetched] = useState(false);
   const [selectedBlok, setSelectedBlok] = useState<string>("");
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PemesananPayload>({
+    resolver: zodResolver(pemesananSchema),
+    mode: "onChange",
+    defaultValues: pemesananDefaultValues,
+  });
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -83,89 +96,165 @@ export default function Pemesanan() {
       .catch(console.error);
   }, [lokasi, jenisMakam]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   const form = e.currentTarget;
+  //   const formData = new FormData(form);
+  //   const diriSendiri = (formData.get("silsilah") as string) === "diri sendiri";
+
+  //   console.log(diriSendiri);
+
+  //   interface PemesananPayload {
+  //     namaJenazah: string;
+  //     blokId: string;
+  //     lokasi: string;
+  //     silsilah: string;
+  //     notes: string;
+  //     diriSendiri: boolean;
+  //     existingUserId?: string;
+  //     emergencyName?: string;
+  //     emergencyContact?: string;
+  //     pjName?: string;
+  //     pjContact?: string;
+  //     userPAName?: string;
+  //     userPAContact?: string;
+  //     userPAEmail?: string;
+  //     userPAKTP?: string;
+  //     userPBName?: string;
+  //     userPBContact?: string;
+  //     userPBEmail?: string;
+  //     tanggalPemesanan?: Date;
+  //     tanggalPemakaman?: Date;
+  //   }
+
+  //   const payload: PemesananPayload = {
+  //     namaJenazah: formData.get("namajenazah") as string,
+  //     blokId: selectedBlok,
+  //     lokasi: formData.get("lokasi") as string,
+  //     silsilah: formData.get("silsilah") as string,
+  //     notes: formData.get("notes") as string,
+  //     emergencyName: formData.get("emergencyName") as string,
+  //     emergencyContact: formData.get("emergencyContact") as string,
+  //     diriSendiri,
+  //     tanggalPemakaman: formData.get("tanggalPemakaman")
+  //       ? new Date(formData.get("tanggalPemakaman") as string)
+  //       : undefined,
+  //     tanggalPemesanan: formData.get("tanggalPemesanan")
+  //       ? new Date(formData.get("tanggalPemesanan") as string)
+  //       : undefined,
+  //   };
+
+  //   if (useExisting && selectedUser) {
+  //     payload.existingUserId = selectedUser.id;
+  //     payload.pjName = selectedUser.name || undefined;
+  //     payload.pjContact = selectedUser.contact || undefined;
+  //     payload.emergencyName = selectedUser.emergencyName || undefined;
+  //     payload.emergencyContact = selectedUser.emergencyContact || undefined;
+
+  //     payload.userPAName = formData.get("namapj") as string;
+  //     payload.userPAContact = formData.get("kontak") as string;
+  //     payload.userPAEmail = formData.get("email") as string;
+  //     payload.userPAKTP = formData.get("ktpNum") as string;
+
+  //     if (!diriSendiri) {
+  //       payload.userPBName = formData.get("namajenazah") as string;
+  //       payload.userPBContact = "";
+  //       payload.userPBEmail = "";
+  //     }
+  //   } else {
+  //     payload.userPAName = formData.get("namapj") as string;
+  //     payload.userPAContact = formData.get("kontak") as string;
+  //     payload.userPAEmail = formData.get("email") as string;
+  //     payload.userPAKTP = formData.get("ktpNum") as string;
+  //     payload.pjName = formData.get("namapj") as string;
+  //     payload.pjContact = formData.get("kontak") as string;
+  //     payload.emergencyName = formData.get("emergencyName") as string;
+  //     payload.emergencyContact = formData.get("emergencyContact") as string;
+
+  //     if (!diriSendiri) {
+  //       payload.userPBName = formData.get("namajenazah") as string;
+  //       payload.userPBContact = "";
+  //       payload.userPBEmail = "";
+  //     }
+  //   }
+
+  //   try {
+  //     const res = await fetch("/api/pemesanan", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     if (res.ok) {
+  //       console.log(payload);
+  //       alert("Pemesanan berhasil disimpan!");
+  //       router.push("/layanan/pesan/status");
+  //       form.reset();
+  //       setSelectedUser(null);
+  //       setUseExisting(false);
+  //     } else {
+  //       const data = await res.json();
+  //       alert(data?.error || "Terjadi kesalahan saat menyimpan data.");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Gagal mengirim permintaan.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const onSubmit = async (data: PemesananPayload) => {
     setLoading(true);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const diriSendiri = (formData.get("silsilah") as string) === "diri sendiri";
+    const diriSendiri = data.silsilah === "diri sendiri";
 
-    console.log(diriSendiri);
-
-    interface PemesananPayload {
-      namaJenazah: string;
-      blokId: string;
-      lokasi: string;
-      silsilah: string;
-      notes: string;
-      diriSendiri: boolean;
-      existingUserId?: string;
-      emergencyName?: string;
-      emergencyContact?: string;
-      pjName?: string;
-      pjContact?: string;
-      userPAName?: string;
-      userPAContact?: string;
-      userPAEmail?: string;
-      userPAKTP?: string;
-      userPBName?: string;
-      userPBContact?: string;
-      userPBEmail?: string;
-      tanggalPemesanan?: Date;
-      tanggalPemakaman?: Date;
-    }
-
-    const payload: PemesananPayload = {
-      namaJenazah: formData.get("namajenazah") as string,
+    const basePayload = {
+      namaJenazah: data.namaJenazah,
       blokId: selectedBlok,
-      lokasi: formData.get("lokasi") as string,
-      silsilah: formData.get("silsilah") as string,
-      notes: formData.get("notes") as string,
-      emergencyName: formData.get("emergencyName") as string,
-      emergencyContact: formData.get("emergencyContact") as string,
+      lokasi: data.lokasi,
+      silsilah: data.silsilah,
+      notes: data.notes,
       diriSendiri,
-      tanggalPemakaman: formData.get("tanggalPemakaman")
-        ? new Date(formData.get("tanggalPemakaman") as string)
-        : undefined,
-      tanggalPemesanan: formData.get("tanggalPemesanan")
-        ? new Date(formData.get("tanggalPemesanan") as string)
-        : undefined,
+      tanggalPemakaman: data.tanggalPemakaman ? new Date(data.tanggalPemakaman) : undefined,
+      tanggalPemesanan: data.tanggalPemesanan ? new Date(data.tanggalPemesanan) : undefined,
     };
 
-    if (useExisting && selectedUser) {
-      payload.existingUserId = selectedUser.id;
-      payload.pjName = selectedUser.name || undefined;
-      payload.pjContact = selectedUser.contact || undefined;
-      payload.emergencyName = selectedUser.emergencyName || undefined;
-      payload.emergencyContact = selectedUser.emergencyContact || undefined;
+    const userPayload =
+      useExisting && selectedUser
+        ? {
+            existingUserId: selectedUser.id,
+            pjName: selectedUser.name,
+            pjContact: selectedUser.contact,
+            emergencyName: selectedUser.emergencyName,
+            emergencyContact: selectedUser.emergencyContact,
+            userPAName: data.userPAName,
+            userPAContact: data.userPAContact,
+            userPAEmail: data.userPAEmail,
+            userPAKTP: data.userPAKTP,
+          }
+        : {
+            userPAName: data.userPAName,
+            userPAContact: data.userPAContact,
+            userPAEmail: data.userPAEmail,
+            userPAKTP: data.userPAKTP,
+            pjName: data.userPAName,
+            pjContact: data.userPAContact,
+            emergencyName: data.emergencyName,
+            emergencyContact: data.emergencyContact,
+          };
 
-      payload.userPAName = formData.get("namapj") as string;
-      payload.userPAContact = formData.get("kontak") as string;
-      payload.userPAEmail = formData.get("email") as string;
-      payload.userPAKTP = formData.get("ktpNum") as string;
-
-      if (!diriSendiri) {
-        payload.userPBName = formData.get("namajenazah") as string;
-        payload.userPBContact = "";
-        payload.userPBEmail = "";
-      }
-    } else {
-      payload.userPAName = formData.get("namapj") as string;
-      payload.userPAContact = formData.get("kontak") as string;
-      payload.userPAEmail = formData.get("email") as string;
-      payload.userPAKTP = formData.get("ktpNum") as string;
-      payload.pjName = formData.get("namapj") as string;
-      payload.pjContact = formData.get("kontak") as string;
-      payload.emergencyName = formData.get("emergencyName") as string;
-      payload.emergencyContact = formData.get("emergencyContact") as string;
-
-      if (!diriSendiri) {
-        payload.userPBName = formData.get("namajenazah") as string;
-        payload.userPBContact = "";
-        payload.userPBEmail = "";
-      }
-    }
+    const payload = {
+      ...basePayload,
+      ...userPayload,
+      ...(!diriSendiri && {
+        userPBName: data.namaJenazah,
+        userPBContact: "",
+        userPBEmail: "",
+      }),
+    };
 
     try {
       const res = await fetch("/api/pemesanan", {
@@ -175,19 +264,29 @@ export default function Pemesanan() {
       });
 
       if (res.ok) {
-        console.log(payload);
-        alert("Pemesanan berhasil disimpan!");
-        router.push("/layanan/pesan/status");
-        form.reset();
+        toast.success("Pemesanan berhasil disimpan!", { position: "top-center", duration: 1000 });
         setSelectedUser(null);
         setUseExisting(false);
+        setTimeout(() => router.push("/layanan/pesan/status"), 1500);
       } else {
-        const data = await res.json();
-        alert(data?.error || "Terjadi kesalahan saat menyimpan data.");
+        const responseData = await res.json();
+
+        if (responseData.errors) {
+          const allMessages = Object.values(responseData.errors).join("\n");
+          toast.error(allMessages, { position: "top-center", duration: 5000 });
+        } else {
+          toast.error(responseData?.error || "Terjadi kesalahan saat menyimpan data.", {
+            position: "top-center",
+            duration: 5000,
+          });
+        }
       }
     } catch (err) {
       console.error(err);
-      alert("Gagal mengirim permintaan.");
+      toast.error("Gagal mengirim permintaan. Periksa koneksi internet.", {
+        position: "top-center",
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -199,7 +298,7 @@ export default function Pemesanan() {
 
       <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 space-y-10"
         >
           <div className="text-center">
@@ -278,16 +377,24 @@ export default function Pemesanan() {
                     <UserCircle className="w-4 h-4 text-purple-600" />
                     Nama Penanggung Jawab
                   </Label>
-                  <div className="relative">
-                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="namapj"
-                      name="namapj"
-                      placeholder="Masukkan Nama PJ"
-                      required
-                      className="pl-10"
-                    />
-                  </div>
+                  <Controller
+                    name="userPAName"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          {...field}
+                          id="namapj"
+                          placeholder="Masukkan Nama PJ"
+                          className="pl-10"
+                        />
+                      </div>
+                    )}
+                  />
+                  {errors.userPAName && (
+                    <p className="text-red-600 text-sm mt-2">{errors.userPAName.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col">
@@ -295,34 +402,45 @@ export default function Pemesanan() {
                     <Phone className="w-4 h-4 text-green-600" />
                     No. Kontak
                   </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="kontak"
-                      name="kontak"
-                      placeholder="08XXXXXXXXX"
-                      required
-                      className="pl-10"
-                    />
-                  </div>
+                  <Controller
+                    name="userPAContact"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input {...field} id="kontak" placeholder="08XXXXXXXXX" className="pl-10" />
+                      </div>
+                    )}
+                  />
+                  {errors.userPAContact && (
+                    <p className="text-red-600 text-sm mt-2">{errors.userPAContact.message}</p>
+                  )}
                 </div>
 
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col">
                   <Label htmlFor="email" className="mb-2 flex items-center gap-2">
                     <Mail className="w-4 h-4 text-blue-600" />
                     Email
                   </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="user@gmail.com"
-                      required
-                      className="pl-10"
-                    />
-                  </div>
+                  <Controller
+                    name="userPAEmail"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          {...field}
+                          id="email"
+                          type="email"
+                          placeholder="user@gmail.com"
+                          className="pl-10"
+                        />
+                      </div>
+                    )}
+                  />
+                  {errors.userPAEmail && (
+                    <p className="text-red-600 text-sm mt-2">{errors.userPAEmail.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col">
@@ -330,15 +448,24 @@ export default function Pemesanan() {
                     <UserCircle className="w-4 h-4 text-indigo-600" />
                     Nama Kontak Darurat
                   </Label>
-                  <div className="relative">
-                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="emergencyNamet"
-                      name="emergencyName"
-                      placeholder="Masukkan Nama"
-                      className="pl-10"
-                    />
-                  </div>
+                  <Controller
+                    name="emergencyName"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          {...field}
+                          id="emergencyName"
+                          placeholder="Masukkan Nama"
+                          className="pl-10"
+                        />
+                      </div>
+                    )}
+                  />
+                  {errors.emergencyName && (
+                    <p className="text-red-600 text-sm mt-2">{errors.emergencyName.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col">
@@ -346,15 +473,24 @@ export default function Pemesanan() {
                     <Phone className="w-4 h-4 text-teal-600" />
                     No. Kontak Darurat
                   </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="emergencyContact"
-                      name="emergencyContact"
-                      placeholder="08XXXXXXXXX"
-                      className="pl-10"
-                    />
-                  </div>
+                  <Controller
+                    name="emergencyContact"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          {...field}
+                          id="emergencyContact"
+                          placeholder="08XXXXXXXXX"
+                          className="pl-10"
+                        />
+                      </div>
+                    )}
+                  />
+                  {errors.emergencyContact && (
+                    <p className="text-red-600 text-sm mt-2">{errors.emergencyContact.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col col-span-2">
@@ -362,16 +498,25 @@ export default function Pemesanan() {
                     <CreditCard className="w-4 h-4 text-amber-600" />
                     No KTP Pemesan
                   </Label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="ktpNum"
-                      name="ktpNum"
-                      maxLength={16}
-                      placeholder="Masukkan 16 digit nomor KTP"
-                      className="pl-10"
-                    />
-                  </div>
+                  <Controller
+                    name="userPAKTP"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          {...field}
+                          id="ktpNum"
+                          maxLength={16}
+                          placeholder="Masukkan 16 digit nomor KTP"
+                          className="pl-10"
+                        />
+                      </div>
+                    )}
+                  />
+                  {errors.userPAKTP && (
+                    <p className="text-red-600 text-sm mt-2">{errors.userPAKTP.message}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -391,84 +536,129 @@ export default function Pemesanan() {
                   <UserCircle className="w-4 h-4 text-rose-600" />
                   Nama Jenazah
                 </Label>
-                <div className="relative">
-                  <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    id="namajenazah"
-                    name="namajenazah"
-                    required
-                    placeholder="Nama Jenazah"
-                    className="pl-10"
-                  />
-                </div>
+                <Controller
+                  name="namaJenazah"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="relative">
+                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        {...field}
+                        id="namajenazah"
+                        placeholder="Nama Jenazah"
+                        className="pl-10"
+                      />
+                    </div>
+                  )}
+                />
+                {errors.namaJenazah && (
+                  <p className="text-red-600 text-sm mt-2">{errors.namaJenazah.message}</p>
+                )}
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="blokId" className="mb-2 flex items-center gap-2">
                   <Hash className="w-4 h-4 text-indigo-600" />
                   Blok Kavling
                 </Label>
-                <Select
+                <Controller
                   name="blokId"
-                  required
-                  onValueChange={(value) => setSelectedBlok(value)} // Keep this for state tracking if needed
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Blok" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {blokList.length > 0 ? (
-                      blokList.map((b) => (
-                        <SelectItem key={b.id} value={b.id}>
-                          {b.id} ({b.lokasi}) ({b.statusBlok})
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-blok-available" disabled>
-                        {blokListFetched ? "Tidak ada blok tersedia" : "Memuat data blok..."}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedBlok(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih Blok" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {blokList.length > 0 ? (
+                          blokList.map((b) => (
+                            <SelectItem key={b.id} value={b.id}>
+                              {b.id} ({b.lokasi}) ({b.statusBlok})
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-blok-available" disabled>
+                            {blokListFetched ? "Tidak ada blok tersedia" : "Memuat data blok..."}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.blokId && (
+                  <p className="text-red-600 text-sm mt-2">{errors.blokId.message}</p>
+                )}
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="lokasi" className="mb-2 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-red-600" />
                   Lokasi Pemakaman
                 </Label>
-                <Select name="lokasi" onValueChange={(value) => setLokasi(value)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Lokasi Pemakaman" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                    <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                    <SelectItem value="Dayeuh Kolot">Dayeuh Kolot</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="lokasi"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setLokasi(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih Lokasi Pemakaman" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
+                        <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
+                        <SelectItem value="Dayeuh Kolot">Dayeuh Kolot</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.lokasi && (
+                  <p className="text-red-600 text-sm mt-2">{errors.lokasi.message}</p>
+                )}
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="silsilah" className="mb-2 flex items-center gap-2">
                   <Users className="w-4 h-4 text-teal-600" />
                   Hubungan dengan pemesan
                 </Label>
-                <Select name="silsilah" required>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Silsilah" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="diri sendiri">Diri Sendiri</SelectItem>
-                    <SelectItem value="anak">Anak</SelectItem>
-                    <SelectItem value="orang tua">Orang Tua</SelectItem>
-                    <SelectItem value="kakak/adik">Kakak/Adik</SelectItem>
-                    <SelectItem value="sepupu">Sepupu</SelectItem>
-                    <SelectItem value="keponakan">Keponakan</SelectItem>
-                    <SelectItem value="paman/bibi">Paman/Bibi</SelectItem>
-                    <SelectItem value="kakek/nenek">Kakek/Nenek</SelectItem>
-                    <SelectItem value="cucu">Cucu</SelectItem>
-                    <SelectItem value=">2 generasi di atas">{">2 Generasi di Atas"}</SelectItem>
-                    <SelectItem value=">2 generasi di bawah">{">2 Generasi di Bawah"}</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="silsilah"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih Silsilah" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="diri sendiri">Diri Sendiri</SelectItem>
+                        <SelectItem value="anak">Anak</SelectItem>
+                        <SelectItem value="orang tua">Orang Tua</SelectItem>
+                        <SelectItem value="kakak/adik">Kakak/Adik</SelectItem>
+                        <SelectItem value="sepupu">Sepupu</SelectItem>
+                        <SelectItem value="keponakan">Keponakan</SelectItem>
+                        <SelectItem value="paman/bibi">Paman/Bibi</SelectItem>
+                        <SelectItem value="kakek/nenek">Kakek/Nenek</SelectItem>
+                        <SelectItem value="cucu">Cucu</SelectItem>
+                        <SelectItem value=">2 generasi di atas">{">2 Generasi di Atas"}</SelectItem>
+                        <SelectItem value=">2 generasi di bawah">
+                          {">2 Generasi di Bawah"}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.silsilah && (
+                  <p className="text-red-600 text-sm mt-2">{errors.silsilah.message}</p>
+                )}
               </div>
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col flex-1">
@@ -476,7 +666,7 @@ export default function Pemesanan() {
                     <Building2 className="w-4 h-4 text-cyan-600" />
                     Jenis Makam
                   </Label>
-                  <Select name="jenismakam" onValueChange={(value) => setJenisMakam(value)}>
+                  <Select onValueChange={(value) => setJenisMakam(value)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Pilih Jenis Makam" />
                     </SelectTrigger>
@@ -494,26 +684,44 @@ export default function Pemesanan() {
                   <Calendar className="w-4 h-4 text-emerald-600" />
                   Tanggal Pemesanan
                 </Label>
-                <DatePicker
-                  id="tanggalPemesanan"
+                <Controller
                   name="tanggalPemesanan"
-                  className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
-                  onChange={() => {}}
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      id="tanggalPemesanan"
+                      className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
+                      onChange={(date, dateString) => {
+                        field.onChange(dateString);
+                      }}
+                    />
+                  )}
                 />
+                {errors.tanggalPemesanan && (
+                  <p className="text-red-600 text-sm mt-2">{errors.tanggalPemesanan.message}</p>
+                )}
               </div>
               <div className="flex flex-col flex-1">
                 <Label htmlFor="tanggalPemakaman" className="mb-2 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-orange-600" />
                   Tanggal Pemakaman
                 </Label>
-
-                <DatePicker
-                  id="tanggalPemakaman"
+                <Controller
                   name="tanggalPemakaman"
-                  className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
-                  onChange={() => {}}
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      id="tanggalPemakaman"
+                      className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
+                      onChange={(date, dateString) => {
+                        field.onChange(dateString);
+                      }}
+                    />
+                  )}
                 />
-
+                {errors.tanggalPemakaman && (
+                  <p className="text-red-600 text-sm mt-2">{errors.tanggalPemakaman.message}</p>
+                )}
                 <span className="text-sm text-gray-600 mt-1">*Diisi jika telah dimakamkan.</span>
               </div>
             </div>
@@ -522,14 +730,20 @@ export default function Pemesanan() {
                 <FileText className="w-4 h-4 text-violet-600" />
                 Penjelasan Tambahan
               </Label>
-              <Textarea
-                id="notes"
+              <Controller
                 name="notes"
-                rows={4}
-                required
-                placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
-                className="resize-none"
+                control={control}
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    id="notes"
+                    rows={4}
+                    placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
+                    className="resize-none"
+                  />
+                )}
               />
+              {errors.notes && <p className="text-red-600 text-sm mt-2">{errors.notes.message}</p>}
             </div>
           </section>
 

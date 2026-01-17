@@ -4,6 +4,28 @@ import { prisma } from "@/lib/db";
 export async function POST(request: Request) {
   const body = await request.json();
 
+  const errors: Record<string, string> = {};
+
+  // --- UNIQUE CHECKS ---
+  if (body.userPAEmail) {
+    const existingEmail = await prisma.user.findUnique({
+      where: { email: body.userPAEmail },
+    });
+    if (existingEmail) errors.userPAEmail = "Email sudah digunakan";
+  }
+
+  if (body.userPAKTP) {
+    const existingKTP = await prisma.user.findUnique({
+      where: { ktpNum: body.userPAKTP },
+    });
+    if (existingKTP) errors.userPAKTP = "KTP sudah digunakan";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return NextResponse.json({ errors }, { status: 400 });
+  }
+
+  // --- TRANSACTION ---
   const blokData = await prisma.blok.findUnique({
     where: { id: body.blokId },
   });
