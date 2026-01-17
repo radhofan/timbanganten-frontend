@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo, JSX } from "react";
-import { Table, Input, Select, Tag } from "antd";
+import { Table, Input, Select } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Modal, Button, Descriptions, message } from "antd";
 
 import { Jenazah } from "@/lib/types";
+import { StatusLabel } from "./StatusLabel";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -159,27 +160,25 @@ export default function JenazahTable(): JSX.Element {
       (a.statusPembayaranPesanan || "").localeCompare(b.statusPembayaranPesanan || ""),
     render: (_, record) => {
       const val = record.statusPembayaranPesanan ?? "";
-      const color =
-        val === "PAID"
-          ? "green"
-          : val === "UNPAID"
-            ? "red"
-            : ["PENDING", "VERIFICATION", "RESOLVING"].includes(val)
-              ? "gold"
-              : "default";
-
       const clickable = val !== "PAID";
 
       return (
-        <Tag
-          color={color}
-          style={{ cursor: clickable ? "pointer" : "default" }}
+        <div
+          style={{ display: "inline-block", cursor: clickable ? "pointer" : "default" }}
           onClick={() => {
             if (clickable) openPesananModal(record);
           }}
         >
-          {val || "-"}
-        </Tag>
+          <div style={{ pointerEvents: "none" }}>
+            <StatusLabel
+              label=""
+              id={`status-${record.id}`}
+              value={val || "-"}
+              readOnly
+              size="small"
+            />
+          </div>
+        </div>
       );
     },
   });
@@ -193,27 +192,25 @@ export default function JenazahTable(): JSX.Element {
       (a.statusPembayaranIuranTahunan || "").localeCompare(b.statusPembayaranIuranTahunan || ""),
     render: (_, record) => {
       const val = record.statusPembayaranIuranTahunan ?? "";
-      const color =
-        val === "PAID"
-          ? "green"
-          : val === "UNPAID"
-            ? "red"
-            : ["PENDING", "VERIFICATION", "RESOLVING"].includes(val)
-              ? "gold"
-              : "default";
-
       const clickable = val !== "PAID";
 
       return (
-        <Tag
-          color={color}
-          style={{ cursor: clickable ? "pointer" : "default" }}
+        <div
+          style={{ display: "inline-block", cursor: clickable ? "pointer" : "default" }}
           onClick={() => {
             if (clickable) openIuranModal(record);
           }}
         >
-          {val || "-"}
-        </Tag>
+          <div style={{ pointerEvents: "none" }}>
+            <StatusLabel
+              label=""
+              id={`status-iuran-${record.id}`}
+              value={val || "-"}
+              readOnly
+              size="small"
+            />
+          </div>
+        </div>
       );
     },
   });

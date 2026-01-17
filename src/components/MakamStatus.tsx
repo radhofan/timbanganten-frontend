@@ -6,62 +6,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { DatePicker, Select, Tooltip } from "antd";
+import { DatePicker, Tooltip } from "antd";
 import dayjs from "dayjs";
-
-function Input({
-  label,
-  id,
-  value,
-  onChange,
-  readOnly,
-  disabled,
-}: {
-  label: string;
-  id: string;
-  value: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  readOnly?: boolean;
-  disabled?: boolean;
-}) {
-  const isInactive = readOnly || disabled;
-
-  const statusStyle =
-    value === "PAID"
-      ? "border-green-400 text-green-700 bg-green-50"
-      : value === "UNPAID"
-        ? "border-red-400 text-red-700 bg-red-50"
-        : value === "UNKNOWN"
-          ? "border-gray-300 text-gray-500 bg-gray-100"
-          : "";
-
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-      </label>
-      <input
-        type="text"
-        id={id}
-        name={id}
-        required
-        value={value}
-        onChange={onChange}
-        readOnly={readOnly}
-        disabled={disabled}
-        className={`w-full px-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 text-center font-medium
-          ${
-            isInactive
-              ? statusStyle || "bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
-      />
-    </div>
-  );
-}
+import { StatusLabel } from "./StatusLabel";
+import { useUserRoles } from "./CheckRole";
+import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from "./ui/select";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
 
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
+  const { isAdmin } = useUserRoles();
   const endpoint = page === "pesan-status" ? "makamStatus" : "makam";
   const [backendHadTanggalPemakaman, setBackendHadTanggalPemakaman] = useState<boolean | null>(
     null
@@ -91,7 +46,7 @@ export default function MakamStatus({ page }: { page: string }) {
   const router = useRouter();
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
-  const canEdit = role === "admin";
+  const canEdit = isAdmin;
 
   const fetchData = useCallback(async () => {
     if (!id) return;
@@ -312,64 +267,115 @@ export default function MakamStatus({ page }: { page: string }) {
             <section>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label="Nama Jenazah"
-                  id="namajenazah"
-                  value={formData.namajenazah}
-                  onChange={handleChange}
-                  readOnly={!canEdit}
-                />
-                <Input
-                  label="Nama Penanggung Jawab"
-                  id="namapj"
-                  value={formData.namapj}
-                  onChange={handleChange}
-                  readOnly
-                />
-                <Input
-                  label="No. Kontak PJ"
-                  id="kontak"
-                  value={formData.kontak}
-                  onChange={handleChange}
-                  readOnly
-                />
-                <Input
-                  label="Hubungan Silsilah"
-                  id="silsilah"
-                  value={formData.silsilah}
-                  onChange={handleChange}
-                  readOnly={!canEdit}
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                {/* Nama Jenazah */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="namajenazah">Nama Jenazah</Label>
+                  <Input
+                    id="namajenazah"
+                    value={formData.namajenazah}
+                    onChange={(e) => setFormData((p) => ({ ...p, namajenazah: e.target.value }))}
+                    readOnly={!canEdit}
+                    className="text-center"
+                  />
+                </div>
+
+                {/* Nama Penanggung Jawab */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="namapj">Nama Penanggung Jawab</Label>
+                  <Input
+                    id="namapj"
+                    value={formData.namapj}
+                    readOnly
+                    disabled
+                    className="text-center bg-muted text-muted-foreground"
+                  />
+                </div>
+
+                {/* No. Kontak PJ */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="kontak">No. Kontak PJ</Label>
+                  <Input
+                    id="kontak"
+                    value={formData.kontak}
+                    readOnly
+                    disabled
+                    className="text-center bg-muted text-muted-foreground"
+                  />
+                </div>
+
+                {/* Hubungan Silsilah */}
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between mb-1">
+                    <Label htmlFor="silsilah" className="flex items-center gap-2">
+                      Hubungan dengan pemesan
+                    </Label>
+                  </div>
 
                   <Select
-                    value={formData.lokasi || undefined}
-                    onChange={(value) => {
+                    value={formData.silsilah || ""}
+                    onValueChange={(val) => setFormData((p) => ({ ...p, silsilah: val }))}
+                    disabled={!canEdit}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Silsilah" />
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-white">
+                      <SelectItem value="diri sendiri">Diri Sendiri</SelectItem>
+                      <SelectItem value="anak">Anak</SelectItem>
+                      <SelectItem value="orang tua">Orang Tua</SelectItem>
+                      <SelectItem value="kakak/adik">Kakak/Adik</SelectItem>
+                      <SelectItem value="sepupu">Sepupu</SelectItem>
+                      <SelectItem value="keponakan">Keponakan</SelectItem>
+                      <SelectItem value="paman/bibi">Paman/Bibi</SelectItem>
+                      <SelectItem value="kakek/nenek">Kakek/Nenek</SelectItem>
+                      <SelectItem value="cucu">Cucu</SelectItem>
+                      <SelectItem value=">2 generasi di atas">{">2 Generasi di Atas"}</SelectItem>
+                      <SelectItem value=">2 generasi di bawah">{">2 Generasi di Bawah"}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">
+                    Lokasi
+                  </label>
+
+                  <Select
+                    value={formData.lokasi ?? ""}
+                    onValueChange={(value) => {
                       if (!canEdit) return;
                       setFormData((prev) => ({
                         ...prev,
                         lokasi: value,
                       }));
                     }}
-                    disabled={!canEdit}
-                    placeholder="Pilih Lokasi Pemakaman"
-                    className="w-full"
-                    size="middle"
-                    options={[
-                      { value: "Karang Anyar", label: "Karang Anyar" },
-                      { value: "Dalem Kaum", label: "Dalem Kaum" },
-                      { value: "Dayeuhkolot", label: "Dayeuhkolot" },
-                    ]}
+                    // disabled={!canEdit}
+                    disabled
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Lokasi Pemakaman" />
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-white">
+                      <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
+                      <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
+                      <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Blok Makam</label>
+                  <Input
+                    value={formData.blok}
+                    onChange={(e) => setFormData((p) => ({ ...p, blok: e.target.value }))}
+                    readOnly={role !== "admin"}
+                    className="text-sm rounded-lg text-center"
+                    disabled
                   />
                 </div>
-                <Input
-                  label="Blok Makam"
-                  id="blok"
-                  value={formData.blok}
-                  onChange={handleChange}
-                  readOnly={role !== "admin"}
-                />
+
                 <div>
                   <label
                     htmlFor="Tanggal Pemesanan"
@@ -390,7 +396,7 @@ export default function MakamStatus({ page }: { page: string }) {
                     className="w-full"
                   />
                 </div>
-                <Input
+                <StatusLabel
                   label="Status Blok Sekarang"
                   id="statusBlok"
                   value={formData.statusBlok}
@@ -398,7 +404,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   readOnly={true}
                   disabled={true}
                 />
-                <Input
+                <StatusLabel
                   label="Status Jenazah *(Harap approve dan aktifkan makam jika jenazah sudah dikubur)"
                   id="statusJenazah"
                   value={formData.statusJenazah}
@@ -427,7 +433,7 @@ export default function MakamStatus({ page }: { page: string }) {
                     className="w-full"
                   />
                 </div>
-                <Input
+                <StatusLabel
                   label="Status Pembayaran Pesanan"
                   id="statusPembayaranPesanan"
                   value={formData.statusPembayaranPesanan || "UNKNOWN"}
@@ -435,7 +441,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   disabled
                 />
                 {page !== "pesan-status" && (
-                  <Input
+                  <StatusLabel
                     label="Status Pembayaran Iuran Tahunan"
                     id="statusPembayaranIuranTahunan"
                     value={formData.statusPembayaranIuranTahunan || "UNKNOWN"}

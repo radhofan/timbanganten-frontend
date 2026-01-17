@@ -57,6 +57,7 @@ export default function Pemesanan() {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<PemesananPayload>({
     resolver: zodResolver(pemesananSchema),
     mode: "onChange",
@@ -81,7 +82,6 @@ export default function Pemesanan() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-
     if (lokasi) params.set("lokasi", lokasi);
     if (jenisMakam) params.set("jenismakam", jenisMakam);
 
@@ -205,6 +205,20 @@ export default function Pemesanan() {
   //     setLoading(false);
   //   }
   // };
+
+  const handleBlokSelect = (blokId: string) => {
+    const selectedBlokData = blokList.find((b) => b.id === blokId);
+    if (selectedBlokData) {
+      setValue("blokId", blokId);
+      setSelectedBlok(blokId);
+
+      setValue("lokasi", selectedBlokData.lokasi);
+      setLokasi(selectedBlokData.lokasi);
+
+      const jenisFromStatus = selectedBlokData.statusBlok === "KOSONG" ? "baru" : "tumpuk";
+      setJenisMakam(jenisFromStatus);
+    }
+  };
 
   const onSubmit = async (data: PemesananPayload) => {
     setLoading(true);
@@ -556,10 +570,29 @@ export default function Pemesanan() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="blokId" className="mb-2 flex items-center gap-2">
-                  <Hash className="w-4 h-4 text-indigo-600" />
-                  Blok Kavling
-                </Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="blokId" className="flex items-center gap-2">
+                    <Hash className="w-4 h-4 text-indigo-600" />
+                    Blok Kavling
+                  </Label>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<span className="text-lg">×</span>}
+                    onClick={() => {
+                      setValue("blokId", "");
+                      setSelectedBlok("");
+                      const params = new URLSearchParams();
+                      if (lokasi) params.set("lokasi", lokasi);
+                      if (jenisMakam) params.set("jenismakam", jenisMakam);
+                      fetch(`/api/blok?${params.toString()}`)
+                        .then((res) => res.json())
+                        .then((data) => setBlokList(data))
+                        .catch(console.error);
+                    }}
+                    className="mr-2"
+                  />
+                </div>
                 <Controller
                   name="blokId"
                   control={control}
@@ -567,7 +600,7 @@ export default function Pemesanan() {
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
-                        setSelectedBlok(value);
+                        handleBlokSelect(value);
                       }}
                       value={field.value}
                     >
@@ -595,10 +628,22 @@ export default function Pemesanan() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="lokasi" className="mb-2 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-red-600" />
-                  Lokasi Pemakaman
-                </Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="lokasi" className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-red-600" />
+                    Lokasi Pemakaman
+                  </Label>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<span className="text-lg">×</span>}
+                    onClick={() => {
+                      setValue("lokasi", "");
+                      setLokasi("");
+                    }}
+                    className="mr-2"
+                  />
+                </div>
                 <Controller
                   name="lokasi"
                   control={control}
@@ -626,10 +671,19 @@ export default function Pemesanan() {
                 )}
               </div>
               <div className="flex flex-col">
-                <Label htmlFor="silsilah" className="mb-2 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-teal-600" />
-                  Hubungan dengan pemesan
-                </Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="silsilah" className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-teal-600" />
+                    Hubungan dengan pemesan
+                  </Label>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<span className="text-lg">×</span>}
+                    onClick={() => setValue("silsilah", "")}
+                    className="mr-2"
+                  />
+                </div>
                 <Controller
                   name="silsilah"
                   control={control}
@@ -660,22 +714,29 @@ export default function Pemesanan() {
                   <p className="text-red-600 text-sm mt-2">{errors.silsilah.message}</p>
                 )}
               </div>
-              <div className="flex flex-row gap-4">
-                <div className="flex flex-col flex-1">
-                  <Label htmlFor="jenismakam" className="mb-2 flex items-center gap-2">
+              <div className="flex flex-col flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="jenismakam" className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-cyan-600" />
                     Jenis Makam
                   </Label>
-                  <Select onValueChange={(value) => setJenisMakam(value)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih Jenis Makam" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="baru">Baru</SelectItem>
-                      <SelectItem value="tumpuk">Tumpuk</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<span className="text-lg">×</span>}
+                    onClick={() => setJenisMakam("")}
+                    className="mr-2"
+                  />
                 </div>
+                <Select onValueChange={(value) => setJenisMakam(value)} value={jenisMakam}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih Jenis Makam" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="baru">Baru</SelectItem>
+                    <SelectItem value="tumpuk">Tumpuk</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex flex-row gap-4">

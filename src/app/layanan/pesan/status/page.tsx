@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MakamStatus } from "@/lib/types";
+import { StatusLabel } from "@/components/StatusLabel";
 export default function Status() {
   const [data, setData] = useState<MakamStatus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -174,35 +175,41 @@ export default function Status() {
                 key={item.id}
                 href={`/layanan/pesan/status/${item.id}`}
                 className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] cursor-pointer"
-                // style={{
-                //   borderColor:
-                //     item.approved === "APPROVED" && item.payment === "PAID" && item.ext === "PAID"
-                //       ? "#22c55e"
-                //       : "#facc15",
-                // }}
                 style={{
                   borderColor: "#facc15",
                 }}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <h2 className="text-base font-semibold text-gray-800">{item.nama}</h2>
-                  <div className="flex flex-col text-left gap-y-2">
-                    <div className="flex items-center gap-x-2">
+                  <div className="flex flex-col gap-1 mb-4">
+                    <h2 className="text-base font-semibold text-gray-800">{item.nama}</h2>
+                    <div className="flex items-center gap-x-2 w-full">
                       <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full border ${
-                          item.jenazah?.statusPembayaranPesanan === "PAID"
-                            ? "border-green-400 text-green-700 bg-green-50"
-                            : item.jenazah?.statusPembayaranPesanan === "UNPAID"
-                              ? "border-red-400 text-red-700 bg-red-50"
-                              : "border-gray-300 text-gray-500 bg-gray-100"
-                        }`}
-                      >
-                        {item.jenazah?.statusPembayaranPesanan || "UNKNOWN"}
-                      </span>
+                      <div className="w-24">
+                        <StatusLabel
+                          id={`statusPembayaran-${item.id}`}
+                          label=""
+                          value={item.jenazah?.statusPembayaranPesanan || "UNKNOWN"}
+                          readOnly={true}
+                          disabled={true}
+                          size="small"
+                        />
+                      </div>
                     </div>
+                  </div>
 
-                    <div className="flex items-center gap-x-2">
+                  <div className="flex flex-col text-left gap-y-2">
+                    {/* <div className="flex items-center gap-x-2 w-40">
+                      <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
+                      <StatusLabel
+                        id={`statusPembayaran-${item.id}`}
+                        label=""
+                        value={item.jenazah?.statusPembayaranPesanan || "UNKNOWN"}
+                        readOnly={true}
+                        disabled={true}
+                      />
+                    </div> */}
+
+                    {/* <div className="flex items-center gap-x-2">
                       <div className="text-sm font-medium">Status Iuran Tahunan:</div>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full border ${
@@ -215,7 +222,7 @@ export default function Status() {
                       >
                         {item.jenazah?.statusPembayaranIuranTahunan || "UNKNOWN"}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
