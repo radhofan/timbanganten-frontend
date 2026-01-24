@@ -50,7 +50,7 @@ export default function MakamTable(): JSX.Element {
 
     return data.filter((item) => {
       const matchesSearch =
-        item.nama?.toLowerCase().includes(q) ||
+        item.jenazah?.user?.name?.toLowerCase().includes(q) ||
         item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(q));
 
       const matchesLocation =
@@ -104,8 +104,10 @@ export default function MakamTable(): JSX.Element {
     dataIndex: "nama",
     key: "nama",
     align: "center",
-    sorter: (a, b) => (a.nama || "").localeCompare(b.nama || ""),
-    render: (value, record) => <span className="font-medium">{record.nama || "-"}</span>,
+    sorter: (a, b) => (a.jenazah?.user?.name || "").localeCompare(b.jenazah?.user?.name || ""),
+    render: (value, record) => (
+      <span className="font-medium">{record.jenazah?.user?.name || "-"}</span>
+    ),
   });
 
   columns.push({

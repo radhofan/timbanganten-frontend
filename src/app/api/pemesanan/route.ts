@@ -129,7 +129,6 @@ export async function POST(request: Request) {
         // 4. Buat Makam Status FIRST (before PJ)
         const makamStatus = await prisma.makamStatus.create({
           data: {
-            nama: body.namaJenazah,
             silsilah: body.silsilah,
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,
@@ -228,7 +227,6 @@ export async function POST(request: Request) {
         // 3. Create Makam Status
         const makamStatus = await prisma.makamStatus.create({
           data: {
-            nama: body.namaJenazah,
             silsilah: body.silsilah,
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,

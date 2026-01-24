@@ -93,7 +93,6 @@ model Blok {
 // Makam Sedang Dipesan
 model MakamStatus {
   id                    String    @id @default(uuid())
-  nama                  String?
   silsilah              String?
   description           String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)
@@ -115,7 +114,6 @@ model MakamStatus {
 // Makam Aktif
 model Makam {
   id                    String    @id @default(uuid())
-  nama                  String?
   silsilah              String?
   description           String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)

@@ -420,8 +420,10 @@ export default function UserDetail() {
             <h2 className="text-xl font-bold text-slate-800">Daftar Penanggung Jawab Lainnya</h2>
             <p className="text-sm text-gray-600 mt-1">
               Untuk makam:{" "}
-              <span className="font-semibold text-blue-600">{selectedMakam?.nama}</span> -{" "}
-              {user?.name}
+              <span className="font-semibold text-blue-600">
+                {selectedMakam?.jenazah?.user?.name}
+              </span>{" "}
+              - {user?.name}
             </p>
           </div>
         }

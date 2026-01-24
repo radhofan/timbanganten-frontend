@@ -39,7 +39,7 @@ export default function Status() {
   const filteredData = data.filter((item) => {
     const query = searchName.toLowerCase();
 
-    const matchNama = item.nama?.toLowerCase().includes(query);
+    const matchNama = item.jenazah?.user?.name?.toLowerCase().includes(query);
 
     // Check if **any pj's name matches** the search
     const matchPenanggungJawab = item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(query));
@@ -181,7 +181,9 @@ export default function Status() {
               >
                 <div className="flex justify-between items-start mb-1">
                   <div className="flex flex-col gap-1 mb-4">
-                    <h2 className="text-base font-semibold text-gray-800">{item.nama}</h2>
+                    <h2 className="text-base font-semibold text-gray-800">
+                      {item.jenazah?.user?.name}
+                    </h2>
                     <div className="flex items-center gap-x-2 w-full">
                       <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
                       <div className="w-24">

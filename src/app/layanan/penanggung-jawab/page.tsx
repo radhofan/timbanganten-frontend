@@ -201,7 +201,9 @@ export default function PenanggungJawab() {
                           className="flex justify-between items-center py-2 px-3 hover:bg-green-50 rounded-md transition-colors border-l-2 border-green-500"
                         >
                           <div className="flex-1">
-                            <div className="text-sm font-medium text-gray-800">{m.nama}</div>
+                            <div className="text-sm font-medium text-gray-800">
+                              {m.jenazah?.user?.name}
+                            </div>
                             <div className="text-xs text-gray-600">{m.blok?.lokasi}</div>
                           </div>
                           <div className="flex-shrink-0 text-xs font-semibold text-green-700">
@@ -216,7 +218,9 @@ export default function PenanggungJawab() {
                           className="flex justify-between items-center py-2 px-3 hover:bg-yellow-50 rounded-md transition-colors border-l-2 border-yellow-500"
                         >
                           <div className="flex-1">
-                            <div className="text-sm font-medium text-gray-800">{s.nama}</div>
+                            <div className="text-sm font-medium text-gray-800">
+                              {s.jenazah?.user?.name}
+                            </div>
                             <div className="text-xs text-gray-600">{s.blok?.lokasi}</div>
                           </div>
                           <div className="flex-shrink-0 text-xs font-semibold text-yellow-700">
