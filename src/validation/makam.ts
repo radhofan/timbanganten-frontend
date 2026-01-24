@@ -9,10 +9,7 @@ export const makamSchema = z.object({
   notes: z.string().min(1, "Penjelasan wajib diisi"),
   blok: z.string().min(1, "Blok wajib diisi"),
   tanggalPemesanan: z.string().min(1, "Tanggal Pemesanan wajib diisi"),
-  tanggalPemakaman: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.length > 0, "Tanggal Pemakaman wajib diisi jika diisi"),
+  tanggalPemakaman: z.string().optional(),
   statusBlok: z.string().min(1, "Status Blok wajib diisi"),
   statusJenazah: z.string().min(1, "Status Jenazah wajib diisi"),
   statusPembayaranPesanan: z.string().min(1, "Status Pembayaran Pesanan wajib diisi"),

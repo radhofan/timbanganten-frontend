@@ -36,6 +36,7 @@ export default function MakamStatus({ page }: { page: string }) {
     resolver: zodResolver(makamSchema),
     mode: "onChange",
     defaultValues: makamDefaultValues,
+    shouldUnregister: false,
   });
 
   const isTanggalPemakamanLocked = backendHadTanggalPemakaman === true;
@@ -73,6 +74,7 @@ export default function MakamStatus({ page }: { page: string }) {
 
       const res = await fetch(`/api/${endpoint}?id=${id}`);
       const data = await res.json();
+      console.log(data);
 
       const backendTanggal = data.jenazah?.tanggalPemakaman;
       setBackendHadTanggalPemakaman((prev) => (prev === null ? Boolean(backendTanggal) : prev));
@@ -86,7 +88,7 @@ export default function MakamStatus({ page }: { page: string }) {
         notes: data.description || "",
         tanggalPemesanan: data.tanggalPemesanan || "",
         tanggalPemakaman: data.jenazah.tanggalPemakaman || "",
-        blok: data.blok.id,
+        blok: data.blok?.id || "",
         statusBlok: data.blok.statusBlok || "",
         statusJenazah: data.jenazah.statusJenazah || "",
         statusPembayaranPesanan: data.jenazah.statusPembayaranPesanan || "",
@@ -230,7 +232,7 @@ export default function MakamStatus({ page }: { page: string }) {
       if (res.ok) {
         toast.success("Blok makam berhasil diperbarui!", {
           position: "top-center",
-          duration: 1000,
+          duration: 2000,
         });
         setTimeout(
           () => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam"),
@@ -414,15 +416,10 @@ export default function MakamStatus({ page }: { page: string }) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Blok Makam</label>
                   <Controller
                     name="blok"
-                    disabled
                     control={control}
                     render={({ field }) => (
                       <div className="flex flex-col gap-1">
-                        <Input
-                          {...field}
-                          className="text-sm rounded-lg text-center"
-                          readOnly={role !== "admin"}
-                        />
+                        <Input {...field} className="text-sm rounded-lg text-center" disabled />
                         {errors.blok && (
                           <p className="text-red-600 text-sm mt-0">{errors.blok.message}</p>
                         )}
