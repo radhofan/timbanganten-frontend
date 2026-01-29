@@ -114,7 +114,7 @@ const Denah = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header hideBanner />
-      <main className="big-white">
+      <main className="big-white flex-1">
         <div className="w-full bg-white p-12">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold text-black mb-4">Denah Makam Timbanganten</h1>

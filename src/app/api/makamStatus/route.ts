@@ -85,6 +85,28 @@ export async function PUT(req: Request) {
       },
     });
 
+    if (!makamStatus.jenazahId) {
+      return NextResponse.json({ error: "Jenazah ID is required" }, { status: 400 });
+    }
+
+    const jenazah = await prisma.jenazah.findUnique({
+      where: { id: makamStatus.jenazahId },
+      select: {
+        userId: true,
+      },
+    });
+
+    if (jenazah?.userId) {
+      await prisma.user.update({
+        where: {
+          id: jenazah.userId,
+        },
+        data: {
+          name: body.nama,
+        },
+      });
+    }
+
     // ONLY do next-status logic here
     if (body.tanggal_pemakaman && makamStatus.jenazahId) {
       const blokData = await prisma.blok.findUnique({

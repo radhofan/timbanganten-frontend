@@ -2,7 +2,6 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 // GET
-// GET
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
@@ -34,7 +33,11 @@ export async function GET(request: Request) {
 
   const makams = await prisma.makam.findMany({
     include: {
-      jenazah: true,
+      jenazah: {
+        include: {
+          user: true,
+        },
+      },
       blok: true,
       pj: { include: { user: true } }, // <-- include all PJs for each makam
     },
@@ -72,6 +75,15 @@ export async function PUT(req: Request) {
       data: {
         silsilah: body.silsilah,
         description: body.description,
+        jenazah: {
+          update: {
+            user: {
+              update: {
+                name: body.nama,
+              },
+            },
+          },
+        },
       },
     });
     return NextResponse.json(updatedEntry);
