@@ -192,7 +192,7 @@ export default function PenanggungJawab() {
                     </span>
                   </div>
 
-                  {/* Makam List */}
+                  {/*
                   {totalMakams > 0 ? (
                     <div className="mt-3 space-y-1.5">
                       {pj.makams.map((m) => (
@@ -233,7 +233,7 @@ export default function PenanggungJawab() {
                     <p className="text-xs text-gray-500 mt-2">
                       Tidak ada data pemakaman atau pesanan berlangsung.
                     </p>
-                  )}
+                  )} */}
 
                   <div className="mt-3 flex justify-end">
                     <button

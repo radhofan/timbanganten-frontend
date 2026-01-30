@@ -15,6 +15,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User, Makam, PenanggungJawab, MakamStatus } from "@/lib/types";
 import { useParams } from "next/navigation";
+import { StatusLabel } from "@/components/StatusLabel";
 
 // Union type for both Makam and MakamStatus with a discriminator
 type MakamOrStatus = (Makam & { __isMakam: true }) | (Makam & { __isMakam: false });
@@ -357,12 +358,15 @@ export default function UserDetail() {
                                   ? new Date(m.tanggalPemesanan).toLocaleDateString("id-ID")
                                   : "-"}
                               </td>
-                              <td className="px-4 py-3">
-                                <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                  {m.jenazah?.statusPembayaranPesanan === "lunas"
-                                    ? "Lunas"
-                                    : m.jenazah?.statusPembayaranPesanan || "-"}
-                                </span>
+                              <td className="px-4 py-3 text-gray-700">
+                                <StatusLabel
+                                  id={`statusPembayaranIuran-${m.id}`}
+                                  label=""
+                                  value={m.jenazah?.statusPembayaranPesanan || "-"}
+                                  readOnly
+                                  disabled
+                                  size="small"
+                                />
                               </td>
                               <td className="px-4 py-3 text-gray-700">{"-"}</td>
                               <td className="px-4 py-3 text-gray-700">
@@ -371,11 +375,14 @@ export default function UserDetail() {
                                   : "-"}
                               </td>
                               <td className="px-4 py-3 text-gray-700">
-                                <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                  {m.jenazah?.statusPembayaranIuranTahunan === "lunas"
-                                    ? "Lunas"
-                                    : m.jenazah?.statusPembayaranIuranTahunan || "-"}
-                                </span>
+                                <StatusLabel
+                                  id={`statusPembayaranIuran-${m.id}`}
+                                  label=""
+                                  value={m.jenazah?.statusPembayaranIuranTahunan || "-"}
+                                  readOnly
+                                  disabled
+                                  size="small"
+                                />
                               </td>
                               <td className="px-4 py-3">
                                 {isMakam ? (

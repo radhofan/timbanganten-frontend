@@ -199,33 +199,7 @@ export default function Status() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col text-left gap-y-2">
-                    {/* <div className="flex items-center gap-x-2 w-40">
-                      <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
-                      <StatusLabel
-                        id={`statusPembayaran-${item.id}`}
-                        label=""
-                        value={item.jenazah?.statusPembayaranPesanan || "UNKNOWN"}
-                        readOnly={true}
-                        disabled={true}
-                      />
-                    </div> */}
-
-                    {/* <div className="flex items-center gap-x-2">
-                      <div className="text-sm font-medium">Status Iuran Tahunan:</div>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full border ${
-                          item.jenazah?.statusPembayaranIuranTahunan === "PAID"
-                            ? "border-green-400 text-green-700 bg-green-50"
-                            : item.jenazah?.statusPembayaranIuranTahunan === "UNPAID"
-                              ? "border-red-400 text-red-700 bg-red-50"
-                              : "border-gray-300 text-gray-500 bg-gray-100"
-                        }`}
-                      >
-                        {item.jenazah?.statusPembayaranIuranTahunan || "UNKNOWN"}
-                      </span>
-                    </div> */}
-                  </div>
+                  <div className="flex flex-col text-left gap-y-2"></div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600">

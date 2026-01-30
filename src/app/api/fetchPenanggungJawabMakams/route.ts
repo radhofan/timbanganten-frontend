@@ -17,13 +17,21 @@ export async function POST(request: Request) {
       makam: {
         include: {
           blok: true,
-          jenazah: true,
+          jenazah: {
+            include: {
+              user: true,
+            },
+          },
         },
       },
       makamStatus: {
         include: {
           blok: true,
-          jenazah: true,
+          jenazah: {
+            include: {
+              user: true,
+            },
+          },
         },
       },
     },
