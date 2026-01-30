@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { UserCircle, Menu, X } from "lucide-react";
+import { UserCircle, Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,6 +13,36 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+
+// 1. Import at the top
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+// 2. Replace the single <Image> in the banner with a carousel
+const bannerImages = ["/images/timbanganten/makam-1.png", "/images/timbanganten/makam-2.jpg"];
+
+function NextArrow({ onClick }: { onClick?: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="absolute top-1/2 right-4 z-20 -translate-y-1/2 opacity-70 hover:opacity-100 text-white p-1 rounded-full shadow-lg"
+    >
+      <ChevronRight className="w-8 h-8 stroke-2" />
+    </button>
+  );
+}
+
+function PrevArrow({ onClick }: { onClick?: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="absolute top-1/2 left-4 z-20 -translate-y-1/2 opacity-70 hover:opacity-100 text-white p-1 rounded-full shadow-lg"
+    >
+      <ChevronLeft className="w-8 h-8 stroke-2" />
+    </button>
+  );
+}
 
 export default function Header({ hideBanner = false }: { hideBanner?: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -133,14 +163,29 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
               "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
           }}
         >
-          <Image
-            src="/images/makam-1.png"
-            alt="Banner image"
-            fill
-            style={{ objectFit: "cover" }}
-            priority
-            sizes="(max-width: 1024px) 100vw, 1920px"
-          />
+          <Slider
+            autoplay
+            autoplaySpeed={5000}
+            infinite
+            dots={true}
+            arrows={true}
+            nextArrow={<NextArrow />}
+            prevArrow={<PrevArrow />}
+            className="h-full"
+          >
+            {bannerImages.map((src, idx) => (
+              <div key={idx} className="relative w-full h-[800px]">
+                <Image
+                  src={src}
+                  alt={`Banner ${idx + 1}`}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  priority={idx === 0}
+                  sizes="(max-width: 1024px) 100vw, 1920px"
+                />
+              </div>
+            ))}
+          </Slider>
 
           <div className="absolute inset-0 bg-black opacity-60 pointer-events-none"></div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4 z-10">

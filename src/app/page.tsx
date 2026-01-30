@@ -1,57 +1,57 @@
 "use client";
-import { useState } from "react";
+// import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Calendar, CheckCircle, MapPin, List, CreditCard, Users, Phone } from "lucide-react";
-import NotificationBoard from "@/components/NotificationsBoard";
+// import NotificationBoard from "@/components/NotificationsBoard";
 
 export default function Admin() {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      user: "Budi",
-      type: "lewat-pembayaran",
-      message: "Telah melewati batas pembayaran.",
-      date: "2025-08-25",
-      time: "9:41 AM",
-    },
-    {
-      id: 2,
-      user: "Agus",
-      type: "approved",
-      message: "Pesanan telah di-approve.",
-      date: "2025-08-25",
-      time: "10:15 AM",
-    },
-    {
-      id: 3,
-      user: "Rizky",
-      type: "tidak-approved",
-      message: "Pesanan tidak di-approve.",
-      date: "2025-08-25",
-      time: "10:15 AM",
-    },
-    {
-      id: 4,
-      user: "Dewi",
-      type: "pembayaran",
-      message: "Telah melakukan pembayaran.",
-      date: "2025-08-25",
-      time: "10:15 AM",
-    },
-    {
-      id: 5,
-      user: "Sari",
-      type: "perpanjangan",
-      message: "Telah melakukan perpanjangan.",
-      date: "2025-08-25",
-      time: "11:05 AM",
-    },
-  ]);
+  // const [notifications, setNotifications] = useState([
+  //   {
+  //     id: 1,
+  //     user: "Budi",
+  //     type: "lewat-pembayaran",
+  //     message: "Telah melewati batas pembayaran.",
+  //     date: "2025-08-25",
+  //     time: "9:41 AM",
+  //   },
+  //   {
+  //     id: 2,
+  //     user: "Agus",
+  //     type: "approved",
+  //     message: "Pesanan telah di-approve.",
+  //     date: "2025-08-25",
+  //     time: "10:15 AM",
+  //   },
+  //   {
+  //     id: 3,
+  //     user: "Rizky",
+  //     type: "tidak-approved",
+  //     message: "Pesanan tidak di-approve.",
+  //     date: "2025-08-25",
+  //     time: "10:15 AM",
+  //   },
+  //   {
+  //     id: 4,
+  //     user: "Dewi",
+  //     type: "pembayaran",
+  //     message: "Telah melakukan pembayaran.",
+  //     date: "2025-08-25",
+  //     time: "10:15 AM",
+  //   },
+  //   {
+  //     id: 5,
+  //     user: "Sari",
+  //     type: "perpanjangan",
+  //     message: "Telah melakukan perpanjangan.",
+  //     date: "2025-08-25",
+  //     time: "11:05 AM",
+  //   },
+  // ]);
 
-  const handleMarkAsRead = (id: number) => {
-    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-  };
+  // const handleMarkAsRead = (id: number) => {
+  //   setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+  // };
 
   const services = [
     {
@@ -104,7 +104,7 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Notifications Section */}
-        <NotificationBoard notifications={notifications} handleMarkAsRead={handleMarkAsRead} />
+        {/* <NotificationBoard notifications={notifications} handleMarkAsRead={handleMarkAsRead} /> */}
 
         {/* Services Section */}
         <section className="mb-16">
