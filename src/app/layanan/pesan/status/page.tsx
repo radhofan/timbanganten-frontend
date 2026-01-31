@@ -210,9 +210,6 @@ export default function Status() {
                     <span className="font-medium">Lokasi:</span> {item.blok?.lokasi}
                   </p>
                   <p>
-                    <span className="font-medium">Silsilah:</span> {item.silsilah}
-                  </p>
-                  <p>
                     <span className="font-medium">Tanggal Pemesanan:</span>{" "}
                     {/* {new Date(item.created_at).toLocaleDateString("id-ID")} */}
                     {item.tanggalPemesanan

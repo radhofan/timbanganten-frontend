@@ -13,6 +13,8 @@ import { useUserRoles } from "./CheckRole";
 import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from "./ui/select";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
 import { makamDefaultValues, MakamPayload, makamSchema } from "@/validation/makam";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -41,25 +43,6 @@ export default function MakamStatus({ page }: { page: string }) {
 
   const isTanggalPemakamanLocked = backendHadTanggalPemakaman === true;
   const [loading, setLoading] = useState(true);
-  // const [formData, setFormData] = useState({
-  //   namapj: "",
-  //   kontak: "",
-  //   namajenazah: "",
-  //   silsilah: "",
-  //   lokasi: "",
-  //   notes: "",
-  //   payment: "",
-  //   ext: "",
-  //   approved: "",
-  //   blok: "",
-  //   tanggalPemesanan: "",
-  //   tanggalPemakaman: "",
-  //   statusBlok: "",
-  //   statusJenazah: "",
-  //   statusPembayaranPesanan: "",
-  //   statusPembayaranIuranTahunan: "",
-  //   jenazahId: "",
-  // });
 
   const router = useRouter();
   const user = useStore(authStore, (s) => s.user);
@@ -83,7 +66,6 @@ export default function MakamStatus({ page }: { page: string }) {
         namapj: data.pj?.[0]?.user?.name || "",
         kontak: data.pj?.[0]?.user?.contact || "",
         namajenazah: data.jenazah.user.name || "",
-        silsilah: data.silsilah || "",
         lokasi: data.blok.lokasi || "",
         notes: data.description || "",
         tanggalPemesanan: data.tanggalPemesanan || "",
@@ -137,72 +119,6 @@ export default function MakamStatus({ page }: { page: string }) {
       return false;
     }
   }
-
-  // const handleChange = (
-  //   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  // ) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   const requiredFields = [
-  //     { field: formData.namapj, name: "Nama Penanggung Jawab" },
-  //     { field: formData.kontak, name: "Kontak Penanggung Jawab" },
-  //     { field: formData.namajenazah, name: "Nama Jenazah" },
-  //     { field: formData.silsilah, name: "Silsilah" },
-  //     { field: formData.lokasi, name: "Lokasi" },
-  //     { field: formData.notes, name: "Penjelasan" },
-  //     { field: formData.blok, name: "Blok Makam" },
-  //   ];
-
-  //   const emptyField = requiredFields.find(({ field }) => !field || field.trim() === "");
-  //   if (emptyField) {
-  //     alert(`Field "${emptyField.name}" wajib diisi.`);
-  //     return;
-  //   }
-
-  //   const payload = {
-  //     id,
-  //     blok: formData.blok,
-  //     nama: formData.namajenazah,
-  //     lokasi: formData.lokasi,
-  //     silsilah: formData.silsilah,
-  //     nama_penanggung_jawab: formData.namapj,
-  //     kontak_penanggung_jawab: formData.kontak,
-  //     description: formData.notes,
-  //     tanggal_pemakaman: formData.tanggalPemakaman,
-  //     tanggalPemesanan: formData.tanggalPemesanan,
-  //   };
-
-  //   try {
-  //     const res = await fetch(`/api/${endpoint}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(payload),
-  //     });
-
-  //     if (!res.ok) {
-  //       const err = await res.json();
-  //       console.error("Update failed:", err);
-  //       alert("Failed to update record!");
-  //     } else {
-  //       alert("Makam updated successfully!");
-  //       router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam");
-  //     }
-  //   } catch (err) {
-  //     console.error("Network error:", err);
-  //     alert("An error occurred while submitting the form.");
-  //   }
-  // };
-
   const onSubmit = async (data: MakamPayload) => {
     console.log("Submitting", data);
     setLoading(true);
@@ -215,7 +131,7 @@ export default function MakamStatus({ page }: { page: string }) {
         blok: validatedData.blok,
         nama: validatedData.namajenazah,
         lokasi: validatedData.lokasi,
-        silsilah: validatedData.silsilah,
+        // silsilah: validatedData.silsilah,
         nama_penanggung_jawab: validatedData.namapj,
         kontak_penanggung_jawab: validatedData.kontak,
         description: validatedData.notes,
@@ -286,6 +202,7 @@ export default function MakamStatus({ page }: { page: string }) {
               Status Pemesanan Makam
             </h2>
 
+            {/* Section 1: Basic Information */}
             <section>
               <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -345,54 +262,9 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
-                {/* Hubungan Silsilah */}
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between mb-1">
-                    <Label htmlFor="silsilah" className="flex items-center gap-2">
-                      Hubungan dengan pemesan
-                    </Label>
-                  </div>
-
-                  <Controller
-                    name="silsilah"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value || ""}
-                        onValueChange={field.onChange}
-                        disabled={!canEdit}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Silsilah" />
-                        </SelectTrigger>
-
-                        <SelectContent className="bg-white">
-                          <SelectItem value="diri sendiri">Diri Sendiri</SelectItem>
-                          <SelectItem value="anak">Anak</SelectItem>
-                          <SelectItem value="orang tua">Orang Tua</SelectItem>
-                          <SelectItem value="kakak/adik">Kakak/Adik</SelectItem>
-                          <SelectItem value="sepupu">Sepupu</SelectItem>
-                          <SelectItem value="keponakan">Keponakan</SelectItem>
-                          <SelectItem value="paman/bibi">Paman/Bibi</SelectItem>
-                          <SelectItem value="kakek/nenek">Kakek/Nenek</SelectItem>
-                          <SelectItem value="cucu">Cucu</SelectItem>
-                          <SelectItem value=">2 generasi di atas">
-                            {">2 Generasi di Atas"}
-                          </SelectItem>
-                          <SelectItem value=">2 generasi di bawah">
-                            {">2 Generasi di Bawah"}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700 mb-1">
-                    Lokasi
-                  </label>
-
+                {/* Lokasi */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="lokasi">Lokasi</Label>
                   <Controller
                     name="lokasi"
                     control={control}
@@ -401,7 +273,6 @@ export default function MakamStatus({ page }: { page: string }) {
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Pilih Lokasi Pemakaman" />
                         </SelectTrigger>
-
                         <SelectContent className="bg-white">
                           <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
                           <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
@@ -412,35 +283,39 @@ export default function MakamStatus({ page }: { page: string }) {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Blok Makam</label>
+                {/* Blok Makam */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="blok">Blok Makam</Label>
                   <Controller
                     name="blok"
                     control={control}
                     render={({ field }) => (
-                      <div className="flex flex-col gap-1">
-                        <Input {...field} className="text-sm rounded-lg text-center" disabled />
+                      <>
+                        <Input {...field} id="blok" className="text-center" disabled />
                         {errors.blok && (
                           <p className="text-red-600 text-sm mt-0">{errors.blok.message}</p>
                         )}
-                      </div>
+                      </>
                     )}
                   />
                 </div>
+              </div>
+            </section>
 
-                <div>
-                  <label
-                    htmlFor="Tanggal Pemesanan"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Tanggal Pemesanan
-                  </label>
+            {/* Section 2: Dates */}
+            <section>
+              <h3 className="text-lg font-medium text-gray-700 mb-4">Tanggal</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tanggal Pemesanan */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="tanggalPemesanan">Tanggal Pemesanan</Label>
                   <Controller
                     name="tanggalPemesanan"
                     control={control}
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        id="tanggalPemesanan"
                         value={field.value ? dayjs(field.value) : null}
                         onChange={(value) => field.onChange(value ? value.toISOString() : "")}
                         disabled
@@ -449,6 +324,35 @@ export default function MakamStatus({ page }: { page: string }) {
                     )}
                   />
                 </div>
+
+                {/* Tanggal Pemakaman */}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="tanggalPemakaman">
+                    Tanggal Pemakaman *(Harap diisi sebelum di approve)
+                  </Label>
+                  <Controller
+                    name="tanggalPemakaman"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        id="tanggalPemakaman"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(value) => field.onChange(value ? value.toISOString() : "")}
+                        disabled={!canEdit || isTanggalPemakamanLocked}
+                        className="w-full"
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Section 3: Statuses */}
+            <section>
+              <h3 className="text-lg font-medium text-gray-700 mb-4">Status</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Status Blok */}
                 <Controller
                   name="statusBlok"
                   control={control}
@@ -463,12 +367,13 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
+                {/* Status Jenazah */}
                 <Controller
                   name="statusJenazah"
                   control={control}
                   render={({ field }) => (
                     <StatusLabel
-                      label="Status Jenazah *(Harap approve dan aktifkan makam jika jenazah sudah dikubur)"
+                      label="Status Jenazah"
                       id="statusJenazah"
                       {...field}
                       readOnly
@@ -477,27 +382,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
-                <div>
-                  <label
-                    htmlFor="Tanggal Pemakaman"
-                    className="block text-sm font-medium text-gray-700 mb-1 mt-6"
-                  >
-                    Tanggal Pemakaman *(Harap diisi sebelum di approve)
-                  </label>
-                  <Controller
-                    name="tanggalPemakaman"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(value) => field.onChange(value ? value.toISOString() : "")}
-                        disabled={!canEdit || isTanggalPemakamanLocked}
-                        className="w-full"
-                      />
-                    )}
-                  />
-                </div>
+                {/* Status Pembayaran Pesanan */}
                 <Controller
                   name="statusPembayaranPesanan"
                   control={control}
@@ -512,6 +397,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
+                {/* Status Pembayaran Iuran Tahunan */}
                 {page !== "pesan-status" && (
                   <Controller
                     name="statusPembayaranIuranTahunan"
@@ -530,20 +416,19 @@ export default function MakamStatus({ page }: { page: string }) {
               </div>
             </section>
 
+            {/* Notes Section */}
             <section>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                Penjelasan
-              </label>
+              <Label htmlFor="notes">Penjelasan</Label>
               <Controller
                 name="notes"
                 control={control}
                 render={({ field }) => (
-                  <textarea
+                  <Textarea
                     id="notes"
                     {...field}
                     required
                     rows={4}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full mt-1"
                     readOnly={role !== "admin"}
                     onChange={(e) => field.onChange(e.target.value)}
                   />
@@ -551,24 +436,20 @@ export default function MakamStatus({ page }: { page: string }) {
               />
             </section>
 
+            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
-              <button
+              <Button
                 type="button"
-                className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
+                variant="destructive"
                 onClick={() => router.push("/layanan/pesan/status")}
               >
                 Cancel
-              </button>
+              </Button>
 
               {role === "admin" && (
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    type="submit"
-                    className="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-                  >
-                    Update
-                  </button>
-                </div>
+                <Button type="submit" variant="default">
+                  Update
+                </Button>
               )}
 
               {role === "approver" && page === "pesan-status" && (
@@ -584,7 +465,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   }
                 >
                   <span>
-                    <button
+                    <Button
                       type="button"
                       disabled={
                         watch("statusPembayaranPesanan") !== "PAID" || !watch("tanggalPemakaman")
@@ -599,14 +480,14 @@ export default function MakamStatus({ page }: { page: string }) {
                         const success = await convertMakam(id as string);
                         if (success) router.push("/layanan/makam");
                       }}
-                      className={`px-6 py-2 rounded-lg font-medium transition ${
+                      className={
                         watch("statusPembayaranPesanan") === "PAID" && watch("tanggalPemakaman")
-                          ? "bg-green-600 text-white hover:bg-green-700"
-                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      }`}
+                          ? "bg-green-600 hover:bg-green-700"
+                          : ""
+                      }
                     >
                       Approve
-                    </button>
+                    </Button>
                   </span>
                 </Tooltip>
               )}

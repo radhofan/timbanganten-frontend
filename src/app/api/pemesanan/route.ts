@@ -6,7 +6,7 @@ export async function POST(request: Request) {
 
   const errors: Record<string, string> = {};
 
-  // --- UNIQUE CHECKS ---
+  // --- UNIQUE FIELD CHECKS --- //////////////////////////
   if (body.userPAEmail) {
     const existingEmail = await prisma.user.findUnique({
       where: { email: body.userPAEmail },
@@ -25,50 +25,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ errors }, { status: 400 });
   }
 
-  // --- TRANSACTION ---
-  const blokData = await prisma.blok.findUnique({
-    where: { id: body.blokId },
-  });
-
-  let existingPJ = null;
-  if (body.existingUserId) {
-    existingPJ = await prisma.penanggungJawab.findUnique({
-      where: { userId: body.existingUserId },
-    });
-    console.log("existingUserId from body:", body.existingUserId);
-    console.log("existingPJ fetched:", existingPJ);
-  }
-
-  let finalJenazahStatus;
-  let finalStatusBlok: string;
-  // CEK APAKAH SUDAH DIMAKAMKAN ATAU BELUM
-  if (body.tanggalPemakaman) {
-    if (blokData?.statusBlok === "DIGUNAKAN-1") {
-      finalJenazahStatus = "DITUMPUK-2";
-      finalStatusBlok = "DIGUNAKAN-2";
-    } else if (blokData?.statusBlok === "DIGUNAKAN-2") {
-      finalJenazahStatus = "DITUMPUK-3";
-      finalStatusBlok = "DIGUNAKAN-3";
-    } else {
-      finalJenazahStatus = "DIKUBURKAN";
-      finalStatusBlok = "DIGUNAKAN-1";
-    }
-  } else {
-    finalJenazahStatus = "DIPESAN";
-  }
-
+  // --- TRANSACTION --- //////////////////////////
   try {
     const result = await prisma.$transaction(async (prisma) => {
-      let paId: string | undefined;
-      let pbId: string | undefined;
-      let pjId: string | undefined;
-      let jenazahId: string | undefined;
+      // --- DEFINE BODY VARS --- //////////////////////////
+      let paId: string | undefined; // Orang ke-1 (Pemesan)
+      let pbId: string | undefined; // Orang ke-2 (Dimakamkan)
+      let pjId: string | undefined; // ID PJ Orang ke-1
+      let jenazahId: string | undefined; // ID Jenazah Orang ke-2
 
       const useExistingPJ = !!body.existingUserId;
       const diriSendiri = body.diriSendiri === true;
 
-      // --- PESAN MAKAM USER BARU --- //////////////////////////////////////////////////////////////////////////////////////////////////////////
+      let existingPJ = null;
+      if (body.existingUserId) {
+        existingPJ = await prisma.penanggungJawab.findUnique({
+          where: { userId: body.existingUserId },
+        });
+      }
+
+      // --- CEK APAKAH JENAZAH SUDAH DIKUBUR --- //////////////////////////
+      let finalJenazahStatus;
+      let finalStatusBlok: string | undefined;
+
+      const blokData = await prisma.blok.findUnique({
+        where: { id: body.blokId },
+      });
+
+      if (body.tanggalPemakaman) {
+        if (blokData?.statusBlok === "DIGUNAKAN-1") {
+          finalJenazahStatus = "DITUMPUK-2";
+          finalStatusBlok = "DIGUNAKAN-2";
+        } else if (blokData?.statusBlok === "DIGUNAKAN-2") {
+          finalJenazahStatus = "DITUMPUK-3";
+          finalStatusBlok = "DIGUNAKAN-3";
+        } else {
+          finalJenazahStatus = "DIKUBURKAN";
+          finalStatusBlok = "DIGUNAKAN-1";
+        }
+      } else {
+        finalJenazahStatus = "DIPESAN";
+      }
+
+      // --- PESAN MAKAM DENGAN USER BARU --- //////////////////////////////////////////////////////////////////////////////////////////////////////////
       if (!useExistingPJ) {
+        // --- BUAT AKUN USER PJ--- //////////////////////////
         // 1. Buat Akun User (PA)
         const newUserPA = await prisma.user.create({
           data: {
@@ -82,9 +83,9 @@ export async function POST(request: Request) {
         });
         paId = newUserPA.id;
 
+        // --- ORANG LAIN--- //////////////////////////
         if (!diriSendiri) {
-          // --- ORANG LAIN--- //////////////////////////
-          // 2. Buat Akun User (PB)
+          // 1. Buat Akun User (PB)
           const newUserPB = await prisma.user.create({
             data: {
               name: body.userPBName,
@@ -92,7 +93,7 @@ export async function POST(request: Request) {
           });
           pbId = newUserPB.id;
 
-          // 3. Buat Akun Jenazah (PB) minimal
+          // 2. Buat Akun Jenazah (PB)
           const newJenazahPB = await prisma.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
@@ -107,9 +108,11 @@ export async function POST(request: Request) {
             },
           });
           jenazahId = newJenazahPB.id;
-        } else {
-          // --- DIRI SENDIRI --- //////////////////////////
-          // diri sendiri: jenazah = PA
+        }
+
+        // --- DIRI SENDIRI --- //////////////////////////
+        if (diriSendiri) {
+          // 1. Buat Akun Jenazah diri sendiri
           const newJenazahPA = await prisma.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
@@ -123,13 +126,14 @@ export async function POST(request: Request) {
               userId: paId,
             },
           });
+          pbId = paId;
           jenazahId = newJenazahPA.id;
         }
 
-        // 4. Buat Makam Status FIRST (before PJ)
+        // --- UPDATE CHANGES --- //////////////////////////
+        // 1. Create Makam Status
         const makamStatus = await prisma.makamStatus.create({
           data: {
-            silsilah: body.silsilah,
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,
             jenazahId: jenazahId ?? null,
@@ -137,18 +141,18 @@ export async function POST(request: Request) {
           },
         });
 
-        // 5. NOW create PJ with makamStatusId
+        // 2. NOW create PJ with makamStatusId
         const newPJ = await prisma.penanggungJawab.create({
           data: {
             userId: paId,
             makamStatus: {
-              connect: { id: makamStatus.id }, // ✅ Connect via relation
+              connect: { id: makamStatus.id },
             },
           },
         });
         pjId = newPJ.id;
 
-        // Update Blok
+        // 3. Update Blok
         await prisma.blok.update({
           where: { id: body.blokId },
           data: {
@@ -159,15 +163,27 @@ export async function POST(request: Request) {
           },
         });
 
+        // 4. Create new relation
+        if (paId && pbId) {
+          await prisma.relasiOrang.create({
+            data: {
+              orang1Id: paId,
+              orang2Id: pbId,
+              jenisHubungan: body.silsilah,
+            },
+          });
+        }
+
         return makamStatus;
       }
 
-      // --- PESAN MAKAM USER EXISTING PJ --- //////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // --- PESAN MAKAM DENGAN USER SUDAH ADA --- //////////////////////////////////////////////////////////////////////////////////////////////////////////
       if (useExistingPJ) {
+        paId = body.existingUserId;
         pjId = existingPJ?.id;
 
+        // --- ORANG LAIN --- //////////////////////////
         if (!diriSendiri) {
-          // --- ORANG LAIN --- //////////////////////////
           // 1. Buat Akun User (PB)
           const newUserPB = await prisma.user.create({
             data: {
@@ -190,22 +206,12 @@ export async function POST(request: Request) {
               userId: pbId,
             },
           });
-          paId = body.existingUserId;
           jenazahId = newJenazahPB.id;
-        } else {
-          // --- DIRI SENDIRI --- //////////////////////////
-          // diri sendiri: jenazah = PJ user
-          // --- DIRI SENDIRI --- //////////////////////////
-          console.log("=== DIRI SENDIRI BRANCH ===");
-          console.log("body.existingUserId:", body.existingUserId);
-          console.log("existingPJ:", existingPJ);
-          console.log("blokData:", blokData);
-          console.log("finalJenazahStatus:", finalJenazahStatus);
-          console.log("finalStatusBlok:", finalStatusBlok);
-          console.log("paId before jenazah.create:", paId);
-          console.log("pjId before jenazah.create:", pjId);
-          console.log("body.tanggalPemakaman:", body.tanggalPemakaman);
-          console.log("body.blokId:", body.blokId);
+        }
+
+        // --- DIRI SENDIRI --- //////////////////////////
+        if (diriSendiri) {
+          // 1. Buat Akun Jenazah diri sendiri
           const newJenazahPA = await prisma.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
@@ -219,15 +225,13 @@ export async function POST(request: Request) {
               userId: body.existingUserId,
             },
           });
-
-          paId = body.existingUserId;
           jenazahId = newJenazahPA.id;
         }
 
-        // 3. Create Makam Status
+        // --- UPDATE CHANGES --- //////////////////////////
+        // 1. Create Makam Status
         const makamStatus = await prisma.makamStatus.create({
           data: {
-            silsilah: body.silsilah,
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,
             jenazahId: jenazahId ?? null,
@@ -235,17 +239,17 @@ export async function POST(request: Request) {
           },
         });
 
-        // 4. Update existing PJ to link to this MakamStatus
+        // 2. Update existing PJ to link to this MakamStatus
         await prisma.penanggungJawab.update({
           where: { id: pjId },
           data: {
             makamStatus: {
-              connect: { id: makamStatus.id }, // ✅ Connect via relation
+              connect: { id: makamStatus.id },
             },
           },
         });
 
-        // Update Blok
+        // 3. Update Blok
         await prisma.blok.update({
           where: { id: body.blokId },
           data: {
@@ -255,6 +259,17 @@ export async function POST(request: Request) {
             statusPesanan: "DIPESAN",
           },
         });
+
+        // 4. Create new relation
+        if (paId && pbId) {
+          await prisma.relasiOrang.create({
+            data: {
+              orang1Id: paId,
+              orang2Id: pbId,
+              jenisHubungan: body.silsilah,
+            },
+          });
+        }
 
         return makamStatus;
       }

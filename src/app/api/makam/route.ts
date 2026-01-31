@@ -20,7 +20,7 @@ export async function GET(request: Request) {
           },
         },
         blok: true,
-        pj: { include: { user: true } }, // <-- include all PJs linked to this makam
+        pj: { include: { user: true } },
       },
     });
 
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         },
       },
       blok: true,
-      pj: { include: { user: true } }, // <-- include all PJs for each makam
+      pj: { include: { user: true } },
     },
   });
 
@@ -52,7 +52,6 @@ export async function POST(req: Request) {
 
   const newEntry = await prisma.makam.create({
     data: {
-      silsilah: body.silsilah,
       description: body.description,
     },
   });
@@ -73,7 +72,6 @@ export async function PUT(req: Request) {
         id: String(id),
       },
       data: {
-        silsilah: body.silsilah,
         description: body.description,
         jenazah: {
           update: {

@@ -693,17 +693,19 @@ export default function Pemesanan() {
                         <SelectValue placeholder="Pilih Silsilah" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="diri sendiri">Diri Sendiri</SelectItem>
-                        <SelectItem value="anak">Anak</SelectItem>
-                        <SelectItem value="orang tua">Orang Tua</SelectItem>
-                        <SelectItem value="kakak/adik">Kakak/Adik</SelectItem>
-                        <SelectItem value="sepupu">Sepupu</SelectItem>
-                        <SelectItem value="keponakan">Keponakan</SelectItem>
-                        <SelectItem value="paman/bibi">Paman/Bibi</SelectItem>
-                        <SelectItem value="kakek/nenek">Kakek/Nenek</SelectItem>
-                        <SelectItem value="cucu">Cucu</SelectItem>
-                        <SelectItem value=">2 generasi di atas">{">2 Generasi di Atas"}</SelectItem>
-                        <SelectItem value=">2 generasi di bawah">
+                        <SelectItem value="Diri Sendiri">Diri Sendiri</SelectItem>
+                        <SelectItem value="Anak">Anak</SelectItem>
+                        <SelectItem value="Orang Tua">Orang Tua</SelectItem>
+                        <SelectItem value="Kakak Adik">Kakak/Adik</SelectItem>
+                        <SelectItem value="Sepupu">Sepupu</SelectItem>
+                        <SelectItem value="Keponakan">Keponakan</SelectItem>
+                        <SelectItem value="Paman Bibi">Paman/Bibi</SelectItem>
+                        <SelectItem value="Kakek Nenek">Kakek/Nenek</SelectItem>
+                        <SelectItem value="Cucu">Cucu</SelectItem>
+                        <SelectItem value="Lebih 2 Generasi di Atas">
+                          {">2 Generasi di Atas"}
+                        </SelectItem>
+                        <SelectItem value="Lebih 2 Generasi di Bawah">
                           {">2 Generasi di Bawah"}
                         </SelectItem>
                       </SelectContent>

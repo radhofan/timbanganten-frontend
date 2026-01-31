@@ -36,11 +36,28 @@ model User {
   email            String? @unique
   ktpNum           String? @unique @db.Char(16)  
   emergencyName    String? @db.VarChar(255)     
-  emergencyContact String? @unique @db.VarChar(255)
+  emergencyContact String? @db.VarChar(255)
   
   // OUT RELATION
   jenazah         Jenazah?
   penanggungJawab PenanggungJawab?
+
+  // Reverse relations
+  relasiOrang1 RelasiOrang[] @relation("RelasiOrang1")
+  relasiOrang2 RelasiOrang[] @relation("RelasiOrang2")
+}
+
+model RelasiOrang {
+  id            Int            @id @default(autoincrement())
+  orang1Id      String
+  orang2Id      String
+  jenisHubungan String
+
+  // Relations
+  orang1 User @relation("RelasiOrang1", fields: [orang1Id], references: [id])
+  orang2 User @relation("RelasiOrang2", fields: [orang2Id], references: [id])
+  
+  @@unique([orang1Id, orang2Id])
 }
 
 model PenanggungJawab {
@@ -93,7 +110,6 @@ model Blok {
 // Makam Sedang Dipesan
 model MakamStatus {
   id                    String    @id @default(uuid())
-  silsilah              String?
   description           String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)
   updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
@@ -114,7 +130,6 @@ model MakamStatus {
 // Makam Aktif
 model Makam {
   id                    String    @id @default(uuid())
-  silsilah              String?
   description           String?
   createdAt             DateTime? @default(now()) @db.Timestamp(6)
   updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)

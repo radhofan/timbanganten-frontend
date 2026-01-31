@@ -117,9 +117,14 @@ const Denah = () => {
       <main className="big-white flex-1">
         <div className="w-full bg-white p-12">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-black mb-4">Denah Makam Timbanganten</h1>
+            <div className="mx-auto w-[70%]">
+              {" "}
+              <h1 className="text-3xl font-bold text-black mb-4 mx-auto">
+                Denah Makam Timbanganten
+              </h1>
+            </div>
 
-            <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-8 p-4">
+            <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-8 p-4 mx-auto w-[70%]">
               <div className="flex items-center justify-between text-black">
                 <div className="flex gap-4 items-center text-black w-full">
                   <div className="flex items-center gap-2">
@@ -163,7 +168,12 @@ const Denah = () => {
               </div>
             </div>
 
-            <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-12">
+            <div
+              className={`mx-auto rounded-lg overflow-hidden shadow-2xl border border-gray-300
+                          w-[70%]
+                          ${selectedPlot ? "mb-12" : "mb-24"}
+                        `}
+            >
               {isLoading && (
                 <div className="flex items-center justify-center p-12">
                   <div className="text-gray-500">Loading...</div>
@@ -180,7 +190,7 @@ const Denah = () => {
             </div>
 
             {selectedPlot && (
-              <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-12 p-4">
+              <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-24 p-4 mx-auto w-[70%]">
                 <h2 className="text-xl font-bold mb-4">Blok Information</h2>
 
                 {!selectedPlot.blok ? (

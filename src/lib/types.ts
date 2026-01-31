@@ -39,6 +39,19 @@ export type User = {
   // Relations
   jenazah: Jenazah | null;
   penanggungJawab: PenanggungJawab | null;
+  relasiOrang1?: RelasiOrang[];
+  relasiOrang2?: RelasiOrang[];
+};
+
+export type RelasiOrang = {
+  id: number;
+  orang1Id: string;
+  orang2Id: string;
+  jenisHubungan: string;
+
+  // Relations
+  orang1: User;
+  orang2: User;
 };
 
 export type PenanggungJawab = {
@@ -88,7 +101,6 @@ export type Blok = {
 
 export type MakamStatus = {
   id: string;
-  silsilah: string | null;
   description: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -106,7 +118,6 @@ export type MakamStatus = {
 
 export type Makam = {
   id: string;
-  silsilah: string | null;
   description: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;

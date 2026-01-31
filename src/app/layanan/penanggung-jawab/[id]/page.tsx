@@ -17,7 +17,6 @@ import { User, Makam, PenanggungJawab, MakamStatus } from "@/lib/types";
 import { useParams } from "next/navigation";
 import { StatusLabel } from "@/components/StatusLabel";
 
-// Union type for both Makam and MakamStatus with a discriminator
 type MakamOrStatus = (Makam & { __isMakam: true }) | (Makam & { __isMakam: false });
 
 export default function UserDetail() {
@@ -87,20 +86,8 @@ export default function UserDetail() {
     if (!id) return;
     fetchUserData();
     fetchUserMakams();
-    // fetchAvailableSupervisors();
     fetchPenanggungJawabs();
   }, [id, fetchUserData, fetchUserMakams]);
-
-  // const fetchAvailableSupervisors = async () => {
-  //   try {
-  //     const response = await fetch("/api/user");
-  //     if (!response.ok) throw new Error("Failed to fetch supervisors");
-  //     const data = await response.json();
-  //     setAvailableSupervisors(data);
-  //   } catch (error) {
-  //     console.error("Error fetching supervisors:", error);
-  //   }
-  // };
 
   const fetchPenanggungJawabs = async () => {
     try {
@@ -352,7 +339,9 @@ export default function UserDetail() {
                               <td className="px-4 py-3 text-gray-700">
                                 {m.jenazah?.user?.name || "-"}
                               </td>
-                              <td className="px-4 py-3 text-gray-700">{m.silsilah || "-"}</td>
+                              <td className="px-4 py-3 text-gray-700">
+                                {m.jenazah?.user?.relasiOrang2?.[0]?.jenisHubungan || "-"}
+                              </td>
                               <td className="px-4 py-3 text-gray-700">
                                 {m.tanggalPemesanan
                                   ? new Date(m.tanggalPemesanan).toLocaleDateString("id-ID")

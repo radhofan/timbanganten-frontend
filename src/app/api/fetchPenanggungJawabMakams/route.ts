@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const body = await request.json();
   const { userId } = body;
-
   if (!userId) {
     return NextResponse.json({ error: "userId is required" }, { status: 400 });
   }
@@ -19,7 +18,16 @@ export async function POST(request: Request) {
           blok: true,
           jenazah: {
             include: {
-              user: true,
+              user: {
+                include: {
+                  relasiOrang1: {
+                    where: { orang2Id: userId },
+                  },
+                  relasiOrang2: {
+                    where: { orang1Id: userId },
+                  },
+                },
+              },
             },
           },
         },
@@ -29,7 +37,16 @@ export async function POST(request: Request) {
           blok: true,
           jenazah: {
             include: {
-              user: true,
+              user: {
+                include: {
+                  relasiOrang1: {
+                    where: { orang2Id: userId },
+                  },
+                  relasiOrang2: {
+                    where: { orang1Id: userId },
+                  },
+                },
+              },
             },
           },
         },

@@ -130,15 +130,6 @@ export default function MakamTable(): JSX.Element {
   });
 
   columns.push({
-    title: "Hubungan",
-    dataIndex: "silsilah",
-    key: "silsilah",
-    align: "center",
-    sorter: (a, b) => (a.silsilah || "").localeCompare(b.silsilah || ""),
-    render: (value, record) => <span>{record.silsilah || "-"}</span>,
-  });
-
-  columns.push({
     title: "Nama PJ",
     key: "namaPJ",
     align: "center",
