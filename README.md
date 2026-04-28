@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Timbanganten - Cemetery Management System
 
-## Getting Started
+Next.js cemetery management system with PostgreSQL database.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js 16 + React 19 + TypeScript
+- Prisma ORM + PostgreSQL
+- Tailwind CSS + Ant Design
+- JWT Authentication
+
+## Quick Setup
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Setup Database
+
+You need a PostgreSQL database. Get one from any cloud provider or run locally.
+
+### 3. Environment Variables
+
+Create `.env` file:
+
+```env
+DATABASE_URL=postgresql://user:password@host:5432/database
+JWT_SECRET=your-secret-key-here
+```
+
+**Generate JWT secret:**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Database URL example:**
+```bash
+postgresql://postgres:password@localhost:5432/Timbanganten
+```
+
+If your provider requires SSL certificate, add to connection string:
+```bash
+?sslmode=require&sslrootcert=certs/ca.pem
+```
+
+### 4. Setup Database Schema
+
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Create tables
+npx prisma db push
+
+# Seed cemetery plots
+psql $DATABASE_URL -f prisma/seed.sql
+```
+
+If you don't have `psql`, use any database GUI tool to run `prisma/seed.sql`
+
+### 5. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Login at:
+- `/login/admin`
+- `/login/approver`
+- `/login/pengawas`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deployment
 
-## Learn More
+### Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push code to GitHub
+2. Import to Vercel
+3. Add environment variables:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+4. Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If using SSL certificate, upload `certs/ca.pem` to your repo.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database Schema
 
-## Deploy on Vercel
+- **Admin, Approver, Pengawas** - Auth roles
+- **User** - General users
+- **Blok** - Cemetery plots (Dalem Kaum, Dayeuh Kolot, Karang Anyar)
+- **Jenazah** - Deceased records
+- **PenanggungJawab** - Responsible parties
+- **Makam** - Active plots
+- **MakamStatus** - Reserved plots
+- **RelasiOrang** - User relationships
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev              # Dev server
+npm run build            # Production build
+npm run start            # Production server
+npm run lint             # Lint code
+npm run format           # Format code
+npx prisma studio        # Database GUI
+npx prisma generate      # Generate client
+npx prisma db push       # Push schema changes
+```
