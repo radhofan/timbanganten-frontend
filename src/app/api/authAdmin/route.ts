@@ -1,4 +1,5 @@
-// app/api/authAdmin/route.ts
+// Admin login endpoint. Verifies email + password against the Admin table,
+// then sets a signed JWT cookie carrying the admin role.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -6,7 +7,6 @@ import { signToken, setAuthCookie } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    console.log("HIT /api/authAdmin");
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     const admin = await prisma.admin.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: String(email).toLowerCase() },
     });
 
     if (!admin) {

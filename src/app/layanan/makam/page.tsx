@@ -7,7 +7,7 @@ export default function Admin() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 p-12 bg-white">
+      <main className="flex-1 bg-white page-container">
         <MakamTable />
       </main>
 

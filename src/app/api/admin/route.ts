@@ -1,9 +1,29 @@
+// CRUD for the Admin role record. All mutations require an authenticated admin
+// user; password is always bcrypt-hashed before persistence.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+import { requireRole } from "@/lib/auth";
+import { kontakSchema, kontakUpdateSchema } from "@/validation/kontak";
+
+const adminFields = {
+  id: true,
+  name: true,
+  email: true,
+  contact: true,
+} as const;
 
 // GET
+/**
+ * @route   GET /api/admin
+ * @desc    List admins, fetch one by ?id=, or search by ?query=.
+ * @access  admin
+ * @returns 200 Admin | Admin[]   404 if id not found   401/403 on auth
+ */
 export async function GET(request: Request) {
+  const guard = await requireRole(request, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
   const query = url.searchParams.get("query");
@@ -11,12 +31,7 @@ export async function GET(request: Request) {
   if (id) {
     const admin = await prisma.admin.findUnique({
       where: { id: Number(id) },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        contact: true,
-      },
+      select: adminFields,
     });
 
     if (!admin) {
@@ -36,21 +51,11 @@ export async function GET(request: Request) {
           { email: { contains: query, mode: "insensitive" } },
         ],
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        contact: true,
-      },
+      select: adminFields,
     });
   } else {
     admins = await prisma.admin.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        contact: true,
-      },
+      select: adminFields,
     });
   }
 
@@ -58,19 +63,56 @@ export async function GET(request: Request) {
 }
 
 // POST
+/**
+ * @route   POST /api/admin
+ * @desc    Create a new admin. Hashes password, normalizes email, returns 409 on duplicate email.
+ * @access  admin
+ * @body    { name, email, password, contact? } — validated via kontakSchema.
+ * @returns 201 Admin   400 validation   409 duplicate   401/403 on auth
+ */
 export async function POST(request: Request) {
+  const guard = await requireRole(request, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   const body = await request.json();
-  const { name, email, password, contact } = body;
+  const parsed = kontakSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { errors: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  const { name, email, password, contact } = parsed.data;
+  const normalizedEmail = email.toLowerCase();
+
+  const existing = await prisma.admin.findUnique({ where: { email: normalizedEmail } });
+  if (existing) {
+    return NextResponse.json({ error: "Admin dengan email ini sudah ada" }, { status: 409 });
+  }
+
+  const hashed = await bcrypt.hash(password, 10);
 
   const newAdmin = await prisma.admin.create({
-    data: { name, email, password, contact },
+    data: { name, email: normalizedEmail, password: hashed, contact: contact ?? "" },
+    select: adminFields,
   });
 
   return NextResponse.json(newAdmin, { status: 201 });
 }
 
 // PUT
+/**
+ * @route   PUT /api/admin?id=:id
+ * @desc    Update an admin. Empty password field is treated as "no change".
+ * @access  admin
+ * @body    { name, email, contact?, password? } — validated via kontakUpdateSchema.
+ * @returns 200 Admin   400 validation/missing id   404 not found   401/403 on auth
+ */
 export async function PUT(request: Request) {
+  const guard = await requireRole(request, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
 
@@ -79,11 +121,15 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { name, email, contact, password } = body;
-
-  if (!name || !email || contact === undefined) {
-    return NextResponse.json({ error: "Name, email, and contact are required" }, { status: 400 });
+  const parsed = kontakUpdateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { errors: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
+
+  const { name, email, contact, password } = parsed.data;
 
   const existingAdmin = await prisma.admin.findUnique({
     where: { id: Number(id) },
@@ -100,8 +146,8 @@ export async function PUT(request: Request) {
     password?: string;
   } = {
     name,
-    email,
-    contact,
+    email: email.toLowerCase(),
+    contact: contact ?? "",
   };
 
   if (password && password.trim() !== "") {
@@ -111,6 +157,7 @@ export async function PUT(request: Request) {
   const updatedAdmin = await prisma.admin.update({
     where: { id: Number(id) },
     data: updatedData,
+    select: adminFields,
   });
 
   const { ...safeAdmin } = updatedAdmin;
@@ -119,7 +166,16 @@ export async function PUT(request: Request) {
 }
 
 // DELETE
+/**
+ * @route   DELETE /api/admin?id=:id
+ * @desc    Permanently remove an admin record.
+ * @access  admin
+ * @returns 200 { message }   400 missing id   500 prisma error   401/403 on auth
+ */
 export async function DELETE(request: Request) {
+  const guard = await requireRole(request, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
 

@@ -1,8 +1,30 @@
+// Read and update pending makam bookings (MakamStatus). Reads require any
+// staff role; create/update require admin.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
+
+const STAFF_ROLES = ["admin", "approver", "pengawas"] as const;
+
+const makamStatusInclude = {
+  jenazah: { include: { user: true } },
+  blok: true,
+  pj: { include: { user: true } },
+} as const;
 
 // GET
+/**
+ * @route   GET /api/makamStatus
+ * @desc    Fetch a single MakamStatus by ?id= or list every pending booking
+ *          with jenazah/user, blok and PJ relations.
+ * @access  admin | approver | pengawas
+ * @returns 200 MakamStatus | MakamStatus[]   400 invalid id   404 not found
+ *          401/403 on auth
+ */
 export async function GET(request: Request) {
+  const guard = await requireRole(request, STAFF_ROLES);
+  if (!guard.ok) return guard.response;
+
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
@@ -13,11 +35,7 @@ export async function GET(request: Request) {
 
     const makamStatus = await prisma.makamStatus.findUnique({
       where: { id },
-      include: {
-        jenazah: { include: { user: true } },
-        blok: true,
-        pj: { include: { user: true } },
-      },
+      include: makamStatusInclude,
     });
 
     if (!makamStatus) {
@@ -29,18 +47,26 @@ export async function GET(request: Request) {
 
   // Fetch all MakamStatuses
   const makamStatuses = await prisma.makamStatus.findMany({
-    include: {
-      jenazah: { include: { user: true } },
-      blok: true,
-      pj: { include: { user: true } },
-    },
+    include: makamStatusInclude,
   });
 
   return NextResponse.json(makamStatuses);
 }
 
 // POST
+/**
+ * @route   POST /api/makamStatus
+ * @desc    Create a MakamStatus row and (optionally) a PenanggungJawab linked
+ *          to a userId.
+ * @access  admin
+ * @body    { description, userId? }
+ * @returns 201 { makamStatus, penanggungJawab|null }   500 prisma error
+ *          401/403 on auth
+ */
 export async function POST(req: Request) {
+  const guard = await requireRole(req, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   try {
     const body = await req.json();
     const newEntry = await prisma.makamStatus.create({
@@ -63,7 +89,20 @@ export async function POST(req: Request) {
 }
 
 // PUT
+/**
+ * @route   PUT /api/makamStatus
+ * @desc    Update a MakamStatus description plus the linked user's name. When
+ *          tanggal_pemakaman is provided, propagate the next-status transition
+ *          to Jenazah and Blok.
+ * @access  admin
+ * @body    { id, description, nama, tanggal_pemakaman?, blok?, tanggalPemesanan? }
+ * @returns 200 { success }   400 invalid id / missing jenazah   500 prisma error
+ *          401/403 on auth
+ */
 export async function PUT(req: Request) {
+  const guard = await requireRole(req, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   const body = await req.json();
   const id = body.id;
   if (!id || typeof id !== "string") {

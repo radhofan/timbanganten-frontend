@@ -1,3 +1,4 @@
+// Approver login endpoint. Same flow as authAdmin against the Approver table.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -5,7 +6,6 @@ import { signToken, setAuthCookie } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    console.log("HIT /api/authApprover");
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     const approver = await prisma.approver.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: String(email).toLowerCase() },
     });
 
     if (!approver) {

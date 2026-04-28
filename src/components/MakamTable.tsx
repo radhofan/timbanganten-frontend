@@ -230,10 +230,10 @@ export default function MakamTable(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
-      <h2 className="text-3xl font-bold text-center mb-6">Daftar Pemakaman</h2>
+    <div className="min-h-screen bg-white">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Pemakaman</h2>
 
-      <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
         <Search
           placeholder="Cari nama, blok, atau penanggung jawab..."
           allowClear
@@ -242,39 +242,39 @@ export default function MakamTable(): JSX.Element {
             setCurrent(1);
           }}
           value={search}
-          style={{ minWidth: 240, flex: "1 1 40%" }}
+          className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
         />
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span>Tempat Makam:</span>
+        <div className="flex flex-wrap gap-2 items-center">
+          <span className="text-sm">Tempat Makam:</span>
           <Select
             value={selectedLocation}
             onChange={(val) => {
               setSelectedLocation(val);
               setCurrent(1);
             }}
-            style={{ width: 200 }}
+            className="w-32 sm:w-40"
           >
             <Option value="Semua">Semua</Option>
             <Option value="Karang Anyar">Karang Anyar</Option>
             <Option value="Dalem Kaum">Dalem Kaum</Option>
             <Option value="Dayeuhkolot">Dayeuhkolot</Option>
           </Select>
-        </div>
 
-        <Select
-          value={pageSize}
-          onChange={(val) => {
-            setPageSize(val);
-            setCurrent(1);
-          }}
-          style={{ width: 120 }}
-        >
-          <Option value={5}>Show 5</Option>
-          <Option value={10}>Show 10</Option>
-          <Option value={12}>Show 12</Option>
-          <Option value={20}>Show 20</Option>
-        </Select>
+          <Select
+            value={pageSize}
+            onChange={(val) => {
+              setPageSize(val);
+              setCurrent(1);
+            }}
+            className="w-24 sm:w-28"
+          >
+            <Option value={5}>Show 5</Option>
+            <Option value={10}>Show 10</Option>
+            <Option value={12}>Show 12</Option>
+            <Option value={20}>Show 20</Option>
+          </Select>
+        </div>
       </div>
 
       <Table<Makam>
@@ -293,6 +293,7 @@ export default function MakamTable(): JSX.Element {
         }}
         rowKey="id"
         bordered
+        scroll={{ x: 'max-content' }}
       />
     </div>
   );

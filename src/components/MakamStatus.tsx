@@ -57,7 +57,6 @@ export default function MakamStatus({ page }: { page: string }) {
 
       const res = await fetch(`/api/${endpoint}?id=${id}`);
       const data = await res.json();
-      console.log(data);
 
       const backendTanggal = data.jenazah?.tanggalPemakaman;
       setBackendHadTanggalPemakaman((prev) => (prev === null ? Boolean(backendTanggal) : prev));
@@ -120,7 +119,6 @@ export default function MakamStatus({ page }: { page: string }) {
     }
   }
   const onSubmit = async (data: MakamPayload) => {
-    console.log("Submitting", data);
     setLoading(true);
 
     try {

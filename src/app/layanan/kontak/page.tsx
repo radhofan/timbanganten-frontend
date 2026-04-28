@@ -105,12 +105,10 @@ export default function AdminTable(): JSX.Element {
       key: "edit",
       align: "center",
       render: (_, record) => (
-        <Link href={`/layanan/kontak/${record.id}`} legacyBehavior>
-          <a>
-            <Button type="primary" size="small">
-              Edit
-            </Button>
-          </a>
+        <Link href={`/layanan/kontak/${record.id}`}>
+          <Button type="primary" size="small">
+            Edit
+          </Button>
         </Link>
       ),
     });
@@ -120,10 +118,10 @@ export default function AdminTable(): JSX.Element {
     <div className="min-h-screen flex flex-col bg-white">
       <Header hideBanner />
 
-      <main className="flex-1 p-6 sm:p-12">
-        <h2 className="text-3xl font-bold text-center mb-6">Daftar Kontak</h2>
+      <main className="flex-1 page-container">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Kontak</h2>
 
-        <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
           <Search
             placeholder="Cari nama, email, atau kontak..."
             allowClear
@@ -132,14 +130,12 @@ export default function AdminTable(): JSX.Element {
               setSearch(e.target.value);
               setCurrent(1);
             }}
-            style={{ minWidth: 260, flex: "1 1 40%" }}
+            className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
           />
 
           {role === "admin" && (
-            <Link href="/layanan/kontak/add" legacyBehavior>
-              <a>
-                <Button type="primary">Tambah Kontak Baru</Button>
-              </a>
+            <Link href="/layanan/kontak/add">
+              <Button type="primary" className="w-full sm:w-auto">Tambah Kontak Baru</Button>
             </Link>
           )}
         </div>
@@ -161,6 +157,7 @@ export default function AdminTable(): JSX.Element {
           }}
           rowKey="id"
           bordered
+          scroll={{ x: 'max-content' }}
         />
       </main>
 

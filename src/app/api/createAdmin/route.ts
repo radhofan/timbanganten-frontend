@@ -1,9 +1,19 @@
+// Create an admin account. Bootstrap rule: when zero admin records exist this
+// endpoint is open so the first admin can be provisioned without credentials.
+// Once any admin exists the endpoint requires an authenticated admin caller.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { requireRole } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
+    const adminCount = await prisma.admin.count();
+    if (adminCount > 0) {
+      const guard = await requireRole(request, ["admin"]);
+      if (!guard.ok) return guard.response;
+    }
+
     const { name, email, password, contact } = await request.json();
 
     if (!name || !email || !password) {
@@ -13,10 +23,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const normalizedEmail = String(email).toLowerCase();
+
     const existingAdmin = await prisma.admin.findUnique({
-      where: {
-        email: email.toLowerCase(),
-      },
+      where: { email: normalizedEmail },
     });
 
     if (existingAdmin) {
@@ -28,19 +38,15 @@ export async function POST(request: Request) {
     const admin = await prisma.admin.create({
       data: {
         name,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         password: hashedPassword,
         contact: contact || null,
       },
+      select: { id: true, name: true, email: true, contact: true },
     });
 
-    const { ...adminData } = admin;
-
     return NextResponse.json(
-      {
-        message: "Admin created successfully",
-        admin: adminData,
-      },
+      { message: "Admin created successfully", admin },
       { status: 201 }
     );
   } catch (error) {

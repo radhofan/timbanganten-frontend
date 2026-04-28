@@ -104,11 +104,11 @@ export default function Status() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 p-6 relative bg-white flex flex-col items-center gap-4">
-        <div className="text-xl text-center">Status Pemesanan</div>
+      <main className="flex-1 page-container relative bg-white flex flex-col items-center gap-4">
+        <div className="text-lg sm:text-xl text-center">Status Pemesanan</div>
 
         {/* Filters */}
-        <div className="w-full max-w-2xl mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div className="w-full max-w-2xl mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 sm:gap-4">
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-600 mb-1">
               Cari Nama Jenazah / Nama PJ / Blok
@@ -158,13 +158,13 @@ export default function Status() {
         </div>
 
         {!loading && (
-          <div className="w-full max-w-2xl mb-2 text-sm text-gray-600">
+          <div className="w-full max-w-2xl mb-2 text-xs sm:text-sm text-gray-600">
             Menampilkan {currentItems.length} dari {filteredData.length} pemesanan
             {filteredData.length !== data.length && ` (difilter dari ${data.length} total)`}
           </div>
         )}
 
-        <div className="w-full max-w-2xl space-y-4 mb-6">
+        <div className="w-full max-w-2xl space-y-3 sm:space-y-4 mb-6">
           {loading ? (
             <p className="text-center text-gray-500">Loading...</p>
           ) : filteredData.length === 0 ? (
@@ -233,7 +233,7 @@ export default function Status() {
         </div>
 
         {!loading && filteredData.length > 0 && (
-          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow mb-12">
+          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow">
             <div className="text-sm text-gray-700">
               Halaman {currentPage} dari {totalPages}
             </div>

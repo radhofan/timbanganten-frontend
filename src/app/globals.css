@@ -1,5 +1,123 @@
 @import "tailwindcss";
 
+/* Mobile responsive fixes for tables and forms */
+@media (max-width: 640px) {
+  .ant-table-wrapper {
+    overflow-x: auto;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .ant-table {
+    min-width: 600px;
+  }
+  
+  .ant-spin-nested-loading,
+  .ant-spin-container {
+    width: 100% !important;
+  }
+  
+  .ant-form-item {
+    margin-bottom: 1rem;
+  }
+  
+  .ant-select,
+  .ant-input,
+  .ant-picker {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+}
+
+/* Fix Ant Design table padding asymmetry on all screen sizes */
+.ant-table-wrapper {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.ant-spin-nested-loading,
+.ant-spin-container {
+  width: 100% !important;
+}
+
+/* Standardized footer spacing - prevents content from touching footer */
+main {
+  padding-bottom: clamp(8vh, 12vh, 15vh);
+  min-height: 70vh;
+}
+
+/* Standardized container padding - prevents content from touching edges */
+.page-container {
+  padding-left: clamp(1rem, 3vw, 3rem);
+  padding-right: clamp(1rem, 3vw, 3rem);
+  padding-top: clamp(1.5rem, 3vh, 2rem);
+  padding-bottom: clamp(1.5rem, 3vh, 2rem);
+}
+
+/* Table container with proper spacing */
+.table-container {
+  padding-left: clamp(0.5rem, 2vw, 3rem);
+  padding-right: clamp(0.5rem, 2vw, 3rem);
+  padding-top: clamp(1rem, 2vh, 1.5rem);
+  padding-bottom: clamp(1rem, 2vh, 1.5rem);
+}
+
+/* Fix for react-slick carousel in banner */
+.slick-slider {
+  height: 100% !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+.slick-list {
+  height: 100% !important;
+}
+
+.slick-track {
+  height: 100% !important;
+  display: flex !important;
+}
+
+.slick-slide {
+  height: inherit !important;
+}
+
+.slick-slide > div {
+  height: 100% !important;
+}
+
+.slick-slide > div > div {
+  height: 100% !important;
+}
+
+/* Move dots WAY up from the bottom to avoid zigzag */
+.slick-dots {
+  bottom: 12vh !important;
+  z-index: 15 !important;
+  position: absolute !important;
+}
+
+.slick-dots li {
+  margin: 0 0.5rem !important;
+}
+
+.slick-dots li button:before {
+  color: white !important;
+  font-size: 1rem !important;
+  opacity: 0.7 !important;
+}
+
+.slick-dots li.slick-active button:before {
+  opacity: 1 !important;
+  color: white !important;
+  font-size: 1.2rem !important;
+}
+
+/* Arrows styling */
+.slick-prev,
+.slick-next {
+  z-index: 15 !important;
+}
+
 /* @import "tw-animate-css"; */
 
 /* @custom-variant dark (&:is(.dark *));

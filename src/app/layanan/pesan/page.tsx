@@ -31,7 +31,12 @@ import {
   Users,
   Hash,
 } from "lucide-react";
-import { pemesananDefaultValues, PemesananPayload, pemesananSchema } from "@/validation/pemesanan";
+import {
+  pemesananDefaultValues,
+  PemesananPayload,
+  pemesananSchema,
+  Silsilah,
+} from "@/validation/pemesanan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -96,116 +101,6 @@ export default function Pemesanan() {
       .catch(console.error);
   }, [lokasi, jenisMakam]);
 
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   const form = e.currentTarget;
-  //   const formData = new FormData(form);
-  //   const diriSendiri = (formData.get("silsilah") as string) === "diri sendiri";
-
-  //   console.log(diriSendiri);
-
-  //   interface PemesananPayload {
-  //     namaJenazah: string;
-  //     blokId: string;
-  //     lokasi: string;
-  //     silsilah: string;
-  //     notes: string;
-  //     diriSendiri: boolean;
-  //     existingUserId?: string;
-  //     emergencyName?: string;
-  //     emergencyContact?: string;
-  //     pjName?: string;
-  //     pjContact?: string;
-  //     userPAName?: string;
-  //     userPAContact?: string;
-  //     userPAEmail?: string;
-  //     userPAKTP?: string;
-  //     userPBName?: string;
-  //     userPBContact?: string;
-  //     userPBEmail?: string;
-  //     tanggalPemesanan?: Date;
-  //     tanggalPemakaman?: Date;
-  //   }
-
-  //   const payload: PemesananPayload = {
-  //     namaJenazah: formData.get("namajenazah") as string,
-  //     blokId: selectedBlok,
-  //     lokasi: formData.get("lokasi") as string,
-  //     silsilah: formData.get("silsilah") as string,
-  //     notes: formData.get("notes") as string,
-  //     emergencyName: formData.get("emergencyName") as string,
-  //     emergencyContact: formData.get("emergencyContact") as string,
-  //     diriSendiri,
-  //     tanggalPemakaman: formData.get("tanggalPemakaman")
-  //       ? new Date(formData.get("tanggalPemakaman") as string)
-  //       : undefined,
-  //     tanggalPemesanan: formData.get("tanggalPemesanan")
-  //       ? new Date(formData.get("tanggalPemesanan") as string)
-  //       : undefined,
-  //   };
-
-  //   if (useExisting && selectedUser) {
-  //     payload.existingUserId = selectedUser.id;
-  //     payload.pjName = selectedUser.name || undefined;
-  //     payload.pjContact = selectedUser.contact || undefined;
-  //     payload.emergencyName = selectedUser.emergencyName || undefined;
-  //     payload.emergencyContact = selectedUser.emergencyContact || undefined;
-
-  //     payload.userPAName = formData.get("namapj") as string;
-  //     payload.userPAContact = formData.get("kontak") as string;
-  //     payload.userPAEmail = formData.get("email") as string;
-  //     payload.userPAKTP = formData.get("ktpNum") as string;
-
-  //     if (!diriSendiri) {
-  //       payload.userPBName = formData.get("namajenazah") as string;
-  //       payload.userPBContact = "";
-  //       payload.userPBEmail = "";
-  //     }
-  //   } else {
-  //     payload.userPAName = formData.get("namapj") as string;
-  //     payload.userPAContact = formData.get("kontak") as string;
-  //     payload.userPAEmail = formData.get("email") as string;
-  //     payload.userPAKTP = formData.get("ktpNum") as string;
-  //     payload.pjName = formData.get("namapj") as string;
-  //     payload.pjContact = formData.get("kontak") as string;
-  //     payload.emergencyName = formData.get("emergencyName") as string;
-  //     payload.emergencyContact = formData.get("emergencyContact") as string;
-
-  //     if (!diriSendiri) {
-  //       payload.userPBName = formData.get("namajenazah") as string;
-  //       payload.userPBContact = "";
-  //       payload.userPBEmail = "";
-  //     }
-  //   }
-
-  //   try {
-  //     const res = await fetch("/api/pemesanan", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(payload),
-  //     });
-
-  //     if (res.ok) {
-  //       console.log(payload);
-  //       alert("Pemesanan berhasil disimpan!");
-  //       router.push("/layanan/pesan/status");
-  //       form.reset();
-  //       setSelectedUser(null);
-  //       setUseExisting(false);
-  //     } else {
-  //       const data = await res.json();
-  //       alert(data?.error || "Terjadi kesalahan saat menyimpan data.");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Gagal mengirim permintaan.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleBlokSelect = (blokId: string) => {
     const selectedBlokData = blokList.find((b) => b.id === blokId);
     if (selectedBlokData) {
@@ -223,7 +118,7 @@ export default function Pemesanan() {
   const onSubmit = async (data: PemesananPayload) => {
     setLoading(true);
 
-    const diriSendiri = data.silsilah === "diri sendiri";
+    const diriSendiri = data.silsilah === "Diri Sendiri";
 
     const basePayload = {
       namaJenazah: data.namaJenazah,
@@ -310,10 +205,10 @@ export default function Pemesanan() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
+      <main className="flex-1 flex justify-center items-start page-container">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 space-y-10"
+          className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-10"
         >
           <div className="text-center">
             <h2 className="text-2xl font-bold text-slate-800">Form Pemesanan Makam</h2>
@@ -680,7 +575,7 @@ export default function Pemesanan() {
                     type="text"
                     size="small"
                     icon={<span className="text-lg">×</span>}
-                    onClick={() => setValue("silsilah", "")}
+                    onClick={() => setValue("silsilah", "" as Silsilah)}
                     className="mr-2"
                   />
                 </div>
@@ -811,11 +706,11 @@ export default function Pemesanan() {
           </section>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button danger onClick={() => router.push("/")} className="min-w-[100px]">
+            <Button danger onClick={() => router.push("/")} className="min-w-[clamp(6.25rem,10vw,8rem)]">
               Batal
             </Button>
 
-            <Button type="primary" htmlType="submit" loading={loading} className="min-w-[100px]">
+            <Button type="primary" htmlType="submit" loading={loading} className="min-w-[clamp(6.25rem,10vw,8rem)]">
               Kirim
             </Button>
           </div>

@@ -60,10 +60,10 @@ export default function AddKontakPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
+      <main className="flex-1 flex justify-center items-start page-container">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-8 space-y-8"
+          className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-8"
         >
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-gray-800">Tambah Kontak Admin</h2>

@@ -102,12 +102,12 @@ export default function Admin() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Notifications Section */}
         {/* <NotificationBoard notifications={notifications} handleMarkAsRead={handleMarkAsRead} /> */}
 
         {/* Services Section */}
-        <section className="mb-16">
+        <section>
           <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Layanan</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => {
@@ -139,7 +139,7 @@ export default function Admin() {
             })}
           </div>
         </section>
-      </div>
+      </main>
 
       <Footer />
     </div>

@@ -174,12 +174,13 @@ const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, on
     <div
       ref={containerRef}
       style={{
-        width: "100%",
+        width: "100vw",
+        maxWidth: "100%",
         background: "#f8fafc",
-        borderRadius: "12px",
+        borderRadius: "clamp(0.5rem, 1vw, 0.75rem)",
         overflow: "hidden",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        padding: "24px",
+        boxShadow: "0 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1), 0 0.125rem 0.25rem -0.0625rem rgba(0, 0, 0, 0.06)",
+        padding: "clamp(1rem, 2vw, 1.5rem)",
         position: "relative",
       }}
     >
@@ -187,20 +188,20 @@ const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, on
       <div
         style={{
           position: "absolute",
-          top: "32px",
-          right: "32px",
+          top: "clamp(1rem, 2vw, 2rem)",
+          right: "clamp(1rem, 2vw, 2rem)",
           background: "rgba(255, 255, 255, 0.95)",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          fontSize: "12px",
+          padding: "clamp(0.5rem, 1vw, 0.75rem)",
+          borderRadius: "clamp(0.375rem, 0.75vw, 0.5rem)",
+          fontSize: "clamp(0.625rem, 1vw, 0.75rem)",
           color: "#64748b",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 0.125rem 0.5rem rgba(0, 0, 0, 0.1)",
           zIndex: 10,
           fontFamily: "system-ui, -apple-system, sans-serif",
           pointerEvents: "none",
         }}
       >
-        <div style={{ fontWeight: "600", marginBottom: "4px" }}>🔍 Zoom Controls</div>
+        <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>🔍 Zoom Controls</div>
         <div>Scroll to zoom • Drag to pan</div>
       </div>
       <Stage

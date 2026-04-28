@@ -1,7 +1,24 @@
+// Promote a MakamStatus (pending booking) into an active Makam record.
+// Triggered from the approver dashboard once payment + tanggalPemakaman are set.
+// Approver and admin can call this.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
 
+/**
+ * @route   POST /api/convertMakam
+ * @desc    Approve a MakamStatus: copy it into a new Makam, migrate every
+ *          linked PenanggungJawab onto the new Makam, delete the old
+ *          MakamStatus, and refresh the Blok availability flags.
+ * @access  admin | approver
+ * @body    { id }   the MakamStatus id being approved
+ * @returns 200 { message, makam }   400 invalid id   404 not found
+ *          500 prisma error   401/403 on auth
+ */
 export async function POST(request: Request) {
+  const guard = await requireRole(request, ["admin", "approver"]);
+  if (!guard.ok) return guard.response;
+
   try {
     const body = await request.json();
     const id = body.id;

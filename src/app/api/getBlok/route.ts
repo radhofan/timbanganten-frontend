@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+/**
+ * GET /api/getBlok
+ * Retrieves blok (cemetery block) information by ID or location
+ * Query params: id (optional), lokasi (optional)
+ * Returns: Single blok object if id provided, or array of bloks filtered by lokasi
+ */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);

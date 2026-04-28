@@ -1,7 +1,13 @@
+// Record yearly maintenance payment for a Jenazah and extend masaAktif by 1 year.
+// Admin only.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth";
 
 export async function PUT(req: Request) {
+  const guard = await requireRole(req, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   try {
     const body = await req.json();
     const id = body.id;
@@ -10,9 +16,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Invalid or missing id jenazah" }, { status: 400 });
     }
 
-    const jenazah = await prisma.jenazah.findUnique({
-      where: { id },
-    });
+    const jenazah = await prisma.jenazah.findUnique({ where: { id } });
 
     if (!jenazah) {
       return NextResponse.json({ error: "Jenazah not found" }, { status: 404 });

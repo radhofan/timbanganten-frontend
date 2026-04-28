@@ -116,11 +116,11 @@ export default function PenanggungJawab() {
     <div className="min-h-screen flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 p-6 relative bg-white flex flex-col items-center gap-4">
-        <div className="text-xl text-center">Daftar Penanggung Jawab</div>
+      <main className="flex-1 page-container relative bg-white flex flex-col items-center gap-4">
+        <div className="text-lg sm:text-xl text-center">Daftar Penanggung Jawab</div>
 
         {/* Search Filter with Add Button */}
-        <div className="w-full max-w-2xl mb-4 flex gap-3">
+        <div className="w-full max-w-2xl mb-4 flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-600 mb-1">
               Cari Nama Pengguna
@@ -167,7 +167,7 @@ export default function PenanggungJawab() {
               return (
                 <div
                   key={pj.userId}
-                  className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01]"
+                  className="block bg-white shadow-sm rounded-xl p-3 sm:p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01]"
                   style={{
                     borderColor: hasActiveMakams ? "#22c55e" : "#facc15",
                   }}
@@ -251,8 +251,8 @@ export default function PenanggungJawab() {
         </div>
 
         {!loading && filteredData.length > 0 && (
-          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow mb-12">
-            <div className="text-sm text-gray-700">
+          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 bg-white px-3 sm:px-6 py-3 sm:py-4 rounded-lg shadow">
+            <div className="text-xs sm:text-sm text-gray-700">
               Halaman {currentPage} dari {totalPages}
             </div>
 

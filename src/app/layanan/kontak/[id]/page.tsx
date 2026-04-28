@@ -13,7 +13,11 @@ import { Label } from "@/components/ui/label";
 
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { kontakSchema, KontakPayload } from "@/validation/kontak";
+import {
+  kontakUpdateSchema,
+  KontakUpdatePayload,
+  kontakUpdateDefaultValues,
+} from "@/validation/kontak";
 
 import { toast } from "react-hot-toast"; // toaster
 
@@ -28,9 +32,9 @@ export default function KontakDetailPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset } = useForm<KontakPayload>({
-    defaultValues: { name: "", email: "", contact: "", password: "" },
-    resolver: zodResolver(kontakSchema),
+  const { control, handleSubmit, reset } = useForm<KontakUpdatePayload>({
+    defaultValues: kontakUpdateDefaultValues,
+    resolver: zodResolver(kontakUpdateSchema),
   });
 
   useEffect(() => {
@@ -62,7 +66,7 @@ export default function KontakDetailPage() {
     };
   }, [id, reset]);
 
-  const onSubmit: SubmitHandler<KontakPayload> = async (data) => {
+  const onSubmit: SubmitHandler<KontakUpdatePayload> = async (data) => {
     if (role !== "admin") return;
 
     setSaving(true);
@@ -97,7 +101,7 @@ export default function KontakDetailPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start py-12 px-4 sm:px-8 mb-16">
+      <main className="flex-1 flex justify-center items-start page-container">
         {loading ? (
           <p className="text-gray-600">Memuat data kontak...</p>
         ) : error ? (
@@ -105,7 +109,7 @@ export default function KontakDetailPage() {
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-8 space-y-8"
+            className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-8"
           >
             <div className="text-center">
               <h2 className="text-2xl font-semibold text-gray-800">Edit Kontak Admin</h2>

@@ -47,3 +47,7 @@ notes.txt
 # prisma
 /prisma/generated
 /prisma/seed.sql
+
+.claude
+.kiro
+temp

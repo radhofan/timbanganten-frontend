@@ -187,7 +187,7 @@ export default function UserDetail() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col">
       <Header hideBanner />
 
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 page-container">
         <div className="max-w-7xl mx-auto">
           {loading && !user ? (
             <div className="min-h-[50vh] flex items-center justify-center">
@@ -292,7 +292,7 @@ export default function UserDetail() {
               </div>
 
               {/* Makam List Card */}
-              <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
+              <div className="bg-white rounded-2xl shadow-lg p-8">
                 <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                   <MapPin className="w-6 h-6 text-blue-600" />
                   Daftar Makam
@@ -450,7 +450,7 @@ export default function UserDetail() {
                 </div>
 
                 {currentSupervisors.length > 0 ? (
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[clamp(18.75rem,30vh,25rem)] overflow-y-auto">
                     {currentSupervisors.map((pj) => (
                       <div
                         key={pj.id}
@@ -502,7 +502,7 @@ export default function UserDetail() {
                   prefix={<Users size={16} className="text-gray-400" />}
                 />
 
-                <div className="space-y-3 max-h-[400px] overflow-y-auto mt-4">
+                <div className="space-y-3 max-h-[clamp(25rem,40vh,31.25rem)] overflow-y-auto mt-4">
                   {penanggungJawabs.filter((pj) => pj.user && (!pj.makam || pj.makam.length === 0))
                     .length > 0 ? (
                     penanggungJawabs

@@ -1,8 +1,57 @@
+// POST /api/pemesanan
+//
+// Creates a MakamStatus (pending makam booking) plus the supporting User /
+// Jenazah / PenanggungJawab / RelasiOrang rows in a single transaction.
+//
+// Two flows are handled:
+//   - new PJ           -> create PA user + (optional) PB user + jenazah + new PJ
+//   - existing PJ      -> reuse selected user, create PB user + jenazah, link PJ
+//                         to the new MakamStatus
+//
+// Auth: any authenticated staff role (admin/approver/pengawas).
+// Validation: form fields are validated against pemesananSchema; extra payload
+// fields the client sends (diriSendiri, userPBName) are passed through to the
+// transaction unchanged.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireRole } from "@/lib/auth";
+import { pemesananSchema } from "@/validation/pemesanan";
 
+const STAFF_ROLES = ["admin", "approver", "pengawas"] as const;
+
+/**
+ * @route   POST /api/pemesanan
+ * @desc    Create a pending makam booking. Inside one transaction it (1)
+ *          creates or reuses the PA user, (2) creates the PB user + jenazah
+ *          when the booking is for someone else, (3) creates the MakamStatus,
+ *          (4) attaches a PJ to that MakamStatus, (5) flips the Blok flags,
+ *          and (6) records the silsilah relation between PA and PB.
+ * @access  admin | approver | pengawas
+ * @body    pemesananSchema fields + ad-hoc { diriSendiri, userPBName, ... }
+ * @returns 200 MakamStatus   400 validation   409 duplicate email/KTP
+ *          500 transaction error   401/403 on auth
+ */
 export async function POST(request: Request) {
+  const guard = await requireRole(request, STAFF_ROLES);
+  if (!guard.ok) return guard.response;
+
   const body = await request.json();
+
+  // Validate the user-supplied form fields. We keep the raw body afterwards
+  // because the transaction also reads ad-hoc fields (diriSendiri, userPBName)
+  // that the client appends outside the schema.
+  const parsed = pemesananSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { errors: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  // Normalize email to avoid case-different duplicates leaking through.
+  if (typeof body.userPAEmail === "string") {
+    body.userPAEmail = body.userPAEmail.toLowerCase();
+  }
 
   const errors: Record<string, string> = {};
 
@@ -22,12 +71,12 @@ export async function POST(request: Request) {
   }
 
   if (Object.keys(errors).length > 0) {
-    return NextResponse.json({ errors }, { status: 400 });
+    return NextResponse.json({ errors }, { status: 409 });
   }
 
   // --- TRANSACTION --- //////////////////////////
   try {
-    const result = await prisma.$transaction(async (prisma) => {
+    const result = await prisma.$transaction(async (tx) => {
       // --- DEFINE BODY VARS --- //////////////////////////
       let paId: string | undefined; // Orang ke-1 (Pemesan)
       let pbId: string | undefined; // Orang ke-2 (Dimakamkan)
@@ -39,7 +88,7 @@ export async function POST(request: Request) {
 
       let existingPJ = null;
       if (body.existingUserId) {
-        existingPJ = await prisma.penanggungJawab.findUnique({
+        existingPJ = await tx.penanggungJawab.findUnique({
           where: { userId: body.existingUserId },
         });
       }
@@ -48,7 +97,7 @@ export async function POST(request: Request) {
       let finalJenazahStatus;
       let finalStatusBlok: string | undefined;
 
-      const blokData = await prisma.blok.findUnique({
+      const blokData = await tx.blok.findUnique({
         where: { id: body.blokId },
       });
 
@@ -71,7 +120,7 @@ export async function POST(request: Request) {
       if (!useExistingPJ) {
         // --- BUAT AKUN USER PJ--- //////////////////////////
         // 1. Buat Akun User (PA)
-        const newUserPA = await prisma.user.create({
+        const newUserPA = await tx.user.create({
           data: {
             name: body.userPAName,
             contact: body.userPAContact,
@@ -86,7 +135,7 @@ export async function POST(request: Request) {
         // --- ORANG LAIN--- //////////////////////////
         if (!diriSendiri) {
           // 1. Buat Akun User (PB)
-          const newUserPB = await prisma.user.create({
+          const newUserPB = await tx.user.create({
             data: {
               name: body.userPBName,
             },
@@ -94,7 +143,7 @@ export async function POST(request: Request) {
           pbId = newUserPB.id;
 
           // 2. Buat Akun Jenazah (PB)
-          const newJenazahPB = await prisma.jenazah.create({
+          const newJenazahPB = await tx.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
@@ -113,7 +162,7 @@ export async function POST(request: Request) {
         // --- DIRI SENDIRI --- //////////////////////////
         if (diriSendiri) {
           // 1. Buat Akun Jenazah diri sendiri
-          const newJenazahPA = await prisma.jenazah.create({
+          const newJenazahPA = await tx.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
@@ -132,7 +181,7 @@ export async function POST(request: Request) {
 
         // --- UPDATE CHANGES --- //////////////////////////
         // 1. Create Makam Status
-        const makamStatus = await prisma.makamStatus.create({
+        const makamStatus = await tx.makamStatus.create({
           data: {
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,
@@ -142,7 +191,7 @@ export async function POST(request: Request) {
         });
 
         // 2. NOW create PJ with makamStatusId
-        const newPJ = await prisma.penanggungJawab.create({
+        const newPJ = await tx.penanggungJawab.create({
           data: {
             userId: paId,
             makamStatus: {
@@ -153,7 +202,7 @@ export async function POST(request: Request) {
         pjId = newPJ.id;
 
         // 3. Update Blok
-        await prisma.blok.update({
+        await tx.blok.update({
           where: { id: body.blokId },
           data: {
             ...(body.tanggalPemakaman ? { tanggalPemakamanTerakhir: body.tanggalPemakaman } : {}),
@@ -165,7 +214,7 @@ export async function POST(request: Request) {
 
         // 4. Create new relation
         if (paId && pbId) {
-          await prisma.relasiOrang.create({
+          await tx.relasiOrang.create({
             data: {
               orang1Id: paId,
               orang2Id: pbId,
@@ -185,7 +234,7 @@ export async function POST(request: Request) {
         // --- ORANG LAIN --- //////////////////////////
         if (!diriSendiri) {
           // 1. Buat Akun User (PB)
-          const newUserPB = await prisma.user.create({
+          const newUserPB = await tx.user.create({
             data: {
               name: body.userPBName,
             },
@@ -193,7 +242,7 @@ export async function POST(request: Request) {
           pbId = newUserPB.id;
 
           // 2. Buat Akun Jenazah (PB) minimal
-          const newJenazahPB = await prisma.jenazah.create({
+          const newJenazahPB = await tx.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
@@ -212,7 +261,7 @@ export async function POST(request: Request) {
         // --- DIRI SENDIRI --- //////////////////////////
         if (diriSendiri) {
           // 1. Buat Akun Jenazah diri sendiri
-          const newJenazahPA = await prisma.jenazah.create({
+          const newJenazahPA = await tx.jenazah.create({
             data: {
               tanggalPemakaman: body.tanggalPemakaman,
               statusJenazah: finalJenazahStatus,
@@ -230,7 +279,7 @@ export async function POST(request: Request) {
 
         // --- UPDATE CHANGES --- //////////////////////////
         // 1. Create Makam Status
-        const makamStatus = await prisma.makamStatus.create({
+        const makamStatus = await tx.makamStatus.create({
           data: {
             description: body.notes,
             tanggalPemesanan: body.tanggalPemesanan,
@@ -240,7 +289,7 @@ export async function POST(request: Request) {
         });
 
         // 2. Update existing PJ to link to this MakamStatus
-        await prisma.penanggungJawab.update({
+        await tx.penanggungJawab.update({
           where: { id: pjId },
           data: {
             makamStatus: {
@@ -250,7 +299,7 @@ export async function POST(request: Request) {
         });
 
         // 3. Update Blok
-        await prisma.blok.update({
+        await tx.blok.update({
           where: { id: body.blokId },
           data: {
             ...(body.tanggalPemakaman ? { tanggalPemakamanTerakhir: body.tanggalPemakaman } : {}),
@@ -262,7 +311,7 @@ export async function POST(request: Request) {
 
         // 4. Create new relation
         if (paId && pbId) {
-          await prisma.relasiOrang.create({
+          await tx.relasiOrang.create({
             data: {
               orang1Id: paId,
               orang2Id: pbId,

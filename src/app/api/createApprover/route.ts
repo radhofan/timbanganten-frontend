@@ -1,8 +1,13 @@
+// Create an approver account. Admin only.
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { requireRole } from "@/lib/auth";
 
 export async function POST(request: Request) {
+  const guard = await requireRole(request, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   try {
     const { name, email, password } = await request.json();
 
@@ -13,13 +18,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingApprover = await prisma.approver.findUnique({
-      where: {
-        email: email.toLowerCase(),
-      },
+    const normalizedEmail = String(email).toLowerCase();
+
+    const existing = await prisma.approver.findUnique({
+      where: { email: normalizedEmail },
     });
 
-    if (existingApprover) {
+    if (existing) {
       return NextResponse.json(
         { error: "Approver with this email already exists" },
         { status: 409 }
@@ -29,20 +34,12 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const approver = await prisma.approver.create({
-      data: {
-        name,
-        email: email.toLowerCase(),
-        password: hashedPassword,
-      },
+      data: { name, email: normalizedEmail, password: hashedPassword },
+      select: { id: true, name: true, email: true },
     });
 
-    const { ...approverData } = approver;
-
     return NextResponse.json(
-      {
-        message: "Approver created successfully",
-        approver: approverData,
-      },
+      { message: "Approver created successfully", approver },
       { status: 201 }
     );
   } catch (error) {

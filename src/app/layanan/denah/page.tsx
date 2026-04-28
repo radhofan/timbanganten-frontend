@@ -115,16 +115,16 @@ const Denah = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header hideBanner />
       <main className="big-white flex-1">
-        <div className="w-full bg-white p-12">
+        <div className="w-full bg-white page-container">
           <div className="max-w-7xl mx-auto">
-            <div className="mx-auto w-[70%]">
+            <div className="mx-auto" style={{ width: "clamp(50vw, 70vw, 90vw)" }}>
               {" "}
               <h1 className="text-3xl font-bold text-black mb-4 mx-auto">
                 Denah Makam Timbanganten
               </h1>
             </div>
 
-            <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-8 p-4 mx-auto w-[70%]">
+            <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-8 p-4 mx-auto" style={{ width: "clamp(50vw, 70vw, 90vw)" }}>
               <div className="flex items-center justify-between text-black">
                 <div className="flex gap-4 items-center text-black w-full">
                   <div className="flex items-center gap-2">
@@ -169,10 +169,11 @@ const Denah = () => {
             </div>
 
             <div
-              className={`mx-auto rounded-lg overflow-hidden shadow-2xl border border-gray-300
-                          w-[70%]
-                          ${selectedPlot ? "mb-12" : "mb-24"}
-                        `}
+              className="mx-auto rounded-lg overflow-hidden shadow-2xl border border-gray-300"
+              style={{ 
+                width: "clamp(50vw, 70vw, 90vw)",
+                marginBottom: selectedPlot ? "3rem" : "6rem"
+              }}
             >
               {isLoading && (
                 <div className="flex items-center justify-center p-12">
@@ -190,7 +191,7 @@ const Denah = () => {
             </div>
 
             {selectedPlot && (
-              <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-24 p-4 mx-auto w-[70%]">
+              <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 p-4 mx-auto" style={{ width: "clamp(50vw, 70vw, 90vw)" }}>
                 <h2 className="text-xl font-bold mb-4">Blok Information</h2>
 
                 {!selectedPlot.blok ? (

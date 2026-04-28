@@ -1,7 +1,23 @@
+// Manage the many-to-many link between PenanggungJawab and Makam.
+// Reads: any staff role. Add/remove links: admin only.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireRole } from "@/lib/auth";
 
+const STAFF_ROLES = ["admin", "approver", "pengawas"] as const;
+
+/**
+ * @route   GET /api/updatePenanggungJawab
+ * @desc    List PenanggungJawab rows (optionally filtered by ?query= against
+ *          the linked user's name or contact) including user, makam and
+ *          makamStatus relations.
+ * @access  admin | approver | pengawas
+ * @returns 200 PenanggungJawab[]   401/403 on auth
+ */
 export async function GET(request: Request) {
+  const guard = await requireRole(request, STAFF_ROLES);
+  if (!guard.ok) return guard.response;
+
   const url = new URL(request.url);
   const query = url.searchParams.get("query");
   const pjs = await prisma.penanggungJawab.findMany({
@@ -24,7 +40,18 @@ export async function GET(request: Request) {
   return NextResponse.json(pjs);
 }
 
+/**
+ * @route   POST /api/updatePenanggungJawab
+ * @desc    Attach an existing PJ to a Makam via the m2m relation.
+ * @access  admin
+ * @body    { pjId, makamId }
+ * @returns 200 { success, penanggungJawab }   400 missing fields
+ *          404 not found   500 prisma error   401/403 on auth
+ */
 export async function POST(req: Request) {
+  const guard = await requireRole(req, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   try {
     const body = await req.json();
     const { pjId, makamId } = body;
@@ -71,7 +98,18 @@ export async function POST(req: Request) {
   }
 }
 
+/**
+ * @route   DELETE /api/updatePenanggungJawab
+ * @desc    Detach a PJ from a single Makam (does not delete the PJ).
+ * @access  admin
+ * @body    { pjId, makamId }
+ * @returns 200 { success, penanggungJawab }   400 missing/unlinked
+ *          404 not found   500 prisma error   401/403 on auth
+ */
 export async function DELETE(req: Request) {
+  const guard = await requireRole(req, ["admin"]);
+  if (!guard.ok) return guard.response;
+
   try {
     const body = await req.json();
     const { pjId, makamId } = body;

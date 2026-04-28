@@ -123,8 +123,8 @@ export default function LoginApprover() {
               style={{
                 backgroundColor: "#1f2937",
                 color: "#fff",
-                padding: "0.5rem 1rem",
-                borderRadius: "0.375rem",
+                padding: "clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)",
+                borderRadius: "clamp(0.25rem, 0.5vw, 0.375rem)",
                 border: "none",
                 marginBottom: "0.5rem",
               }}
@@ -139,9 +139,9 @@ export default function LoginApprover() {
             style={{
               backgroundColor: "#fff",
               color: "#1f2937",
-              border: "1px solid #9ca3af",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.375rem",
+              border: "0.0625rem solid #9ca3af",
+              padding: "clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)",
+              borderRadius: "clamp(0.25rem, 0.5vw, 0.375rem)",
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#f9fafb";

@@ -1,3 +1,5 @@
+// Return the currently authenticated user (decoded from the JWT cookie).
+// Used by the client to bootstrap auth state on page load.
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, getTokenFromRequest } from "../../../lib/auth";
 
