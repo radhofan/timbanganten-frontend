@@ -8,7 +8,6 @@ import { Modal, Button, Descriptions, message } from "antd";
 import { Jenazah } from "@/lib/types";
 import { StatusLabel } from "./StatusLabel";
 
-const { Search } = Input;
 const { Option } = Select;
 
 export default function JenazahTable(): JSX.Element {
@@ -246,8 +245,19 @@ export default function JenazahTable(): JSX.Element {
       </div>
 
       {/* Toolbar */}
-      <div className="ent-table-toolbar">
-        <Search
+      <div 
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          alignItems: "center",
+          padding: "10px 12px",
+          background: "#f3f2f1",
+          border: "2px solid #0b0c0c",
+          borderBottom: "none"
+        }}
+      >
+        <Input
           placeholder="Cari nama atau blok..."
           allowClear
           onChange={(e) => {
@@ -255,7 +265,7 @@ export default function JenazahTable(): JSX.Element {
             setCurrent(1);
           }}
           value={search}
-          style={{ maxWidth: "clamp(180px, 30vw, 300px)" }}
+          style={{ width: "clamp(180px, 30vw, 300px)" }}
         />
 
         <span style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>Lokasi:</span>
@@ -303,9 +313,9 @@ export default function JenazahTable(): JSX.Element {
           },
         }}
         rowKey="id"
-        bordered
         scroll={{ x: "max-content" }}
         size="small"
+        className="no-gap-table"
       />
 
       {/* Pesanan Modal */}

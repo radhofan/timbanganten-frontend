@@ -9,7 +9,6 @@ import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
 import { Makam } from "@/lib/types";
 
-const { Search } = Input;
 const { Option } = Select;
 
 export default function MakamTable(): JSX.Element {
@@ -254,8 +253,19 @@ export default function MakamTable(): JSX.Element {
       </div>
 
       {/* Toolbar */}
-      <div className="ent-table-toolbar">
-        <Search
+      <div 
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          alignItems: "center",
+          padding: "10px 12px",
+          background: "#f3f2f1",
+          border: "2px solid #0b0c0c",
+          borderBottom: "none"
+        }}
+      >
+        <Input
           placeholder="Cari nama, blok, atau penanggung jawab..."
           allowClear
           onChange={(e) => {
@@ -263,7 +273,7 @@ export default function MakamTable(): JSX.Element {
             setCurrent(1);
           }}
           value={search}
-          style={{ maxWidth: "clamp(180px, 30vw, 300px)" }}
+          style={{ width: "clamp(180px, 30vw, 300px)" }}
         />
 
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
@@ -313,9 +323,9 @@ export default function MakamTable(): JSX.Element {
           },
         }}
         rowKey="id"
-        bordered
         scroll={{ x: "max-content" }}
         size="small"
+        className="no-gap-table"
       />
     </div>
   );

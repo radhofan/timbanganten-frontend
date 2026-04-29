@@ -34,6 +34,67 @@ html, body {
 
 /* ─── Ant Design: Table ──────────────────────────────────────────────────── */
 
+/* CRITICAL FIX: Remove gap between header and first row in Ant Design 5.x */
+.ant-table-wrapper .ant-table-container .ant-table-content > table > thead.ant-table-thead::after {
+  display: none !important;
+}
+
+.ant-table-wrapper .ant-table-container .ant-table-content > table > tbody.ant-table-tbody::before {
+  display: none !important;
+}
+
+.ant-table-wrapper .ant-table-container .ant-table-content > table > thead + tbody {
+  border-top: none !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table {
+  line-height: 1 !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-thead > tr > th {
+  padding: 6px 8px !important;
+  line-height: 1.2 !important;
+  height: auto !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-tbody > tr > td {
+  padding: 6px 8px !important;
+  line-height: 1.4 !important;
+  height: auto !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-thead {
+  line-height: 1 !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-tbody {
+  line-height: 1 !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-thead > tr {
+  line-height: 1 !important;
+  height: auto !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-tbody > tr {
+  line-height: 1 !important;
+  height: auto !important;
+}
+
+.no-gap-table.ant-table-wrapper table {
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+.no-gap-table.ant-table-wrapper .ant-table-thead::after,
+.no-gap-table.ant-table-wrapper .ant-table-tbody::before {
+  display: none !important;
+  content: none !important;
+  height: 0 !important;
+  line-height: 0 !important;
+}
+
 .ant-table-wrapper {
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -47,19 +108,39 @@ html, body {
 .ant-table {
   font-size: 0.8125rem !important;
   background: var(--ent-white) !important;
-  border: 1px solid var(--ent-border-dk) !important;
+  border: 2px solid var(--ent-black) !important;
+  line-height: 1 !important;
+}
+
+.ant-table table {
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+.ant-table-container table > thead > tr:first-child th {
+  border-top: none !important;
 }
 
 .ant-table-thead > tr > th {
   background-color: var(--ent-gray-lt) !important;
-  border: 1px solid var(--ent-border-dk) !important;
+  border-bottom: 2px solid var(--ent-black) !important;
+  border-right: 1px solid var(--ent-border) !important;
+  border-top: none !important;
+  border-left: none !important;
   font-weight: 700 !important;
   font-size: 0.6875rem !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
-  padding: clamp(4px, 0.4vw, 6px) clamp(6px, 0.6vw, 10px) !important;
+  padding: clamp(6px, 0.5vw, 8px) clamp(8px, 0.8vw, 12px) !important;
   color: var(--ent-black) !important;
   white-space: nowrap;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+}
+
+.ant-table-thead > tr > th:last-child {
+  border-right: none !important;
 }
 
 .ant-table-column-sorter {
@@ -67,22 +148,113 @@ html, body {
 }
 
 .ant-table-tbody > tr > td {
-  border: 1px solid var(--ent-border) !important;
-  padding: clamp(3px, 0.35vw, 5px) clamp(6px, 0.6vw, 10px) !important;
+  border-bottom: 1px solid var(--ent-border) !important;
+  border-right: 1px solid var(--ent-border) !important;
+  border-top: none !important;
+  border-left: none !important;
+  padding: clamp(6px, 0.5vw, 8px) clamp(8px, 0.8vw, 12px) !important;
   font-size: 0.8125rem !important;
   vertical-align: middle !important;
+  line-height: 1.4 !important;
+}
+
+.ant-table-tbody > tr > td:last-child {
+  border-right: none !important;
+}
+
+.ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
 }
 
 .ant-table-tbody > tr:hover > td {
   background-color: #dce7f5 !important;
 }
 
-.ant-table-tbody > tr:nth-child(even) > td {
-  background-color: #fafafa !important;
+/* Remove the extra row that appears between header and body */
+.ant-table-thead > tr:first-child > th::after {
+  display: none !important;
 }
 
-.ant-table-tbody > tr:nth-child(even):hover > td {
-  background-color: #dce7f5 !important;
+.ant-table-tbody::before {
+  display: none !important;
+  content: none !important;
+  height: 0 !important;
+  line-height: 0 !important;
+}
+
+/* Force remove any spacing between thead and tbody */
+.ant-table-thead {
+  border-bottom: none !important;
+}
+
+.ant-table-tbody {
+  border-top: none !important;
+}
+
+.ant-table-thead > tr {
+  border-bottom: none !important;
+}
+
+.ant-table-tbody > tr:first-child > td {
+  border-top: none !important;
+}
+
+/* Remove any margin/padding between thead and tbody */
+.ant-table-thead + .ant-table-tbody {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.ant-table-container {
+  border-spacing: 0 !important;
+}
+
+.ant-table-content > table {
+  border-spacing: 0 !important;
+  border-collapse: collapse !important;
+}
+
+/* Nuclear option - force no gap */
+.ant-table thead {
+  display: table-header-group !important;
+  vertical-align: middle !important;
+  border-spacing: 0 !important;
+}
+
+.ant-table tbody {
+  display: table-row-group !important;
+  vertical-align: middle !important;
+  border-spacing: 0 !important;
+}
+
+.ant-table thead tr,
+.ant-table tbody tr {
+  display: table-row !important;
+  vertical-align: inherit !important;
+  border-spacing: 0 !important;
+}
+
+.ant-table thead th,
+.ant-table tbody td {
+  display: table-cell !important;
+  vertical-align: inherit !important;
+}
+
+/* Remove any possible pseudo-elements */
+.ant-table-thead::before,
+.ant-table-thead::after,
+.ant-table-tbody::before,
+.ant-table-tbody::after,
+.ant-table-thead > tr::before,
+.ant-table-thead > tr::after,
+.ant-table-tbody > tr::before,
+.ant-table-tbody > tr::after {
+  display: none !important;
+  content: none !important;
+  height: 0 !important;
+  line-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Pagination */
@@ -185,6 +357,8 @@ html, body {
   padding: 5px 10px !important;
   background: var(--ent-white) !important;
   box-shadow: none !important;
+  line-height: 1.5715 !important;
+  height: auto !important;
 }
 
 .ant-input:focus,
@@ -199,18 +373,41 @@ html, body {
   border: none !important;
   padding: 0 !important;
   box-shadow: none !important;
+  outline: none !important;
 }
 
-.ant-input-search .ant-input-group .ant-input {
-  border: 2px solid var(--ent-black) !important;
-  border-right: none !important;
+/* Fix search input - make button same height as input */
+.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
+  vertical-align: top !important;
 }
 
-.ant-input-search-button {
+.ant-input-search > .ant-input-group > .ant-input-group-addon:last-child .ant-input-search-button {
   border: 2px solid var(--ent-black) !important;
   border-left: none !important;
   background: var(--ent-gray-lt) !important;
   color: var(--ent-black) !important;
+  height: 100% !important;
+  padding: 5px 10px !important;
+  line-height: 1.5 !important;
+}
+
+.ant-input-search > .ant-input-group > .ant-input-affix-wrapper {
+  border: 2px solid var(--ent-black) !important;
+  border-right: none !important;
+  vertical-align: top !important;
+}
+
+.ant-input-search .ant-input-group .ant-input-affix-wrapper:not(:last-child) {
+  border-right: none !important;
+}
+
+.ant-input-group {
+  display: inline-flex !important;
+  align-items: stretch !important;
+}
+
+.ant-input-group > .ant-input-affix-wrapper {
+  flex: 1 !important;
 }
 
 /* ─── Ant Design: Select ─────────────────────────────────────────────────── */
@@ -391,9 +588,9 @@ main {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: var(--ent-gray-lt);
-  border: 1px solid var(--ent-border-dk);
+  border: 2px solid var(--ent-black);
   border-bottom: none;
 }
 

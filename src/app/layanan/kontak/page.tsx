@@ -10,7 +10,7 @@ import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { Admin } from "@/lib/types";
 
-const { Search } = Input;
+
 
 export default function AdminTable(): JSX.Element {
   const [data, setData] = useState<Admin[]>([]);
@@ -137,7 +137,7 @@ export default function AdminTable(): JSX.Element {
 
         {/* Toolbar */}
         <div className="ent-table-toolbar">
-          <Search
+          <Input
             placeholder="Cari nama, email, atau kontak..."
             allowClear
             value={search}
@@ -173,6 +173,7 @@ export default function AdminTable(): JSX.Element {
           bordered
           scroll={{ x: "max-content" }}
           size="small"
+          className="no-gap-table"
         />
       </main>
 
