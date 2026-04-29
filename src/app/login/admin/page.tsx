@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { GovukButton, GovukFormGroup, GovukInput, GovukSelect, GovukNotificationBanner } from "@/components/govuk";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function LoginAdmin() {
   const [email, setEmail] = useState("");
@@ -45,19 +46,7 @@ export default function LoginAdmin() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <header className="govuk-header" role="banner">
-        <div className="govuk-header__container govuk-width-container">
-          <div className="govuk-header__logo">
-            <a href="/" className="govuk-header__link govuk-header__link--homepage">
-              <Image src="/images/logo.png" alt="Logo" width={24} height={24} priority style={{ objectFit: "contain", verticalAlign: "middle", marginRight: 8, display: "inline" }} />
-              <span className="govuk-header__logotype-text">TIMGRAVID</span>
-            </a>
-          </div>
-          <div className="govuk-header__content">
-            <span className="govuk-header__service-name">Sistem Manajemen Pemakaman</span>
-          </div>
-        </div>
-      </header>
+      <Header hideBanner hideNav />
 
       <div className="govuk-width-container" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "2rem", paddingBottom: "2rem" }}>
         <main className="govuk-main-wrapper" id="main-content" role="main" style={{ width: "100%", maxWidth: 500 }}>
@@ -87,6 +76,7 @@ export default function LoginAdmin() {
               name="role"
               value={role}
               onChange={(e) => { const r = e.target.value; setRole(r); router.push(`/login/${r}`); }}
+              style={{ width: "100%" }}
             >
               <option value="admin">Admin</option>
               <option value="approver">Approver</option>
@@ -105,6 +95,7 @@ export default function LoginAdmin() {
                 autoComplete="email"
                 required
                 error={!!error}
+                style={{ width: "100%" }}
               />
             </GovukFormGroup>
 
@@ -118,29 +109,23 @@ export default function LoginAdmin() {
                 autoComplete="current-password"
                 required
                 error={!!error}
+                style={{ width: "100%" }}
               />
             </GovukFormGroup>
 
-            <GovukButton type="submit" isLoading={isLoading} style={{ marginRight: 8 }}>
-              Masuk
-            </GovukButton>
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <GovukButton type="submit" isLoading={isLoading} style={{ flex: 1 }}>
+                Masuk
+              </GovukButton>
+              <GovukButton type="button" variant="secondary" onClick={handleGuestLogin} style={{ flex: 1 }}>
+                Masuk sebagai Guest
+              </GovukButton>
+            </div>
           </form>
-
-          <GovukButton variant="secondary" onClick={handleGuestLogin}>
-            Masuk sebagai Guest
-          </GovukButton>
         </main>
       </div>
 
-      <footer className="govuk-footer">
-        <div className="govuk-width-container">
-          <div className="govuk-footer__meta">
-            <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
-              <span className="govuk-footer__link">© 2025 Yayasan Sejarah Timbanganten</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

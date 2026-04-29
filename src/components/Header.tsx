@@ -47,7 +47,7 @@ function PrevArrow({ onClick }: { onClick?: () => void }) {
   );
 }
 
-export default function Header({ hideBanner = false }: { hideBanner?: boolean }) {
+export default function Header({ hideBanner = false, hideNav = false }: { hideBanner?: boolean; hideNav?: boolean }) {
   const user = useStore(authStore, (s) => s.user);
   const logout = useStore(authStore, (s) => s.logout);
   const roleLabel = user?.role
@@ -62,7 +62,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
     await fetch("/api/logout", { method: "POST" });
     logout();
     setMenuOpen(false);
-    router.push("/");
+    router.push("/login/admin");
   };
 
   return (
@@ -94,7 +94,7 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
           </div>
 
           {/* Right: Beranda + user info + burger */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16, position: "relative" }}>
+          <div style={{ display: hideNav ? "none" : "flex", alignItems: "center", gap: 16, position: "relative" }}>
             <div className="header-nav-items">
               <Link href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
                 Beranda

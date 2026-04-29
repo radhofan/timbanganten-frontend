@@ -223,7 +223,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   control={control}
                   render={({ field, fieldState }) => (
                     <GovukFormGroup label="Nama Jenazah" error={fieldState.error?.message}>
-                      <GovukInput {...field} disabled={!canEdit} />
+                      <GovukInput {...field} disabled={!canEdit} style={{ width: "100%" }} />
                     </GovukFormGroup>
                   )}
                 />
@@ -234,7 +234,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   control={control}
                   render={({ field }) => (
                     <GovukFormGroup label="Nama Penanggung Jawab">
-                      <GovukInput {...field} disabled />
+                      <GovukInput {...field} disabled style={{ width: "100%" }} />
                     </GovukFormGroup>
                   )}
                 />
@@ -245,7 +245,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   control={control}
                   render={({ field }) => (
                     <GovukFormGroup label="No. Kontak PJ">
-                      <GovukInput {...field} disabled />
+                      <GovukInput {...field} disabled style={{ width: "100%" }} />
                     </GovukFormGroup>
                   )}
                 />
@@ -260,6 +260,7 @@ export default function MakamStatus({ page }: { page: string }) {
                         value={field.value || ""}
                         onChange={field.onChange}
                         disabled
+                        style={{ width: "100%" }}
                         options={[
                           { value: "", label: "Pilih Lokasi Pemakaman" },
                           { value: "Karang Anyar", label: "Karang Anyar" },
@@ -277,7 +278,7 @@ export default function MakamStatus({ page }: { page: string }) {
                   control={control}
                   render={({ field, fieldState }) => (
                     <GovukFormGroup label="Blok Makam" error={fieldState.error?.message}>
-                      <GovukInput {...field} disabled />
+                      <GovukInput {...field} disabled style={{ width: "100%" }} />
                     </GovukFormGroup>
                   )}
                 />
@@ -297,28 +298,30 @@ export default function MakamStatus({ page }: { page: string }) {
                   control={control}
                   render={({ field }) => (
                     <GovukFormGroup label="Tanggal Pemesanan">
-                      <GovukDateInput value={field.value} onChange={field.onChange} disabled />
+                      <GovukDateInput id="tanggalPemesanan" value={field.value} onChange={(v) => field.onChange(v)} disabled style={{ width: "100%" }} />
                     </GovukFormGroup>
                   )}
                 />
 
                 {/* Tanggal Pemakaman */}
-                <Controller
-                  name="tanggalPemakaman"
-                  control={control}
-                  render={({ field }) => (
-                    <GovukFormGroup 
-                      label="Tanggal Pemakaman" 
-                      hint="Harap diisi sebelum approve"
-                    >
-                      <GovukDateInput
-                        value={field.value}
-                        onChange={field.onChange}
-                        disabled={!canEdit || isTanggalPemakamanLocked}
-                      />
-                    </GovukFormGroup>
-                  )}
-                />
+                <div>
+                  <Controller
+                    name="tanggalPemakaman"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Tanggal Pemakaman">
+                        <GovukDateInput
+                          id="tanggalPemakaman"
+                          value={field.value}
+                          onChange={(v) => field.onChange(v)}
+                          disabled={!canEdit || isTanggalPemakamanLocked}
+                          style={{ width: "100%" }}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
+                  <p className="govuk-hint" style={{ marginTop: -20, fontSize: "0.75rem" }}>Harap diisi sebelum approve</p>
+                </div>
               </div>
 
               {/* ── Section 3: Status ── */}

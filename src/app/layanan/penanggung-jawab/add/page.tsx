@@ -96,7 +96,7 @@ export default function AddPenanggungJawab() {
                             placeholder={f.placeholder}
                             maxLength={f.maxLength}
                             error={!!errors[f.name]}
-                            style={f.fullWidth ? { width: "100%" } : undefined}
+                            style={{ width: "100%" }}
                           />
                         </GovukFormGroup>
                       )}
