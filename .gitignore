@@ -46,7 +46,6 @@ notes.txt
 
 # prisma
 /prisma/generated
-/prisma/seed.sql
 
 .vscode
 .claude

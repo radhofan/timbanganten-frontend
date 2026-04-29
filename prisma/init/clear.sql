@@ -1,0 +1,40 @@
+-- ============================================================================
+-- CLEAR.SQL - Delete All Data from Database
+-- ============================================================================
+-- This file removes all data from the database while preserving the schema.
+-- Use this to reset the database to a clean state before running setup.sql
+-- or dummy.sql again.
+--
+-- ⚠️  WARNING: This will DELETE ALL DATA in the database!
+-- ⚠️  This operation CANNOT be undone!
+--
+-- Purpose: Clear all data from tables (preserves schema structure)
+-- Usage: psql $DATABASE_URL -f prisma/init/clear.sql
+-- ============================================================================
+
+-- Delete all data (FK-safe order)
+TRUNCATE TABLE 
+    "MakamStatus",
+    "Makam",
+    "Jenazah",
+    "PenanggungJawab",
+    "RelasiOrang",
+    "User",
+    "Blok",
+    "Admin",
+    "Approver",
+    "Pengawas"
+CASCADE;
+
+-- Reset sequences (auto-increment counters)
+ALTER SEQUENCE IF EXISTS "Admin_id_seq" RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS "Approver_id_seq" RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS "Pengawas_id_seq" RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS "RelasiOrang_id_seq" RESTART WITH 1;
+
+-- ============================================================================
+-- Database cleared successfully!
+-- Next steps:
+-- 1. Run setup.sql to initialize cemetery plot layout
+-- 2. (Optional) Run dummy.sql to add test data
+-- ============================================================================

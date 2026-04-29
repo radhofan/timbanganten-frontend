@@ -53,14 +53,22 @@ npx prisma generate
 
 # Create tables
 npx prisma db push
-
-# Seed cemetery plots
-psql $DATABASE_URL -f prisma/seed.sql
 ```
 
-If you don't have `psql`, use any database GUI tool to run `prisma/seed.sql`
+### 5. Initialize Database
 
-### 5. Run Development Server
+```bash
+# Setup cemetery plots
+psql $DATABASE_URL -f prisma/init/setup.sql
+
+# Add test data (optional, dev only)
+psql $DATABASE_URL -f prisma/init/dummy.sql
+
+# Clear all data (reset database)
+psql $DATABASE_URL -f prisma/init/clear.sql
+```
+
+### 6. Run Development Server
 
 ```bash
 npm run dev
@@ -68,10 +76,9 @@ npm run dev
 
 Open http://localhost:3000
 
-Login at:
-- `/login/admin`
-- `/login/approver`
-- `/login/pengawas`
+Login at `/login/admin`, `/login/approver`, `/login/pengawas`
+
+**Test accounts** (if you ran dummy.sql): `admin@timbanganten.id` / `password123`
 
 ## Deployment
 
