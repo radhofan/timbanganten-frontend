@@ -10,7 +10,13 @@ export default function LoginPengawas() {
   const [role, setRole] = useState("pengawas");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showUnauthorized, setShowUnauthorized] = useState(false);
   const router = useRouter();
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("unauthorized") === "1") setShowUnauthorized(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +70,11 @@ export default function LoginPengawas() {
           </div>
 
           <div style={{ padding: "20px" }}>
+            {showUnauthorized && (
+              <div style={{ marginBottom: 16, padding: "10px 14px", background: "#fff4e5", borderLeft: "4px solid #f47738", color: "#0b0c0c", fontSize: "0.875rem", fontWeight: 600 }}>
+                Harap login terlebih dahulu untuk mengakses fitur ini.
+              </div>
+            )}
             <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em" }}>Role:</span>
               <select

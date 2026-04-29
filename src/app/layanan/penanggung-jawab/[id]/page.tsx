@@ -143,6 +143,17 @@ export default function UserDetail() {
     }
   };
 
+  const confirmRemoveSupervisor = (pjId: string, pjName: string) => {
+    Modal.confirm({
+      title: "Hapus Penanggung Jawab",
+      content: `Yakin ingin menghapus ${pjName} dari makam ini? Aksi ini tidak dapat dibatalkan.`,
+      okText: "Hapus",
+      okType: "danger",
+      cancelText: "Batal",
+      onOk: () => removeSupervisor(pjId),
+    });
+  };
+
   const getSupervisors = (makamId: string): PenanggungJawab[] => {
     return penanggungJawabs.filter((pj) => pj.makam?.some((m) => m.id === makamId));
   };
@@ -443,7 +454,7 @@ export default function UserDetail() {
                       </div>
                       {selectedMakam?.__isMakam && (
                         <button
-                          onClick={() => removeSupervisor(pj.id)}
+                          onClick={() => confirmRemoveSupervisor(pj.id, pj.user?.name || "PJ ini")}
                           style={{
                             background: "none", border: "none", cursor: "pointer",
                             color: "#d4351c", padding: "4px 6px", display: "flex", alignItems: "center",

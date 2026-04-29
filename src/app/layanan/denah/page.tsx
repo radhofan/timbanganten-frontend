@@ -5,10 +5,10 @@ import { DENAH } from "@/lib/denah";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Select, Empty } from "antd";
-import CemeteryPlotEditor from "@/components/CemetryPlotEditor";
 import CemeteryViewer from "@/components/CemeteryViewer";
 import { Blok } from "@/lib/types";
 import { useUserRoles } from "@/components/CheckRole";
+import { useRouter } from "next/navigation";
 
 interface Plot {
   id: string;
@@ -26,11 +26,11 @@ type Lokasi = keyof typeof DENAH;
 
 const Denah = () => {
   const { isAdmin } = useUserRoles();
+  const router = useRouter();
   const [selectedPlot, setSelectedPlot] = useState<PlotWithBlok | null>(null);
   const [selectedDenah, setSelectedDenah] = useState<Lokasi>("Dalem Kaum");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [stageSize, setStageSize] = useState({ width: 1400, height: 700 });
-  const [mode, setMode] = useState<"view" | "edit">("view");
   const [blokMap, setBlokMap] = useState<Record<string, Blok>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,20 +68,12 @@ const Denah = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  useEffect(() => {
-    if (mode === "edit") setSelectedPlot(null);
-  }, [mode]);
-
   const handlePlotClick = useCallback(
     (plot: Plot) => {
       setSelectedPlot({ ...plot, blok: blokMap[plot.id] });
     },
     [blokMap]
   );
-
-  const toggleMode = useCallback(() => {
-    setMode((prev) => (prev === "view" ? "edit" : "view"));
-  }, []);
 
   const handleDenahChange = useCallback((value: Lokasi) => {
     setSelectedPlot(null);
@@ -129,18 +121,18 @@ const Denah = () => {
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             {isAdmin && (
               <button
-                onClick={toggleMode}
+                onClick={() => router.push("/layanan/denah/editor")}
                 style={{
                   padding: "4px 12px",
                   fontSize: "0.8125rem",
                   fontWeight: 700,
-                  background: mode === "edit" ? "#505a5f" : "#1d70b8",
+                  background: "#1d70b8",
                   color: "#fff",
-                  border: `2px solid ${mode === "edit" ? "#0b0c0c" : "#003078"}`,
+                  border: "2px solid #003078",
                   cursor: "pointer",
                 }}
               >
-                {mode === "edit" ? "← Kembali ke Denah" : "Edit Denah"}
+                Edit Denah →
               </button>
             )}
 
@@ -171,14 +163,13 @@ const Denah = () => {
               Memuat data blok...
             </div>
           )}
-          {!isLoading && mode === "view" && (
+          {!isLoading && (
             <CemeteryViewer
               plots={plots}
               selectedPlot={selectedPlot}
               onPlotClick={handlePlotClick}
             />
           )}
-          {!isLoading && mode === "edit" && <CemeteryPlotEditor />}
         </div>
 
         {/* Plot info panel */}

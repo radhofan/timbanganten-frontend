@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { DatePicker, Tooltip } from "antd";
+import { DatePicker, Tooltip, Modal } from "antd";
 import dayjs from "dayjs";
 import { StatusLabel } from "./StatusLabel";
 import { useUserRoles } from "./CheckRole";
@@ -499,10 +499,19 @@ export default function MakamStatus({ page }: { page: string }) {
                         variant="default"
                         disabled={!isApproveReady}
                         style={isApproveReady ? { background: "#00703c", boxShadow: "0 2px 0 #005a30" } : {}}
-                        onClick={async () => {
+                        onClick={() => {
                           if (!isApproveReady) return;
-                          const success = await convertMakam(id as string);
-                          if (success) router.push("/layanan/makam");
+                          Modal.confirm({
+                            title: "Konfirmasi Approve Makam",
+                            content: "Aksi ini akan mengaktifkan makam dan memindahkan data dari status pemesanan ke makam aktif. Lanjutkan?",
+                            okText: "Approve",
+                            okButtonProps: { style: { background: "#00703c", borderColor: "#00703c" } },
+                            cancelText: "Batal",
+                            onOk: async () => {
+                              const success = await convertMakam(id as string);
+                              if (success) router.push("/layanan/makam");
+                            },
+                          });
                         }}
                       >
                         Approve

@@ -46,14 +46,14 @@ export async function middleware(req: NextRequest) {
 
   if (!token) {
     if (isProtectedPath(pathname)) {
-      return NextResponse.redirect(new URL("/login/admin", req.url));
+      return NextResponse.redirect(new URL("/login/admin?unauthorized=1", req.url));
     }
     return NextResponse.next();
   }
 
   const user = await verifyToken(token);
   if (!user && isProtectedPath(pathname)) {
-    return NextResponse.redirect(new URL("/login/admin", req.url));
+    return NextResponse.redirect(new URL("/login/admin?unauthorized=1", req.url));
   }
 
   return NextResponse.next();
