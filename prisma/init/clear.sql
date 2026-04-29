@@ -16,11 +16,13 @@
 TRUNCATE TABLE 
     "MakamStatus",
     "Makam",
+    "_PJ_MakamToMakam",
+    "_PJ_MakamStatusToMakamStatus",
     "Jenazah",
     "PenanggungJawab",
     "RelasiOrang",
     "User",
-    "Blok",
+    "Blok"
 CASCADE;
 
 -- Reset sequences (auto-increment counters)
