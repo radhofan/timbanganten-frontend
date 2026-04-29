@@ -78,7 +78,7 @@ Open http://localhost:3000
 
 Login at `/login/admin`, `/login/approver`, `/login/pengawas`
 
-**Test accounts** (if you ran dummy.sql): `admin@timbanganten.id` / `password123`
+**Create your own Test accounts** 
 
 ## Deployment
 

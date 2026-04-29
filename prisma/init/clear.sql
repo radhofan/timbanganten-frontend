@@ -21,15 +21,9 @@ TRUNCATE TABLE
     "RelasiOrang",
     "User",
     "Blok",
-    "Admin",
-    "Approver",
-    "Pengawas"
 CASCADE;
 
 -- Reset sequences (auto-increment counters)
-ALTER SEQUENCE IF EXISTS "Admin_id_seq" RESTART WITH 1;
-ALTER SEQUENCE IF EXISTS "Approver_id_seq" RESTART WITH 1;
-ALTER SEQUENCE IF EXISTS "Pengawas_id_seq" RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS "RelasiOrang_id_seq" RESTART WITH 1;
 
 -- ============================================================================

@@ -10,23 +10,7 @@
 -- ============================================================================
 
 -- ============================================================================
--- 1. ADMIN ACCOUNTS
--- ============================================================================
--- Password for all accounts: "password123" (hashed with bcrypt)
-INSERT INTO "Admin" (name, email, password, contact) VALUES
-('Budi Santoso', 'admin@timbanganten.id', '$2b$10$rKZvVqZ5YqZ5YqZ5YqZ5YeZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5Y', '081234567890'),
-('Siti Nurhaliza', 'siti.admin@timbanganten.id', '$2b$10$rKZvVqZ5YqZ5YqZ5YqZ5YeZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5Y', '081234567891');
-
-INSERT INTO "Approver" (name, email, password) VALUES
-('Ahmad Dahlan', 'approver@timbanganten.id', '$2b$10$rKZvVqZ5YqZ5YqZ5YqZ5YeZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5Y'),
-('Dewi Sartika', 'dewi.approver@timbanganten.id', '$2b$10$rKZvVqZ5YqZ5YqZ5YqZ5YeZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5Y');
-
-INSERT INTO "Pengawas" (name, email, password) VALUES
-('Hasan Basri', 'pengawas@timbanganten.id', '$2b$10$rKZvVqZ5YqZ5YqZ5YqZ5YeZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5Y'),
-('Fatimah Zahra', 'fatimah.pengawas@timbanganten.id', '$2b$10$rKZvVqZ5YqZ5YqZ5YqZ5YeZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5YqZ5Y');
-
--- ============================================================================
--- 2. USERS (Responsible Parties / Penanggung Jawab)
+-- 1. USERS (Responsible Parties / Penanggung Jawab)
 -- ============================================================================
 INSERT INTO "User" (id, name, contact, email, "ktpNum", "emergencyName", "emergencyContact") VALUES
 ('user-001', 'Agus Wijaya', '081234567801', 'agus.wijaya@email.com', '3201012345670001', 'Rina Wijaya', '081234567802'),
@@ -39,7 +23,7 @@ INSERT INTO "User" (id, name, contact, email, "ktpNum", "emergencyName", "emerge
 ('user-008', 'Irma Suryani', '081234567815', 'irma.suryani@email.com', '3201012345670008', 'Joko Suryani', '081234567816');
 
 -- ============================================================================
--- 3. PENANGGUNG JAWAB (Link Users to Responsible Party Role)
+-- 2. PENANGGUNG JAWAB (Link Users to Responsible Party Role)
 -- ============================================================================
 INSERT INTO "PenanggungJawab" (id, "userId") VALUES
 ('pj-001', 'user-001'),
@@ -50,7 +34,7 @@ INSERT INTO "PenanggungJawab" (id, "userId") VALUES
 ('pj-006', 'user-006');
 
 -- ============================================================================
--- 4. JENAZAH (Deceased Records)
+-- 3. JENAZAH (Deceased Records)
 -- ============================================================================
 -- Active plots (already buried)
 INSERT INTO "Jenazah" (
@@ -83,7 +67,7 @@ INSERT INTO "Jenazah" (
 ('jenazah-006', NULL, 'DIPESAN', NULL, 'MENUNGGU PERSETUJUAN', NULL, 'user-006', 'KU-6');
 
 -- ============================================================================
--- 5. MAKAM (Active Plots - Already Buried)
+-- 4. MAKAM (Active Plots - Already Buried)
 -- ============================================================================
 INSERT INTO "Makam" (
     id,
@@ -125,7 +109,7 @@ UPDATE "Blok" SET
 WHERE id = 'KU-3';
 
 -- ============================================================================
--- 6. MAKAM STATUS (Reserved Plots - Not Yet Buried)
+-- 5. MAKAM STATUS (Reserved Plots - Not Yet Buried)
 -- ============================================================================
 INSERT INTO "MakamStatus" (
     id,
@@ -152,7 +136,7 @@ UPDATE "Blok" SET
 WHERE id IN ('KU-4', 'KU-5', 'KU-6');
 
 -- ============================================================================
--- 7. RELASI ORANG (User Relationships)
+-- 6. RELASI ORANG (User Relationships)
 -- ============================================================================
 INSERT INTO "RelasiOrang" ("orang1Id", "orang2Id", "jenisHubungan") VALUES
 ('user-001', 'user-002', 'SAUDARA'),
@@ -163,7 +147,6 @@ INSERT INTO "RelasiOrang" ("orang1Id", "orang2Id", "jenisHubungan") VALUES
 -- SUMMARY
 -- ============================================================================
 -- This dummy data includes:
--- - 2 Admins, 2 Approvers, 2 Pengawas
 -- - 8 Users (potential responsible parties)
 -- - 6 Penanggung Jawab (active responsible parties)
 -- - 6 Jenazah records (3 buried, 3 reserved)
@@ -171,4 +154,7 @@ INSERT INTO "RelasiOrang" ("orang1Id", "orang2Id", "jenisHubungan") VALUES
 -- - 3 MakamStatus (reserved plots awaiting burial)
 -- - 3 User relationships
 -- - Updated Blok statuses to reflect occupancy
+--
+-- Note: Admin, Approver, and Pengawas accounts should be created through
+-- the application's registration endpoints with proper bcrypt hashing.
 -- ============================================================================

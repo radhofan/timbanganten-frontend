@@ -13,6 +13,9 @@
 -- Usage: psql $DATABASE_URL -f prisma/init/setup.sql
 -- ============================================================================
 
+-- Note: Admin, Approver, and Pengawas accounts should be created through
+-- the application's registration endpoints with proper bcrypt hashing.
+
 -- Insert default Blok rows
 INSERT INTO "Blok" (
     id, lokasi, "tanggalPemakamanTerakhir", "statusBlok", availability, "statusPesanan"
