@@ -20,18 +20,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { User } from "@prisma/client";
 import {
-  UserCircle,
-  MapPin,
-  Calendar,
-  FileText,
-  Building2,
-  Mail,
-  Phone,
-  CreditCard,
-  Users,
-  Hash,
-} from "lucide-react";
-import {
   pemesananDefaultValues,
   PemesananPayload,
   pemesananSchema,
@@ -41,10 +29,37 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
+const fieldStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: "0.875rem",
+  fontWeight: 700,
+  color: "#0b0c0c",
+};
+
+const inputOverride: React.CSSProperties = {
+  border: "2px solid #0b0c0c",
+  borderRadius: 0,
+  padding: "6px 10px",
+  fontSize: "1rem",
+  boxShadow: "none",
+};
+
+const errorStyle: React.CSSProperties = {
+  color: "#d4351c",
+  fontSize: "0.875rem",
+  fontWeight: 700,
+  padding: "3px 8px",
+  borderLeft: "4px solid #d4351c",
+  background: "#fdf2f2",
+};
+
 export default function Pemesanan() {
-  const [blokList, setBlokList] = useState<{ id: string; lokasi: string; statusBlok: string }[]>(
-    []
-  );
+  const [blokList, setBlokList] = useState<{ id: string; lokasi: string; statusBlok: string }[]>([]);
   const [lokasi, setLokasi] = useState<string>("");
   const [jenisMakam, setJenisMakam] = useState<string>("");
 
@@ -75,13 +90,11 @@ export default function Pemesanan() {
       const endpoint = searchTerm.trim()
         ? `/api/filterPenanggungJawab?query=${encodeURIComponent(searchTerm)}`
         : "/api/filterPenanggungJawab";
-
       fetch(endpoint)
         .then((res) => res.json())
         .then((data) => setUsers(data))
         .catch(console.error);
     }, 300);
-
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, useExisting]);
 
@@ -89,10 +102,7 @@ export default function Pemesanan() {
     const params = new URLSearchParams();
     if (lokasi) params.set("lokasi", lokasi);
     if (jenisMakam) params.set("jenismakam", jenisMakam);
-
-    const url = `/api/blok?${params.toString()}`;
-
-    fetch(url)
+    fetch(`/api/blok?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         setBlokList(data);
@@ -106,10 +116,8 @@ export default function Pemesanan() {
     if (selectedBlokData) {
       setValue("blokId", blokId);
       setSelectedBlok(blokId);
-
       setValue("lokasi", selectedBlokData.lokasi);
       setLokasi(selectedBlokData.lokasi);
-
       const jenisFromStatus = selectedBlokData.statusBlok === "KOSONG" ? "baru" : "tumpuk";
       setJenisMakam(jenisFromStatus);
     }
@@ -117,9 +125,7 @@ export default function Pemesanan() {
 
   const onSubmit = async (data: PemesananPayload) => {
     setLoading(true);
-
     const diriSendiri = data.silsilah === "Diri Sendiri";
-
     const basePayload = {
       namaJenazah: data.namaJenazah,
       blokId: selectedBlok,
@@ -130,7 +136,6 @@ export default function Pemesanan() {
       tanggalPemakaman: data.tanggalPemakaman ? new Date(data.tanggalPemakaman) : undefined,
       tanggalPemesanan: data.tanggalPemesanan ? new Date(data.tanggalPemesanan) : undefined,
     };
-
     const userPayload =
       useExisting && selectedUser
         ? {
@@ -154,7 +159,6 @@ export default function Pemesanan() {
             emergencyName: data.emergencyName,
             emergencyContact: data.emergencyContact,
           };
-
     const payload = {
       ...basePayload,
       ...userPayload,
@@ -164,14 +168,12 @@ export default function Pemesanan() {
         userPBEmail: "",
       }),
     };
-
     try {
       const res = await fetch("/api/pemesanan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (res.ok) {
         toast.success("Pemesanan berhasil disimpan!", { position: "top-center", duration: 1000 });
         setSelectedUser(null);
@@ -179,7 +181,6 @@ export default function Pemesanan() {
         setTimeout(() => router.push("/layanan/pesan/status"), 1500);
       } else {
         const responseData = await res.json();
-
         if (responseData.errors) {
           const allMessages = Object.values(responseData.errors).join("\n");
           toast.error(allMessages, { position: "top-center", duration: 5000 });
@@ -202,278 +203,203 @@ export default function Pemesanan() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start page-container">
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-10"
+          style={{
+            width: "100%",
+            maxWidth: "clamp(480px, 60vw, 760px)",
+            margin: "0 auto",
+            background: "#fff",
+            border: "1px solid #b1b4b6",
+          }}
         >
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-800">Form Pemesanan Makam</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Silakan lengkapi data di bawah ini untuk melakukan pemesanan.
-            </p>
+          {/* Form header */}
+          <div
+            style={{
+              background: "#0b0c0c",
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                Form Pemesanan Makam
+              </div>
+              <div style={{ color: "#b1b4b6", fontSize: "0.75rem", marginTop: 2 }}>
+                Lengkapi semua field yang diperlukan
+              </div>
+            </div>
           </div>
 
-          {/* Penanggung Jawab Section */}
-          <section className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg shadow-md">
-                <UserCircle className="w-5 h-5 text-white" />
-              </div>
-              Penanggung Jawab
-            </h3>
+          <div style={{ padding: "clamp(14px, 2vw, 22px)" }}>
+            {/* ── Penanggung Jawab ──────────────────────────────────────────── */}
+            <div className="ent-section-heading">Penanggung Jawab</div>
 
-            <RadioGroup
-              defaultValue={useExisting ? "existing" : "new"}
-              onValueChange={(val) => setUseExisting(val === "existing")}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="new" id="new" />
-                <Label htmlFor="new">Buat Baru</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="existing" id="existing" />
-                <Label htmlFor="existing">Gunakan Data Ada</Label>
-              </div>
-            </RadioGroup>
+            <div style={{ marginBottom: 14 }}>
+              <RadioGroup
+                defaultValue={useExisting ? "existing" : "new"}
+                onValueChange={(val) => setUseExisting(val === "existing")}
+                style={{ display: "flex", gap: 20 }}
+              >
+                {[
+                  { value: "new", label: "Buat Baru" },
+                  { value: "existing", label: "Gunakan Data Ada" },
+                ].map((opt) => (
+                  <div key={opt.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <RadioGroupItem value={opt.value} id={opt.value} />
+                    <Label
+                      htmlFor={opt.value}
+                      style={{ fontSize: "0.875rem", fontWeight: 600, color: "#0b0c0c", cursor: "pointer" }}
+                    >
+                      {opt.label}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
 
             {useExisting ? (
-              <div className="space-y-2">
-                <div className="flex flex-col">
-                  <Label htmlFor="userSearch" className="mb-2 flex items-center gap-2">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    Cari Penanggung Jawab
-                  </Label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="userSearch"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Ketik nama atau kontak..."
-                      className="pl-10"
-                    />
-                  </div>
+              <div style={{ marginBottom: 16 }}>
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Cari Penanggung Jawab</label>
+                  <Input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Ketik nama atau kontak..."
+                    style={inputOverride}
+                  />
                 </div>
-
-                <ul className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100 max-h-56 overflow-y-auto shadow-sm">
+                <div
+                  style={{
+                    border: "1px solid #505a5f",
+                    background: "#fff",
+                    maxHeight: 180,
+                    overflowY: "auto",
+                    marginTop: 4,
+                  }}
+                >
                   {users.length > 0 ? (
                     users.map((u) => (
-                      <li
+                      <div
                         key={u.id}
                         onClick={() => {
                           setSelectedUser(u);
                           setSearchTerm(u.name || "");
                         }}
-                        className={`px-4 py-2 text-sm cursor-pointer transition ${selectedUser?.id === u.id ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}`}
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: "0.875rem",
+                          cursor: "pointer",
+                          borderBottom: "1px solid #f3f2f1",
+                          background: selectedUser?.id === u.id ? "#dce7f5" : "#fff",
+                          color: selectedUser?.id === u.id ? "#1d70b8" : "#0b0c0c",
+                          fontWeight: selectedUser?.id === u.id ? 700 : 400,
+                        }}
                       >
                         {u.name} — {u.contact}
-                      </li>
+                      </div>
                     ))
                   ) : (
-                    <li className="px-4 py-2 text-sm text-gray-500">Tidak ada hasil ditemukan</li>
+                    <div style={{ padding: "6px 12px", fontSize: "0.875rem", color: "#505a5f" }}>
+                      Tidak ada hasil ditemukan
+                    </div>
                   )}
-                </ul>
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  <Label htmlFor="namapj" className="mb-2 flex items-center gap-2">
-                    <UserCircle className="w-4 h-4 text-purple-600" />
-                    Nama Penanggung Jawab
-                  </Label>
-                  <Controller
-                    name="userPAName"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="namapj"
-                          placeholder="Masukkan Nama PJ"
-                          className="pl-10"
-                        />
-                      </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))",
+                  gap: "10px 16px",
+                  marginBottom: 16,
+                }}
+              >
+                {[
+                  { name: "userPAName" as const, label: "Nama Penanggung Jawab", placeholder: "Masukkan Nama PJ" },
+                  { name: "userPAContact" as const, label: "No. Kontak", placeholder: "08XXXXXXXXX" },
+                  { name: "userPAEmail" as const, label: "Email", placeholder: "user@gmail.com", type: "email" },
+                  { name: "emergencyName" as const, label: "Nama Kontak Darurat", placeholder: "Masukkan Nama" },
+                  { name: "emergencyContact" as const, label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX" },
+                ].map((f) => (
+                  <div key={f.name} style={fieldStyle}>
+                    <label style={labelStyle}>{f.label}</label>
+                    <Controller
+                      name={f.name}
+                      control={control}
+                      render={({ field }) => (
+                        <Input {...field} placeholder={f.placeholder} type={f.type || "text"} style={inputOverride} />
+                      )}
+                    />
+                    {errors[f.name] && (
+                      <div style={errorStyle}>{errors[f.name]?.message}</div>
                     )}
-                  />
-                  {errors.userPAName && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAName.message}</p>
-                  )}
-                </div>
+                  </div>
+                ))}
 
-                <div className="flex flex-col">
-                  <Label htmlFor="kontak" className="mb-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-green-600" />
-                    No. Kontak
-                  </Label>
-                  <Controller
-                    name="userPAContact"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input {...field} id="kontak" placeholder="08XXXXXXXXX" className="pl-10" />
-                      </div>
-                    )}
-                  />
-                  {errors.userPAContact && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAContact.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="email" className="mb-2 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-blue-600" />
-                    Email
-                  </Label>
-                  <Controller
-                    name="userPAEmail"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="email"
-                          type="email"
-                          placeholder="user@gmail.com"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.userPAEmail && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAEmail.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="emergencyName" className="mb-2 flex items-center gap-2">
-                    <UserCircle className="w-4 h-4 text-indigo-600" />
-                    Nama Kontak Darurat
-                  </Label>
-                  <Controller
-                    name="emergencyName"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="emergencyName"
-                          placeholder="Masukkan Nama"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.emergencyName && (
-                    <p className="text-red-600 text-sm mt-2">{errors.emergencyName.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="emergencyContact" className="mb-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-teal-600" />
-                    No. Kontak Darurat
-                  </Label>
-                  <Controller
-                    name="emergencyContact"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="emergencyContact"
-                          placeholder="08XXXXXXXXX"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.emergencyContact && (
-                    <p className="text-red-600 text-sm mt-2">{errors.emergencyContact.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col col-span-2">
-                  <Label htmlFor="ktpNum" className="mb-2 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-amber-600" />
-                    No KTP Pemesan
-                  </Label>
+                <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
+                  <label style={labelStyle}>No. KTP Pemesan</label>
                   <Controller
                     name="userPAKTP"
                     control={control}
                     render={({ field }) => (
-                      <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="ktpNum"
-                          maxLength={16}
-                          placeholder="Masukkan 16 digit nomor KTP"
-                          className="pl-10"
-                        />
-                      </div>
+                      <Input
+                        {...field}
+                        maxLength={16}
+                        placeholder="Masukkan 16 digit nomor KTP"
+                        style={inputOverride}
+                      />
                     )}
                   />
-                  {errors.userPAKTP && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAKTP.message}</p>
-                  )}
+                  {errors.userPAKTP && <div style={errorStyle}>{errors.userPAKTP.message}</div>}
                 </div>
               </div>
             )}
-          </section>
 
-          {/* Data Pemesanan Section */}
-          <section className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2 rounded-lg shadow-md">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              Data Pemesanan
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col col-span-2">
-                <Label htmlFor="namajenazah" className="mb-2 flex items-center gap-2">
-                  <UserCircle className="w-4 h-4 text-rose-600" />
-                  Nama Jenazah
-                </Label>
+            {/* ── Data Pemesanan ────────────────────────────────────────────── */}
+            <div className="ent-section-heading">Data Pemesanan</div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 16,
+              }}
+            >
+              {/* Nama Jenazah — full width */}
+              <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Nama Jenazah</label>
                 <Controller
                   name="namaJenazah"
                   control={control}
                   render={({ field }) => (
-                    <div className="relative">
-                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="namajenazah"
-                        placeholder="Nama Jenazah"
-                        className="pl-10"
-                      />
-                    </div>
+                    <Input {...field} placeholder="Nama Jenazah" style={inputOverride} />
                   )}
                 />
-                {errors.namaJenazah && (
-                  <p className="text-red-600 text-sm mt-2">{errors.namaJenazah.message}</p>
-                )}
+                {errors.namaJenazah && <div style={errorStyle}>{errors.namaJenazah.message}</div>}
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="blokId" className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 text-indigo-600" />
-                    Blok Kavling
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
+
+              {/* Blok Kavling */}
+              <div style={fieldStyle}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <label style={labelStyle}>Blok Kavling</label>
+                  <button
+                    type="button"
                     onClick={() => {
                       setValue("blokId", "");
                       setSelectedBlok("");
@@ -485,8 +411,18 @@ export default function Pemesanan() {
                         .then((data) => setBlokList(data))
                         .catch(console.error);
                     }}
-                    className="mr-2"
-                  />
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      color: "#505a5f",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "0 4px",
+                    }}
+                  >
+                    Reset
+                  </button>
                 </div>
                 <Controller
                   name="blokId"
@@ -499,7 +435,7 @@ export default function Pemesanan() {
                       }}
                       value={field.value}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
                         <SelectValue placeholder="Pilih Blok" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
@@ -518,40 +454,31 @@ export default function Pemesanan() {
                     </Select>
                   )}
                 />
-                {errors.blokId && (
-                  <p className="text-red-600 text-sm mt-2">{errors.blokId.message}</p>
-                )}
+                {errors.blokId && <div style={errorStyle}>{errors.blokId.message}</div>}
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="lokasi" className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-red-600" />
-                    Lokasi Pemakaman
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
-                    onClick={() => {
-                      setValue("lokasi", "");
-                      setLokasi("");
-                    }}
-                    className="mr-2"
-                  />
+
+              {/* Lokasi */}
+              <div style={fieldStyle}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <label style={labelStyle}>Lokasi Pemakaman</label>
+                  <button
+                    type="button"
+                    onClick={() => { setValue("lokasi", ""); setLokasi(""); }}
+                    style={{ fontSize: "0.75rem", fontWeight: 600, color: "#505a5f", background: "none", border: "none", cursor: "pointer", padding: "0 4px" }}
+                  >
+                    Reset
+                  </button>
                 </div>
                 <Controller
                   name="lokasi"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        setLokasi(value);
-                      }}
+                      onValueChange={(value) => { field.onChange(value); setLokasi(value); }}
                       value={field.value}
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Lokasi Pemakaman" />
+                      <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
+                        <SelectValue placeholder="Pilih Lokasi" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
                         <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
@@ -561,72 +488,54 @@ export default function Pemesanan() {
                     </Select>
                   )}
                 />
-                {errors.lokasi && (
-                  <p className="text-red-600 text-sm mt-2">{errors.lokasi.message}</p>
-                )}
+                {errors.lokasi && <div style={errorStyle}>{errors.lokasi.message}</div>}
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="silsilah" className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-teal-600" />
-                    Hubungan dengan pemesan
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
+
+              {/* Silsilah */}
+              <div style={fieldStyle}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <label style={labelStyle}>Hubungan dengan Pemesan</label>
+                  <button
+                    type="button"
                     onClick={() => setValue("silsilah", "" as Silsilah)}
-                    className="mr-2"
-                  />
+                    style={{ fontSize: "0.75rem", fontWeight: 600, color: "#505a5f", background: "none", border: "none", cursor: "pointer", padding: "0 4px" }}
+                  >
+                    Reset
+                  </button>
                 </div>
                 <Controller
                   name="silsilah"
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
                         <SelectValue placeholder="Pilih Silsilah" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="Diri Sendiri">Diri Sendiri</SelectItem>
-                        <SelectItem value="Anak">Anak</SelectItem>
-                        <SelectItem value="Orang Tua">Orang Tua</SelectItem>
-                        <SelectItem value="Kakak Adik">Kakak/Adik</SelectItem>
-                        <SelectItem value="Sepupu">Sepupu</SelectItem>
-                        <SelectItem value="Keponakan">Keponakan</SelectItem>
-                        <SelectItem value="Paman Bibi">Paman/Bibi</SelectItem>
-                        <SelectItem value="Kakek Nenek">Kakek/Nenek</SelectItem>
-                        <SelectItem value="Cucu">Cucu</SelectItem>
-                        <SelectItem value="Lebih 2 Generasi di Atas">
-                          {">2 Generasi di Atas"}
-                        </SelectItem>
-                        <SelectItem value="Lebih 2 Generasi di Bawah">
-                          {">2 Generasi di Bawah"}
-                        </SelectItem>
+                        {["Diri Sendiri","Anak","Orang Tua","Kakak Adik","Sepupu","Keponakan","Paman Bibi","Kakek Nenek","Cucu","Lebih 2 Generasi di Atas","Lebih 2 Generasi di Bawah"].map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.silsilah && (
-                  <p className="text-red-600 text-sm mt-2">{errors.silsilah.message}</p>
-                )}
+                {errors.silsilah && <div style={errorStyle}>{errors.silsilah.message}</div>}
               </div>
-              <div className="flex flex-col flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="jenismakam" className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-cyan-600" />
-                    Jenis Makam
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
+
+              {/* Jenis Makam */}
+              <div style={fieldStyle}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <label style={labelStyle}>Jenis Makam</label>
+                  <button
+                    type="button"
                     onClick={() => setJenisMakam("")}
-                    className="mr-2"
-                  />
+                    style={{ fontSize: "0.75rem", fontWeight: 600, color: "#505a5f", background: "none", border: "none", cursor: "pointer", padding: "0 4px" }}
+                  >
+                    Reset
+                  </button>
                 </div>
                 <Select onValueChange={(value) => setJenisMakam(value)} value={jenisMakam}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
                     <SelectValue placeholder="Pilih Jenis Makam" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -635,84 +544,84 @@ export default function Pemesanan() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-col flex-1">
-                <Label htmlFor="tanggalPemesan" className="mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-emerald-600" />
-                  Tanggal Pemesanan
-                </Label>
+
+              {/* Tanggal Pemesanan */}
+              <div style={fieldStyle}>
+                <label style={labelStyle}>Tanggal Pemesanan</label>
                 <Controller
                   name="tanggalPemesanan"
                   control={control}
                   render={({ field }) => (
                     <DatePicker
                       id="tanggalPemesanan"
-                      className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
-                      onChange={(date, dateString) => {
-                        field.onChange(dateString);
-                      }}
+                      style={{ width: "100%", ...inputOverride }}
+                      onChange={(_, dateString) => field.onChange(dateString)}
                     />
                   )}
                 />
                 {errors.tanggalPemesanan && (
-                  <p className="text-red-600 text-sm mt-2">{errors.tanggalPemesanan.message}</p>
+                  <div style={errorStyle}>{errors.tanggalPemesanan.message}</div>
                 )}
               </div>
-              <div className="flex flex-col flex-1">
-                <Label htmlFor="tanggalPemakaman" className="mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-orange-600" />
-                  Tanggal Pemakaman
-                </Label>
+
+              {/* Tanggal Pemakaman */}
+              <div style={fieldStyle}>
+                <label style={labelStyle}>Tanggal Pemakaman</label>
                 <Controller
                   name="tanggalPemakaman"
                   control={control}
                   render={({ field }) => (
                     <DatePicker
                       id="tanggalPemakaman"
-                      className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
-                      onChange={(date, dateString) => {
-                        field.onChange(dateString);
-                      }}
+                      style={{ width: "100%", ...inputOverride }}
+                      onChange={(_, dateString) => field.onChange(dateString)}
                     />
                   )}
                 />
                 {errors.tanggalPemakaman && (
-                  <p className="text-red-600 text-sm mt-2">{errors.tanggalPemakaman.message}</p>
+                  <div style={errorStyle}>{errors.tanggalPemakaman.message}</div>
                 )}
-                <span className="text-sm text-gray-600 mt-1">*Diisi jika telah dimakamkan.</span>
+                <span style={{ fontSize: "0.8125rem", color: "#505a5f" }}>
+                  *Diisi jika telah dimakamkan.
+                </span>
+              </div>
+
+              {/* Notes — full width */}
+              <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Penjelasan Tambahan</label>
+                <Controller
+                  name="notes"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      rows={4}
+                      placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
+                      style={{ ...inputOverride, resize: "none" }}
+                    />
+                  )}
+                />
+                {errors.notes && <div style={errorStyle}>{errors.notes.message}</div>}
               </div>
             </div>
-            <div className="flex flex-col">
-              <Label htmlFor="notes" className="mb-2 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-violet-600" />
-                Penjelasan Tambahan
-              </Label>
-              <Controller
-                name="notes"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    id="notes"
-                    rows={4}
-                    placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
-                    className="resize-none"
-                  />
-                )}
-              />
-              {errors.notes && <p className="text-red-600 text-sm mt-2">{errors.notes.message}</p>}
+
+            {/* Actions */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                paddingTop: 12,
+                borderTop: "1px solid #b1b4b6",
+              }}
+            >
+              <Button danger onClick={() => router.push("/")}>
+                Batal
+              </Button>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Kirim Pemesanan
+              </Button>
             </div>
-          </section>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button danger onClick={() => router.push("/")} className="min-w-[clamp(6.25rem,10vw,8rem)]">
-              Batal
-            </Button>
-
-            <Button type="primary" htmlType="submit" loading={loading} className="min-w-[clamp(6.25rem,10vw,8rem)]">
-              Kirim
-            </Button>
           </div>
         </form>
       </main>

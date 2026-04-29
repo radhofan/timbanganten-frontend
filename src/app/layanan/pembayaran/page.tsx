@@ -4,10 +4,10 @@ import PembayaranTable from "@/components/PembayaranTable";
 
 export default function Admin() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 bg-white page-container">
+      <main style={{ flex: 1 }} className="page-container">
         <PembayaranTable />
       </main>
 

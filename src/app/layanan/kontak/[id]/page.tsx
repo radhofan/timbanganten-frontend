@@ -19,7 +19,13 @@ import {
   kontakUpdateDefaultValues,
 } from "@/validation/kontak";
 
-import { toast } from "react-hot-toast"; // toaster
+import { toast } from "react-hot-toast";
+
+const fieldStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 };
+const errorStyle: React.CSSProperties = {
+  fontSize: "0.75rem", fontWeight: 700, color: "#d4351c",
+  borderLeft: "4px solid #d4351c", background: "#fdf2f2", padding: "2px 8px", marginTop: 2,
+};
 
 export default function KontakDetailPage() {
   const { id } = useParams();
@@ -61,9 +67,7 @@ export default function KontakDetailPage() {
         setLoading(false);
       });
 
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [id, reset]);
 
   const onSubmit: SubmitHandler<KontakUpdatePayload> = async (data) => {
@@ -98,116 +102,110 @@ export default function KontakDetailPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start page-container">
+      <main style={{ flex: 1 }} className="page-container">
         {loading ? (
-          <p className="text-gray-600">Memuat data kontak...</p>
+          <div style={{ padding: "40px 0", color: "#505a5f", fontSize: "0.875rem" }}>
+            Memuat data kontak...
+          </div>
         ) : error ? (
-          <p className="text-red-600">{error}</p>
+          <div style={errorStyle}>{error}</div>
         ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-8"
-          >
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-800">Edit Kontak Admin</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Perbarui informasi kontak admin di bawah ini.
-              </p>
+          <div style={{ maxWidth: 560 }}>
+            {/* Page title */}
+            <div style={{ borderBottom: "2px solid #0b0c0c", paddingBottom: 8, marginBottom: 16 }}>
+              <h2 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.25rem)", color: "#0b0c0c", margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                Edit Kontak Admin
+              </h2>
             </div>
 
-            <section className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Informasi Kontak</h3>
+            <form onSubmit={handleSubmit(onSubmit)} style={{ background: "#fff", border: "1px solid #505a5f" }}>
+              {/* Form header */}
+              <div style={{ background: "#0b0c0c", padding: "8px 14px" }}>
+                <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.8125rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                  Informasi Kontak
+                </span>
+              </div>
 
-              {/* Name */}
-              <Controller
-                name="name"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="name" className="mb-2">
-                      Nama
-                    </Label>
-                    <Input {...field} id="name" />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
+              <div style={{ padding: "clamp(12px, 2vw, 20px)" }}>
+                {/* Name */}
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <div style={fieldStyle}>
+                      <Label htmlFor="name">Nama</Label>
+                      <Input {...field} id="name" style={{ width: "100%" }} />
+                      {fieldState.error && <span style={errorStyle}>{fieldState.error.message}</span>}
+                    </div>
+                  )}
+                />
 
-              {/* Email */}
-              <Controller
-                name="email"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="email" className="mb-2">
-                      Email
-                    </Label>
-                    <Input {...field} id="email" type="email" />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
+                {/* Email */}
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <div style={fieldStyle}>
+                      <Label htmlFor="email">Email</Label>
+                      <Input {...field} id="email" type="email" style={{ width: "100%" }} />
+                      {fieldState.error && <span style={errorStyle}>{fieldState.error.message}</span>}
+                    </div>
+                  )}
+                />
 
-              {/* Contact */}
-              <Controller
-                name="contact"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="contact" className="mb-2">
-                      No. Kontak
-                    </Label>
-                    <Input {...field} id="contact" placeholder="08XXXXXXXXX" />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
-            </section>
+                {/* Contact */}
+                <Controller
+                  name="contact"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <div style={fieldStyle}>
+                      <Label htmlFor="contact">No. Kontak</Label>
+                      <Input {...field} id="contact" placeholder="08XXXXXXXXX" style={{ width: "100%" }} />
+                      {fieldState.error && <span style={errorStyle}>{fieldState.error.message}</span>}
+                    </div>
+                  )}
+                />
 
-            <section className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Keamanan</h3>
+                {/* Divider */}
+                <div style={{ borderTop: "1px solid #b1b4b6", margin: "14px 0 14px" }} />
+                <div style={{ fontWeight: 700, fontSize: "0.75rem", color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>
+                  Keamanan Akun
+                </div>
 
-              {/* Password */}
-              <Controller
-                name="password"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="password" className="mb-2">
-                      Password Baru
-                    </Label>
-                    <Input
-                      {...field}
-                      id="password"
-                      type="password"
-                      placeholder="Kosongkan jika tidak diubah"
-                    />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
-            </section>
+                {/* Password */}
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <div style={fieldStyle}>
+                      <Label htmlFor="password">Password Baru</Label>
+                      <Input
+                        {...field}
+                        id="password"
+                        type="password"
+                        placeholder="Kosongkan jika tidak diubah"
+                        style={{ width: "100%" }}
+                      />
+                      {fieldState.error && <span style={errorStyle}>{fieldState.error.message}</span>}
+                    </div>
+                  )}
+                />
 
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button danger onClick={() => router.push("/layanan/kontak")}>
-                Batal
-              </Button>
-              <Button type="primary" htmlType="submit" loading={saving} disabled={role !== "admin"}>
-                Simpan
-              </Button>
-            </div>
-          </form>
+                {/* Actions */}
+                <div style={{ borderTop: "1px solid #b1b4b6", paddingTop: 12, marginTop: 8, display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                  <Button danger onClick={() => router.push("/layanan/kontak")}>
+                    Batal
+                  </Button>
+                  <Button type="primary" htmlType="submit" loading={saving} disabled={role !== "admin"}>
+                    Simpan
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
         )}
       </main>
 

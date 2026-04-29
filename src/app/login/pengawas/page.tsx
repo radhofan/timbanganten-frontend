@@ -38,123 +38,74 @@ export default function LoginPengawas() {
   };
 
   return (
-    <div className="relative min-h-screen w-full">
-      <div className="absolute inset-0 -z-10">
-        <Image
-          src="/images/login.jpg"
-          alt="Login Background"
-          fill
-          style={{ objectFit: "cover" }}
-          priority
-          placeholder="empty"
-          unoptimized
-          quality={100}
-        />
-      </div>
-      <div className="absolute inset-0 bg-black opacity-50 -z-10"></div>
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="relative z-10 bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md w-full max-w-md">
-          <div className="flex items-center mb-6 justify-between">
-            <div className="flex items-center gap-2">
-              <Image
-                src="/images/pengawas.png"
-                alt="Pengawas Icon"
-                width={24}
-                height={24}
-                style={{ verticalAlign: "middle" }}
-              />
-              <h2 className="text-2xl font-bold text-gray-800 m-2 leading-none">Login Pengawas</h2>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
+      <div style={{ background: "#0b0c0c", borderBottom: "4px solid #1d70b8" }}>
+        <div style={{ background: "#1d70b8", padding: "3px clamp(0.75rem, 2vw, 2rem)", fontSize: "0.6875rem", color: "#fff", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          TIMGRAVID — Sistem Informasi Manajemen Yayasan Sajarah Timbanganten
+        </div>
+        <div style={{ padding: "0 clamp(0.75rem, 2vw, 2rem)", height: 44, display: "flex", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 24, height: 24, position: "relative" }}>
+              <Image src="/images/logo.png" alt="Logo" fill style={{ objectFit: "contain" }} priority />
             </div>
-            <select
-              name="role"
-              value={role}
-              onChange={(e) => {
-                const selectedRole = e.target.value;
-                setRole(selectedRole);
-                router.push(`/login/${selectedRole}`);
-              }}
-              className="ml-4 border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-700 shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="admin">Admin</option>
-              <option value="approver">Approver</option>
-              <option value="pengawas">Pengawas</option>
-            </select>
+            <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.9375rem" }}>Timbanganten</span>
+          </div>
+        </div>
+      </div>
+
+      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(1rem, 3vh, 2rem) clamp(0.75rem, 2vw, 2rem)" }}>
+        <div style={{ width: "100%", maxWidth: "clamp(300px, 40vw, 440px)", background: "#fff", border: "2px solid #0b0c0c" }}>
+          <div style={{ background: "#0b0c0c", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <div style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Login Pengawas</div>
+              <div style={{ color: "#b1b4b6", fontSize: "0.75rem" }}>Akses sistem pengawas</div>
+            </div>
+            <Image src="/images/pengawas.png" alt="Pengawas" width={28} height={28} style={{ objectFit: "contain", opacity: 0.8 }} />
           </div>
 
-          {error && (
-            <div className="mb-4 p-2 text-sm text-red-600 bg-red-50 rounded-md">{error}</div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="pengawas@example.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                required
-              />
+          <div style={{ padding: "20px" }}>
+            <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em" }}>Role:</span>
+              <select
+                name="role"
+                value={role}
+                onChange={(e) => { const r = e.target.value; setRole(r); router.push(`/login/${r}`); }}
+                style={{ border: "2px solid #0b0c0c", padding: "4px 8px", fontSize: "0.875rem", fontWeight: 600, color: "#0b0c0c", background: "#fff", cursor: "pointer", outline: "none" }}
+              >
+                <option value="admin">Admin</option>
+                <option value="approver">Approver</option>
+                <option value="pengawas">Pengawas</option>
+              </select>
             </div>
 
-            <div className="mb-4 relative">
-              <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                required
-              />
-            </div>
+            {error && (
+              <div style={{ marginBottom: 14, padding: "8px 12px", background: "#fdf2f2", borderLeft: "4px solid #d4351c", color: "#d4351c", fontSize: "0.875rem", fontWeight: 700 }}>
+                {error}
+              </div>
+            )}
 
-            <Button
-              htmlType="submit"
-              loading={isLoading}
-              block
-              style={{
-                backgroundColor: "#1f2937",
-                color: "#fff",
-                padding: "clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)",
-                borderRadius: "clamp(0.25rem, 0.5vw, 0.375rem)",
-                border: "none",
-                marginBottom: "0.5rem",
-              }}
-            >
-              Log In
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: 14 }}>
+                <label htmlFor="email" style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: 4 }}>Email</label>
+                <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="pengawas@example.com" required
+                  style={{ width: "100%", border: "2px solid #0b0c0c", padding: "7px 10px", fontSize: "1rem", outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
 
-          <Button
-            onClick={handleGuestLogin}
-            block
-            style={{
-              backgroundColor: "#fff",
-              color: "#1f2937",
-              border: "0.0625rem solid #9ca3af",
-              padding: "clamp(0.375rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)",
-              borderRadius: "clamp(0.25rem, 0.5vw, 0.375rem)",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#f9fafb";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#4b5563";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#fff";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#9ca3af";
-            }}
-          >
-            Masuk sebagai guest
-          </Button>
+              <div style={{ marginBottom: 18 }}>
+                <label htmlFor="password" style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: 4 }}>Password</label>
+                <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Masukkan password" required
+                  style={{ width: "100%", border: "2px solid #0b0c0c", padding: "7px 10px", fontSize: "1rem", outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
+
+              <Button htmlType="submit" loading={isLoading} block type="primary" style={{ marginBottom: 8 }}>Masuk</Button>
+            </form>
+            <Button block onClick={handleGuestLogin} style={{ borderColor: "#505a5f" }}>Masuk sebagai Guest</Button>
+          </div>
         </div>
+      </main>
+
+      <div style={{ background: "#0b0c0c", borderTop: "4px solid #1d70b8", padding: "8px clamp(0.75rem, 2vw, 2rem)" }}>
+        <p style={{ color: "#505a5f", fontSize: "0.8125rem", margin: 0 }}>© 2025 Yayasan Sejarah Timbanganten</p>
       </div>
     </div>
   );

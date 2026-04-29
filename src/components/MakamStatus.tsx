@@ -20,6 +20,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
+const fieldStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 4 };
+const errorStyle: React.CSSProperties = {
+  fontSize: "0.75rem", fontWeight: 700, color: "#d4351c",
+  borderLeft: "4px solid #d4351c", background: "#fdf2f2", padding: "2px 8px", marginTop: 2,
+};
+const fieldLabelStyle: React.CSSProperties = {
+  fontSize: "0.6875rem", fontWeight: 700, color: "#505a5f",
+  textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4,
+};
+
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
   const { isAdmin } = useUserRoles();
@@ -95,9 +105,7 @@ export default function MakamStatus({ page }: { page: string }) {
     try {
       const res = await fetch("/api/convertMakam", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
 
@@ -118,6 +126,7 @@ export default function MakamStatus({ page }: { page: string }) {
       return false;
     }
   }
+
   const onSubmit = async (data: MakamPayload) => {
     setLoading(true);
 
@@ -129,7 +138,6 @@ export default function MakamStatus({ page }: { page: string }) {
         blok: validatedData.blok,
         nama: validatedData.namajenazah,
         lokasi: validatedData.lokasi,
-        // silsilah: validatedData.silsilah,
         nama_penanggung_jawab: validatedData.namapj,
         kontak_penanggung_jawab: validatedData.kontak,
         description: validatedData.notes,
@@ -182,43 +190,59 @@ export default function MakamStatus({ page }: { page: string }) {
     }
   };
 
+  const isApproveReady =
+    watch("statusPembayaranPesanan") === "PAID" && !!watch("tanggalPemakaman");
+
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start mb-24">
+      <main style={{ flex: 1 }} className="page-container">
         {loading ? (
-          <div className="w-full max-w-4xl text-center py-20">
-            <p className="text-gray-500 text-lg animate-pulse">Memuat data status pemesanan...</p>
+          <div style={{ padding: "40px 0", color: "#505a5f", fontSize: "0.875rem" }}>
+            Memuat data status pemesanan...
           </div>
         ) : (
           <form
-            className="bg-white border border-gray-400 rounded-lg p-6 md:p-10 w-full max-w-4xl space-y-8"
             onSubmit={handleSubmit(onSubmit)}
+            style={{ background: "#fff", border: "1px solid #505a5f", marginBottom: 24 }}
           >
-            <h2 className="text-2xl font-semibold text-center text-gray-800">
-              Status Pemesanan Makam
-            </h2>
+            {/* Form header bar */}
+            <div style={{ background: "#0b0c0c", padding: "10px 16px" }}>
+              <h2 style={{
+                color: "#fff", fontWeight: 700, margin: 0,
+                fontSize: "clamp(0.875rem, 1.2vw, 1rem)",
+                textTransform: "uppercase", letterSpacing: "0.04em",
+              }}>
+                Status Pemesanan Makam
+              </h2>
+            </div>
 
-            {/* Section 1: Basic Information */}
-            <section>
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ padding: "clamp(12px, 2vw, 20px)" }}>
+
+              {/* ── Section 1: Informasi Dasar ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Informasi Dasar</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 20,
+              }}>
                 {/* Nama Jenazah */}
                 <Controller
                   name="namajenazah"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex flex-col gap-1">
+                    <div style={fieldStyle}>
                       <Label htmlFor="namajenazah">Nama Jenazah</Label>
                       <Input
                         {...field}
                         id="namajenazah"
                         readOnly={!canEdit}
-                        className="text-center"
+                        style={{ width: "100%" }}
                       />
                       {errors.namajenazah && (
-                        <p className="text-red-600 text-sm mt-0">{errors.namajenazah.message}</p>
+                        <div style={errorStyle}>{errors.namajenazah.message}</div>
                       )}
                     </div>
                   )}
@@ -229,14 +253,14 @@ export default function MakamStatus({ page }: { page: string }) {
                   name="namapj"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex flex-col gap-1">
+                    <div style={fieldStyle}>
                       <Label htmlFor="namapj">Nama Penanggung Jawab</Label>
                       <Input
                         {...field}
                         id="namapj"
                         readOnly
                         disabled
-                        className="text-center bg-muted text-muted-foreground"
+                        style={{ width: "100%" }}
                       />
                     </div>
                   )}
@@ -247,21 +271,21 @@ export default function MakamStatus({ page }: { page: string }) {
                   name="kontak"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex flex-col gap-1">
+                    <div style={fieldStyle}>
                       <Label htmlFor="kontak">No. Kontak PJ</Label>
                       <Input
                         {...field}
                         id="kontak"
                         readOnly
                         disabled
-                        className="text-center bg-muted text-muted-foreground"
+                        style={{ width: "100%" }}
                       />
                     </div>
                   )}
                 />
 
                 {/* Lokasi */}
-                <div className="flex flex-col gap-1">
+                <div style={fieldStyle}>
                   <Label htmlFor="lokasi">Lokasi</Label>
                   <Controller
                     name="lokasi"
@@ -271,7 +295,7 @@ export default function MakamStatus({ page }: { page: string }) {
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Pilih Lokasi Pemakaman" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white">
+                        <SelectContent>
                           <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
                           <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
                           <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
@@ -282,30 +306,29 @@ export default function MakamStatus({ page }: { page: string }) {
                 </div>
 
                 {/* Blok Makam */}
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="blok">Blok Makam</Label>
-                  <Controller
-                    name="blok"
-                    control={control}
-                    render={({ field }) => (
-                      <>
-                        <Input {...field} id="blok" className="text-center" disabled />
-                        {errors.blok && (
-                          <p className="text-red-600 text-sm mt-0">{errors.blok.message}</p>
-                        )}
-                      </>
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="blok"
+                  control={control}
+                  render={({ field }) => (
+                    <div style={fieldStyle}>
+                      <Label htmlFor="blok">Blok Makam</Label>
+                      <Input {...field} id="blok" disabled style={{ width: "100%" }} />
+                      {errors.blok && <div style={errorStyle}>{errors.blok.message}</div>}
+                    </div>
+                  )}
+                />
               </div>
-            </section>
 
-            {/* Section 2: Dates */}
-            <section>
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Tanggal</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* ── Section 2: Tanggal ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Tanggal</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 20,
+              }}>
                 {/* Tanggal Pemesanan */}
-                <div className="flex flex-col gap-1">
+                <div style={fieldStyle}>
                   <Label htmlFor="tanggalPemesanan">Tanggal Pemesanan</Label>
                   <Controller
                     name="tanggalPemesanan"
@@ -324,9 +347,12 @@ export default function MakamStatus({ page }: { page: string }) {
                 </div>
 
                 {/* Tanggal Pemakaman */}
-                <div className="flex flex-col gap-1">
+                <div style={fieldStyle}>
                   <Label htmlFor="tanggalPemakaman">
-                    Tanggal Pemakaman *(Harap diisi sebelum di approve)
+                    Tanggal Pemakaman{" "}
+                    <span style={{ fontWeight: 400, color: "#505a5f", fontSize: "0.6875rem" }}>
+                      * harap diisi sebelum approve
+                    </span>
                   </Label>
                   <Controller
                     name="tanggalPemakaman"
@@ -344,19 +370,21 @@ export default function MakamStatus({ page }: { page: string }) {
                   />
                 </div>
               </div>
-            </section>
 
-            {/* Section 3: Statuses */}
-            <section>
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Status</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Status Blok */}
+              {/* ── Section 3: Status ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Status</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 20,
+              }}>
                 <Controller
                   name="statusBlok"
                   control={control}
                   render={({ field }) => (
                     <StatusLabel
-                      label="Status Blok Sekarang"
+                      label="Status Blok"
                       id="statusBlok"
                       {...field}
                       readOnly
@@ -365,7 +393,6 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
-                {/* Status Jenazah */}
                 <Controller
                   name="statusJenazah"
                   control={control}
@@ -380,7 +407,6 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
-                {/* Status Pembayaran Pesanan */}
                 <Controller
                   name="statusPembayaranPesanan"
                   control={control}
@@ -389,13 +415,12 @@ export default function MakamStatus({ page }: { page: string }) {
                       label="Status Pembayaran Pesanan"
                       id="statusPembayaranPesanan"
                       value={field.value || "UNKNOWN"}
-                      readOnly={true}
-                      disabled={true}
+                      readOnly
+                      disabled
                     />
                   )}
                 />
 
-                {/* Status Pembayaran Iuran Tahunan */}
                 {page !== "pesan-status" && (
                   <Controller
                     name="statusPembayaranIuranTahunan"
@@ -405,18 +430,16 @@ export default function MakamStatus({ page }: { page: string }) {
                         label="Status Pembayaran Iuran Tahunan"
                         id="statusPembayaranIuranTahunan"
                         value={field.value || "UNKNOWN"}
-                        readOnly={true}
-                        disabled={true}
+                        readOnly
+                        disabled
                       />
                     )}
                   />
                 )}
               </div>
-            </section>
 
-            {/* Notes Section */}
-            <section>
-              <Label htmlFor="notes">Penjelasan</Label>
+              {/* ── Section 4: Penjelasan ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Penjelasan</div>
               <Controller
                 name="notes"
                 control={control}
@@ -426,69 +449,68 @@ export default function MakamStatus({ page }: { page: string }) {
                     {...field}
                     required
                     rows={4}
-                    className="w-full mt-1"
+                    style={{ width: "100%" }}
                     readOnly={role !== "admin"}
                     onChange={(e) => field.onChange(e.target.value)}
                   />
                 )}
               />
-            </section>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => router.push("/layanan/pesan/status")}
-              >
-                Cancel
-              </Button>
-
-              {role === "admin" && (
-                <Button type="submit" variant="default">
-                  Update
-                </Button>
-              )}
-
-              {role === "approver" && page === "pesan-status" && (
-                <Tooltip
-                  placement="top"
-                  title={
-                    <div className="text-sm">
-                      {watch("statusPembayaranPesanan") !== "PAID" && (
-                        <div>• Pembayaran pesanan belum PAID</div>
-                      )}
-                      {!watch("tanggalPemakaman") && <div>• Tanggal pemakaman belum diisi</div>}
-                    </div>
-                  }
+              {/* ── Action Buttons ── */}
+              <div style={{
+                borderTop: "1px solid #b1b4b6",
+                paddingTop: 12,
+                marginTop: 16,
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+              }}>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam")}
                 >
-                  <span>
-                    <Button
-                      type="button"
-                      disabled={
-                        watch("statusPembayaranPesanan") !== "PAID" || !watch("tanggalPemakaman")
-                      }
-                      onClick={async () => {
-                        if (
-                          watch("statusPembayaranPesanan") !== "PAID" ||
-                          !watch("tanggalPemakaman")
-                        )
-                          return;
+                  Batal
+                </Button>
 
-                        const success = await convertMakam(id as string);
-                        if (success) router.push("/layanan/makam");
-                      }}
-                      className={
-                        watch("statusPembayaranPesanan") === "PAID" && watch("tanggalPemakaman")
-                          ? "bg-green-600 hover:bg-green-700"
-                          : ""
-                      }
-                    >
-                      Approve
-                    </Button>
-                  </span>
-                </Tooltip>
-              )}
+                {role === "admin" && (
+                  <Button type="submit" variant="default">
+                    Perbarui
+                  </Button>
+                )}
+
+                {role === "approver" && page === "pesan-status" && (
+                  <Tooltip
+                    placement="top"
+                    title={
+                      <div style={{ fontSize: "0.8125rem" }}>
+                        {watch("statusPembayaranPesanan") !== "PAID" && (
+                          <div>• Pembayaran pesanan belum PAID</div>
+                        )}
+                        {!watch("tanggalPemakaman") && <div>• Tanggal pemakaman belum diisi</div>}
+                      </div>
+                    }
+                  >
+                    <span>
+                      <Button
+                        type="button"
+                        variant="default"
+                        disabled={!isApproveReady}
+                        style={isApproveReady ? { background: "#00703c", boxShadow: "0 2px 0 #005a30" } : {}}
+                        onClick={async () => {
+                          if (!isApproveReady) return;
+                          const success = await convertMakam(id as string);
+                          if (success) router.push("/layanan/makam");
+                        }}
+                      >
+                        Approve
+                      </Button>
+                    </span>
+                  </Tooltip>
+                )}
+              </div>
             </div>
           </form>
         )}

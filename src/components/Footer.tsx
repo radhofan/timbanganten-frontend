@@ -1,24 +1,44 @@
 export default function Footer() {
   return (
-    <div className="relative">
-      {/* More wavy top edge */}
-      <div className="absolute top-0 left-0 w-full -translate-y-full">
-        <svg
-          className="w-full h-20"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
+    <footer
+      style={{
+        background: "#0b0c0c",
+        borderTop: "4px solid #1d70b8",
+        padding: "clamp(10px, 1.5vh, 16px) clamp(0.75rem, 2vw, 2rem)",
+        marginTop: "auto",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 8,
+        }}
+      >
+        <p
+          style={{
+            color: "#b1b4b6",
+            fontSize: "0.8125rem",
+            margin: 0,
+          }}
         >
-          <path fill="#223D3C" d="M0,160 C360,0 1080,320 1440,160 L1440,320 L0,320 Z" />
-        </svg>
+          © 2025 Yayasan Sejarah Timbanganten
+        </p>
+        <p
+          style={{
+            color: "#505a5f",
+            fontSize: "0.6875rem",
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            margin: 0,
+          }}
+        >
+          TIMGRAVID v1.0 — Sistem Manajemen Pemakaman
+        </p>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-[#223D3C] text-white p-4 h-32 relative z-10">
-        <div className="flex items-center justify-center h-full">
-          <p>© 2025 Yayasan Sejarah Timbanganten</p>
-        </div>
-      </footer>
-    </div>
+    </footer>
   );
 }

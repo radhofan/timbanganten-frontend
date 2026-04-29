@@ -14,21 +14,20 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-// 1. Import at the top
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// 2. Replace the single <Image> in the banner with a carousel
 const bannerImages = ["/images/timbanganten/makam-1.png", "/images/timbanganten/makam-2.jpg"];
 
 function NextArrow({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="absolute top-1/2 right-4 z-20 -translate-y-1/2 opacity-70 hover:opacity-100 text-white p-1 rounded-full shadow-lg"
+      className="absolute top-1/2 right-3 z-20 -translate-y-1/2 text-white opacity-80 hover:opacity-100 p-1"
+      style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.4)" }}
     >
-      <ChevronRight className="w-8 h-8 stroke-2" />
+      <ChevronRight className="w-5 h-5" />
     </button>
   );
 }
@@ -37,9 +36,10 @@ function PrevArrow({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="absolute top-1/2 left-4 z-20 -translate-y-1/2 opacity-70 hover:opacity-100 text-white p-1 rounded-full shadow-lg"
+      className="absolute top-1/2 left-3 z-20 -translate-y-1/2 text-white opacity-80 hover:opacity-100 p-1"
+      style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.4)" }}
     >
-      <ChevronLeft className="w-8 h-8 stroke-2" />
+      <ChevronLeft className="w-5 h-5" />
     </button>
   );
 }
@@ -49,212 +49,310 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
   const router = useRouter();
   const user = useStore(authStore, (s) => s.user);
 
+  const roleLabel = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : "Guest";
+
   return (
     <>
-      <header className="flex items-center justify-between p-4 bg-white shadow-md relative z-50">
-        <Link href="/">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 relative">
-              <Image
-                src="/images/logo.png"
-                alt="Logo"
-                fill
-                style={{ objectFit: "contain" }}
-                priority
-              />
-            </div>
-            <h1 className="text-xl font-bold cursor-pointer text-gray-800">Timbanganten</h1>
-          </div>
-        </Link>
-
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+      {/* ── Top bar ────────────────────────────────────────────────────────── */}
+      <header
+        style={{
+          background: "#ffffff",
+          borderBottom: "4px solid #b1b4b6",
+        }}
+      >
+        {/* System identity strip */}
+        <div
+          style={{
+            background: "#1d70b8",
+            padding: "2px clamp(0.75rem, 2vw, 2rem)",
+            fontSize: "0.6875rem",
+            color: "#fff",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+          }}
         >
-          {mobileMenuOpen ? (
-            <X className="w-7 h-7 text-gray-700" />
-          ) : (
-            <Menu className="w-7 h-7 text-gray-700" />
-          )}
-        </button>
+          TIMGRAVID — Sistem Informasi Manajemen Yayasan Sajarah Timbanganten
+        </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-6 ml-auto mr-4">
-          <Link href="/">
-            <h1 className="text-lg font-medium cursor-pointer hover:text-green-600 transition-colors">Home</h1>
+        {/* Main nav row */}
+        <div
+          className="flex items-center justify-between"
+          style={{ padding: "0 clamp(0.75rem, 2vw, 2rem)", height: "clamp(44px, 5vh, 56px)" }}
+        >
+          {/* Logo + name */}
+          <Link href="/" className="flex items-center gap-2" style={{ textDecoration: "none" }}>
+            <div style={{ width: 28, height: 28, position: "relative", flexShrink: 0 }}>
+              <Image src="/images/logo.png" alt="Logo" fill style={{ objectFit: "contain" }} priority />
+            </div>
+            <span
+              style={{
+                fontWeight: 700,
+                fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)",
+                color: "#0b0c0c",
+                letterSpacing: "0.01em",
+              }}
+            >
+              Timbanganten
+            </span>
           </Link>
 
-          {/* User Info Card - Beautiful Design */}
-          <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-xl shadow-sm">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md">
-              <UserCircle className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="text-sm font-bold text-gray-800">{user?.name || "Guest"}</span>
-              <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full inline-block w-fit">
-                {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Guest"}
-              </span>
-            </div>
-          </div>
+          {/* Mobile toggle */}
+          <button
+            className="md:hidden p-1"
+            style={{ border: "1px solid #b1b4b6", color: "#0b0c0c" }}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
 
-          {/* Dropdown Menu - Beautiful Design */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none transition-all duration-200 hover:shadow-md">
-                <Menu className="w-6 h-6 text-gray-700" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-white border border-gray-200 rounded-xl shadow-2xl p-2"
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-0" style={{ height: "100%" }}>
+            <Link
+              href="/"
+              style={{
+                color: "#0b0c0c",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                padding: "0 14px",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+                borderLeft: "1px solid #b1b4b6",
+              }}
+              className="hover:bg-[#f3f2f1] transition-colors"
             >
-              <div className="px-3 py-2 mb-2 border-b border-gray-100">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Login Sebagai</p>
-              </div>
-              
-              <DropdownMenuItem 
-                onClick={() => router.push("/login/pengawas")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 cursor-pointer transition-all duration-200"
-              >
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">👮</span>
-                </div>
-                <span className="font-medium text-gray-700">Pengawas</span>
-              </DropdownMenuItem>
+              Beranda
+            </Link>
 
-              <DropdownMenuItem 
-                onClick={() => router.push("/login/admin")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 cursor-pointer transition-all duration-200"
-              >
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">👨‍💼</span>
+            {/* User info */}
+            <div
+              style={{
+                borderLeft: "1px solid #b1b4b6",
+                padding: "0 14px",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <UserCircle className="w-4 h-4 text-[#505a5f]" />
+              <div>
+                <div style={{ color: "#0b0c0c", fontWeight: 700, fontSize: "0.8125rem", lineHeight: 1.2 }}>
+                  {user?.name || "Guest"}
                 </div>
-                <span className="font-medium text-gray-700">Admin</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem 
-                onClick={() => router.push("/login/approver")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 cursor-pointer transition-all duration-200"
-              >
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">✅</span>
-                </div>
-                <span className="font-medium text-gray-700">Approver</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </nav>
-
-        {/* Mobile Dropdown - Clean Design matching Desktop */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-2xl z-50 border-t border-gray-200">
-            <div className="flex flex-col p-6 space-y-4">
-              {/* User Info Card */}
-              <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 rounded-xl shadow-sm">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md">
-                  <UserCircle className="w-8 h-8 text-white" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-base font-bold text-gray-800">{user?.name || "Guest"}</span>
-                  <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full inline-block w-fit">
-                    {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Guest"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Navigation Links */}
-              <Link href="/" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200 border border-gray-200">
-                  <span className="text-lg">🏠</span>
-                  <span className="text-base font-medium text-gray-700">Home</span>
-                </div>
-              </Link>
-
-              {/* Login Options */}
-              <div className="pt-2 border-t border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-2">Login Sebagai</p>
-                
-                <button
-                  onClick={() => {
-                    router.push("/login/pengawas");
-                    setMobileMenuOpen(false);
+                <div
+                  style={{
+                    color: "#505a5f",
+                    fontSize: "0.625rem",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-200 border border-gray-200 mb-2"
                 >
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">👮</span>
-                  </div>
-                  <span className="text-base font-medium text-gray-700">Pengawas</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    router.push("/login/admin");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 transition-all duration-200 border border-gray-200 mb-2"
-                >
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">👨‍💼</span>
-                  </div>
-                  <span className="text-base font-medium text-gray-700">Admin</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    router.push("/login/approver");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 transition-all duration-200 border border-gray-200"
-                >
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">✅</span>
-                  </div>
-                  <span className="text-base font-medium text-gray-700">Approver</span>
-                </button>
+                  {roleLabel}
+                </div>
               </div>
             </div>
+
+            {/* Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  style={{
+                    borderLeft: "1px solid #b1b4b6",
+                    padding: "0 14px",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    background: "transparent",
+                    color: "#0b0c0c",
+                    cursor: "pointer",
+                    outline: "none",
+                  }}
+                  className="hover:bg-[#f3f2f1] transition-colors"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                style={{
+                  background: "#fff",
+                  border: "2px solid #0b0c0c",
+                  minWidth: 200,
+                  padding: 0,
+                  boxShadow: "3px 3px 0 #0b0c0c",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "6px 12px",
+                    fontSize: "0.625rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: "#505a5f",
+                    background: "#f3f2f1",
+                    borderBottom: "1px solid #b1b4b6",
+                  }}
+                >
+                  Login Sebagai
+                </div>
+
+                {[
+                  { label: "Pengawas", path: "/login/pengawas" },
+                  { label: "Admin", path: "/login/admin" },
+                  { label: "Approver", path: "/login/approver" },
+                ].map((item) => (
+                  <DropdownMenuItem
+                    key={item.path}
+                    onClick={() => router.push(item.path)}
+                    style={{
+                      padding: "8px 12px",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                      color: "#0b0c0c",
+                      cursor: "pointer",
+                      borderBottom: "1px solid #f3f2f1",
+                    }}
+                    className="hover:bg-[#f3f2f1] transition-colors"
+                  >
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
+        </div>
+
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div
+            style={{
+              background: "#f3f2f1",
+              borderTop: "1px solid #b1b4b6",
+            }}
+          >
+            {/* User info row */}
+            <div
+              style={{
+                padding: "10px clamp(0.75rem, 2vw, 2rem)",
+                borderBottom: "1px solid #b1b4b6",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <UserCircle className="w-5 h-5 text-[#505a5f]" />
+              <div>
+                <div style={{ color: "#0b0c0c", fontWeight: 700, fontSize: "0.875rem" }}>
+                  {user?.name || "Guest"}
+                </div>
+                <div
+                  style={{
+                    color: "#505a5f",
+                    fontSize: "0.6875rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  {roleLabel}
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                display: "block",
+                padding: "10px clamp(0.75rem, 2vw, 2rem)",
+                color: "#0b0c0c",
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                textDecoration: "none",
+                borderBottom: "1px solid #b1b4b6",
+              }}
+            >
+              Beranda
+            </Link>
+
+            <div
+              style={{
+                padding: "6px clamp(0.75rem, 2vw, 2rem)",
+                fontSize: "0.625rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "#505a5f",
+              }}
+            >
+              Login Sebagai
+            </div>
+
+            {[
+              { label: "Pengawas", path: "/login/pengawas" },
+              { label: "Admin", path: "/login/admin" },
+              { label: "Approver", path: "/login/approver" },
+            ].map((item) => (
+              <button
+                key={item.path}
+                onClick={() => {
+                  router.push(item.path);
+                  setMobileMenuOpen(false);
+                }}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "10px clamp(0.75rem, 2vw, 2rem)",
+                  color: "#0b0c0c",
+                  fontWeight: 600,
+                  fontSize: "0.875rem",
+                  background: "transparent",
+                  cursor: "pointer",
+                  borderBottom: "1px solid #b1b4b6",
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         )}
       </header>
 
+      {/* ── Banner ─────────────────────────────────────────────────────────── */}
       {!hideBanner && (
         <div
-          className="w-full relative mb-12 bg-gray-900"
-          style={{
-            height: "clamp(40vh, 60vh, 70vh)",
-            clipPath:
-              "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-            WebkitClipPath:
-              "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-          }}
+          className="w-full relative"
+          style={{ height: "clamp(30vh, 42vh, 52vh)", background: "#0b0c0c" }}
         >
-          {/* Slider */}
           <Slider
             autoplay
             autoplaySpeed={5000}
             infinite
-            dots={true}
-            arrows={true}
+            dots
+            arrows
             nextArrow={<NextArrow />}
             prevArrow={<PrevArrow />}
           >
             {bannerImages.map((src, idx) => (
               <div key={idx}>
-                <div 
-                  className="relative w-full"
-                  style={{ height: "clamp(40vh, 60vh, 70vh)" }}
-                >
+                <div style={{ height: "clamp(30vh, 42vh, 52vh)", width: "100%" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={src}
                     alt={`Banner ${idx + 1}`}
                     style={{ 
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block'
+                      width: "100%", 
+                      height: "100%", 
+                      objectFit: "cover", 
+                      display: "block" 
                     }}
                   />
                 </div>
@@ -262,16 +360,59 @@ export default function Header({ hideBanner = false }: { hideBanner?: boolean })
             ))}
           </Slider>
 
-          {/* Dark Overlay - AFTER slider so it's on top */}
-          <div className="absolute inset-0 bg-black/60 pointer-events-none" style={{ zIndex: 5 }}></div>
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: "rgba(0,0,0,0.65)", zIndex: 5 }}
+          />
 
-          {/* Text Content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4" style={{ zIndex: 10 }}>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight sm:leading-relaxed drop-shadow-lg">
-              Sistem Informasi Manajemen <br />
-              Yayasan Sajarah Timbanganten Bandung
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center text-white text-center"
+            style={{ zIndex: 10, padding: "0 clamp(1rem, 4vw, 4rem)" }}
+          >
+            {/* System badge */}
+            <div
+              style={{
+                background: "#1d70b8",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: "0.6875rem",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                padding: "4px 12px",
+                marginBottom: 12,
+                border: "1px solid rgba(255,255,255,0.3)",
+              }}
+            >
+              Sistem Informasi Manajemen Pemakaman
+            </div>
+            <h1
+              style={{
+                fontWeight: 700,
+                fontSize: "clamp(1.25rem, 3.5vw, 2.5rem)",
+                lineHeight: 1.25,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Yayasan Sajarah Timbanganten
+              <br />
+              <span style={{ color: "#b1b4b6", fontSize: "0.75em", fontWeight: 400 }}>
+                Bandung — Portal Layanan Resmi
+              </span>
             </h1>
           </div>
+
+          {/* Bottom border accent */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 4,
+              background: "#1d70b8",
+              zIndex: 15,
+            }}
+          />
         </div>
       )}
     </>

@@ -110,7 +110,9 @@ export default function JenazahTable(): JSX.Element {
       return ta - tb;
     },
     render: (_, record) =>
-      record.tanggalPemakaman ? new Date(record.tanggalPemakaman).toLocaleDateString("id-ID") : "-",
+      record.tanggalPemakaman
+        ? new Date(record.tanggalPemakaman).toLocaleDateString("id-ID")
+        : "-",
   });
 
   columns.push({
@@ -120,14 +122,12 @@ export default function JenazahTable(): JSX.Element {
     sorter: (a, b) => {
       const allA = [...(a.makam?.pj || []), ...(a.makamStatus?.pj || [])];
       const allB = [...(b.makam?.pj || []), ...(b.makamStatus?.pj || [])];
-
       const nameA = allA.map((p) => p.user?.name || "").join(", ");
       const nameB = allB.map((p) => p.user?.name || "").join(", ");
       return nameA.localeCompare(nameB);
     },
     render: (_, record) => {
       const allPJs = [...(record.makam?.pj || []), ...(record.makamStatus?.pj || [])];
-
       return allPJs.length > 0
         ? allPJs.map((p, i) => (
             <span key={p.id}>
@@ -152,7 +152,7 @@ export default function JenazahTable(): JSX.Element {
   });
 
   columns.push({
-    title: "Pembayaran Pesanan",
+    title: "Bayar Pesanan",
     dataIndex: "status_pembayaran_pesanan",
     key: "status_pembayaran_pesanan",
     align: "center",
@@ -161,7 +161,6 @@ export default function JenazahTable(): JSX.Element {
     render: (_, record) => {
       const val = record.statusPembayaranPesanan ?? "";
       const clickable = val !== "PAID";
-
       return (
         <div
           style={{ display: "inline-block", cursor: clickable ? "pointer" : "default" }}
@@ -184,7 +183,7 @@ export default function JenazahTable(): JSX.Element {
   });
 
   columns.push({
-    title: "Pembayaran Iuran",
+    title: "Bayar Iuran",
     dataIndex: "status_pembayaran_iuran_tahunan",
     key: "status_pembayaran_iuran_tahunan",
     align: "center",
@@ -193,7 +192,6 @@ export default function JenazahTable(): JSX.Element {
     render: (_, record) => {
       const val = record.statusPembayaranIuranTahunan ?? "";
       const clickable = val !== "PAID";
-
       return (
         <div
           style={{ display: "inline-block", cursor: clickable ? "pointer" : "default" }}
@@ -216,51 +214,78 @@ export default function JenazahTable(): JSX.Element {
   });
 
   return (
-    <div className="w-full">
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Jenazah</h2>
+    <div style={{ background: "#f3f2f1", minHeight: "100%" }}>
+      {/* Page title */}
+      <div
+        style={{
+          borderBottom: "2px solid #0b0c0c",
+          paddingBottom: 8,
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "baseline",
+          gap: 12,
+        }}
+      >
+        <h2
+          style={{
+            fontWeight: 700,
+            fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
+            color: "#0b0c0c",
+            margin: 0,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+          }}
+        >
+          Daftar Jenazah &amp; Pembayaran
+        </h2>
+        {!loading && (
+          <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>
+            {total} data
+          </span>
+        )}
+      </div>
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
+      {/* Toolbar */}
+      <div className="ent-table-toolbar">
         <Search
-          placeholder="Cari nama atau blok"
+          placeholder="Cari nama atau blok..."
           allowClear
           onChange={(e) => {
             setSearch(e.target.value);
             setCurrent(1);
           }}
           value={search}
-          className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
+          style={{ maxWidth: "clamp(180px, 30vw, 300px)" }}
         />
 
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-sm">Lokasi</span>
-          <Select
-            value={selectedLocation}
-            onChange={(val) => {
-              setSelectedLocation(val);
-              setCurrent(1);
-            }}
-            className="w-32 sm:w-40"
-          >
-            <Option value="Semua">Semua</Option>
-            <Option value="Karang Anyar">Karang Anyar</Option>
-            <Option value="Dalem Kaum">Dalem Kaum</Option>
-            <Option value="Dayeuh Kolot">Dayeuh Kolot</Option>
-          </Select>
+        <span style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>Lokasi:</span>
+        <Select
+          value={selectedLocation}
+          onChange={(val) => {
+            setSelectedLocation(val);
+            setCurrent(1);
+          }}
+          style={{ width: "clamp(120px, 15vw, 160px)" }}
+        >
+          <Option value="Semua">Semua</Option>
+          <Option value="Karang Anyar">Karang Anyar</Option>
+          <Option value="Dalem Kaum">Dalem Kaum</Option>
+          <Option value="Dayeuh Kolot">Dayeuh Kolot</Option>
+        </Select>
 
-          <Select
-            value={pageSize}
-            onChange={(val) => {
-              setPageSize(val);
-              setCurrent(1);
-            }}
-            className="w-24 sm:w-28"
-          >
-            <Option value={5}>Show 5</Option>
-            <Option value={10}>Show 10</Option>
-            <Option value={12}>Show 12</Option>
-            <Option value={20}>Show 20</Option>
-          </Select>
-        </div>
+        <Select
+          value={pageSize}
+          onChange={(val) => {
+            setPageSize(val);
+            setCurrent(1);
+          }}
+          style={{ width: 100 }}
+        >
+          <Option value={5}>5 baris</Option>
+          <Option value={10}>10 baris</Option>
+          <Option value={12}>12 baris</Option>
+          <Option value={20}>20 baris</Option>
+        </Select>
       </div>
 
       <Table<Jenazah>
@@ -279,12 +304,14 @@ export default function JenazahTable(): JSX.Element {
         }}
         rowKey="id"
         bordered
-        scroll={{ x: 'max-content' }}
+        scroll={{ x: "max-content" }}
+        size="small"
       />
 
+      {/* Pesanan Modal */}
       <Modal
         open={pesananModalOpen}
-        title="Pembayaran Pesanan"
+        title="Konfirmasi Pembayaran Pesanan"
         onCancel={() => {
           setPesananModalOpen(false);
           setSelectedPesanan(null);
@@ -298,7 +325,6 @@ export default function JenazahTable(): JSX.Element {
             type="primary"
             onClick={async () => {
               if (!selectedPesanan) return;
-
               await fetch("/api/bayarPesanan", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -307,15 +333,12 @@ export default function JenazahTable(): JSX.Element {
                   tanggal_pemesanan: selectedPesanan.tanggalPemakaman,
                 }),
               });
-
               message.success("Status pesanan diperbarui");
-
               setData((prev) =>
                 prev.map((j) =>
                   j.id === selectedPesanan.id ? { ...j, statusPembayaranPesanan: "PAID" } : j
                 )
               );
-
               setPesananModalOpen(false);
             }}
           >
@@ -326,20 +349,20 @@ export default function JenazahTable(): JSX.Element {
         {selectedPesanan && (
           <Descriptions column={1} bordered size="small">
             <Descriptions.Item label="Blok">{selectedPesanan.blok?.id}</Descriptions.Item>
-
             <Descriptions.Item label="Nama Jenazah">
               {selectedPesanan.user?.name || "-"}
             </Descriptions.Item>
-
             <Descriptions.Item label="Status Saat Ini">
               {selectedPesanan.statusPembayaranPesanan}
             </Descriptions.Item>
           </Descriptions>
         )}
       </Modal>
+
+      {/* Iuran Modal */}
       <Modal
         open={iuranModalOpen}
-        title="Pembayaran Iuran Tahunan"
+        title="Konfirmasi Pembayaran Iuran Tahunan"
         onCancel={() => {
           setIuranModalOpen(false);
           setSelectedIuran(null);
@@ -359,23 +382,19 @@ export default function JenazahTable(): JSX.Element {
             type="primary"
             onClick={async () => {
               if (!selectedIuran) return;
-
               await fetch("/api/bayarIuranTahunan", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  id: selectedIuran.id,
-                }),
+                body: JSON.stringify({ id: selectedIuran.id }),
               });
-
               message.success("Iuran tahunan berhasil diperbarui");
-
               setData((prev) =>
                 prev.map((j) =>
-                  j.id === selectedIuran.id ? { ...j, statusPembayaranIuranTahunan: "PAID" } : j
+                  j.id === selectedIuran.id
+                    ? { ...j, statusPembayaranIuranTahunan: "PAID" }
+                    : j
                 )
               );
-
               setIuranModalOpen(false);
               setSelectedIuran(null);
             }}
@@ -387,17 +406,14 @@ export default function JenazahTable(): JSX.Element {
         {selectedIuran && (
           <Descriptions column={1} bordered size="small">
             <Descriptions.Item label="Blok">{selectedIuran.blok?.id}</Descriptions.Item>
-
             <Descriptions.Item label="Nama Jenazah">
               {selectedIuran.user?.name || "-"}
             </Descriptions.Item>
-
             <Descriptions.Item label="Masa Aktif Saat Ini">
               {selectedIuran.masaAktif
                 ? new Date(selectedIuran.masaAktif).toLocaleDateString("id-ID")
                 : "-"}
             </Descriptions.Item>
-
             <Descriptions.Item label="Status Saat Ini">
               {selectedIuran.statusPembayaranIuranTahunan}
             </Descriptions.Item>

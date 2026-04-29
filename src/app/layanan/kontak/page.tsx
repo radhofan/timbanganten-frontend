@@ -24,7 +24,6 @@ export default function AdminTable(): JSX.Element {
 
   useEffect(() => {
     let mounted = true;
-
     fetch("/api/admin")
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch admins");
@@ -40,23 +39,17 @@ export default function AdminTable(): JSX.Element {
         setData([]);
         setLoading(false);
       });
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return data;
-
-    return data.filter((item) => {
-      return (
-        item.name.toLowerCase().includes(q) ||
-        item.email.toLowerCase().includes(q) ||
-        (item.contact ?? "").toLowerCase().includes(q)
-      );
-    });
+    return data.filter((item) =>
+      item.name.toLowerCase().includes(q) ||
+      item.email.toLowerCase().includes(q) ||
+      (item.contact ?? "").toLowerCase().includes(q)
+    );
   }, [data, search]);
 
   const total = filtered.length;
@@ -71,7 +64,7 @@ export default function AdminTable(): JSX.Element {
     key: "name",
     align: "center",
     sorter: (a, b) => a.name.localeCompare(b.name),
-    render: (_, record) => <span className="font-medium">{record.name}</span>,
+    render: (_, record) => <span style={{ fontWeight: 600 }}>{record.name}</span>,
   });
 
   columns.push({
@@ -96,47 +89,68 @@ export default function AdminTable(): JSX.Element {
     title: "Role",
     key: "role",
     align: "center",
-    render: () => <span className="font-medium">Admin</span>,
+    render: () => (
+      <span
+        style={{
+          fontSize: "0.6875rem",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          padding: "2px 6px",
+          border: "1px solid #1d70b8",
+          color: "#1d70b8",
+          background: "#e8f0fe",
+        }}
+      >
+        Admin
+      </span>
+    ),
   });
 
   if (role === "admin") {
     columns.push({
-      title: "Edit",
+      title: "Ubah",
       key: "edit",
       align: "center",
       render: (_, record) => (
         <Link href={`/layanan/kontak/${record.id}`}>
-          <Button type="primary" size="small">
-            Edit
-          </Button>
+          <Button type="primary" size="small">Ubah</Button>
         </Link>
       ),
     });
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 page-container">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Kontak</h2>
+      <main style={{ flex: 1 }} className="page-container">
+        {/* Page title */}
+        <div style={{ borderBottom: "2px solid #0b0c0c", paddingBottom: 8, marginBottom: 12, display: "flex", alignItems: "baseline", gap: 12 }}>
+          <h2 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.25rem)", color: "#0b0c0c", margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            Daftar Kontak Admin
+          </h2>
+          {!loading && (
+            <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>{total} data</span>
+          )}
+        </div>
 
-        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
+        {/* Toolbar */}
+        <div className="ent-table-toolbar">
           <Search
             placeholder="Cari nama, email, atau kontak..."
             allowClear
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrent(1);
-            }}
-            className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
+            onChange={(e) => { setSearch(e.target.value); setCurrent(1); }}
+            style={{ maxWidth: "clamp(180px, 30vw, 300px)" }}
           />
 
           {role === "admin" && (
-            <Link href="/layanan/kontak/add">
-              <Button type="primary" className="w-full sm:w-auto">Tambah Kontak Baru</Button>
-            </Link>
+            <div style={{ marginLeft: "auto" }}>
+              <Link href="/layanan/kontak/add">
+                <Button type="primary">Tambah Kontak Baru</Button>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -157,7 +171,8 @@ export default function AdminTable(): JSX.Element {
           }}
           rowKey="id"
           bordered
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: "max-content" }}
+          size="small"
         />
       </main>
 

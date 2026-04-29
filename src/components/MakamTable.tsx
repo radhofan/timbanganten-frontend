@@ -30,7 +30,6 @@ export default function MakamTable(): JSX.Element {
     fetch("/api/makam")
       .then((r) => r.json())
       .then((res: Makam[]) => {
-        console.log("API returned", res);
         if (!mounted) return;
         setData(Array.isArray(res) ? res : []);
         setLoading(false);
@@ -47,27 +46,22 @@ export default function MakamTable(): JSX.Element {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-
     return data.filter((item) => {
       const matchesSearch =
         item.jenazah?.user?.name?.toLowerCase().includes(q) ||
         item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(q));
-
       const matchesLocation =
         selectedLocation === "Semua" || item.blok?.lokasi === selectedLocation;
-
       return matchesSearch && matchesLocation;
     });
   }, [data, search, selectedLocation]);
 
   const total = filtered.length;
-
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
 
   const columns: ColumnsType<Makam> = [];
 
-  // <-- REPLACED: Blok Makam sorter uses numeric-aware localeCompare -->
   columns.push({
     title: "Blok Makam",
     dataIndex: "blok",
@@ -80,13 +74,13 @@ export default function MakamTable(): JSX.Element {
       }),
     defaultSortOrder: "ascend",
     sortDirections: ["ascend", "descend"],
-    render: (value, record) => <span>{record.blok?.id}</span>,
+    render: (_, record) => <span>{record.blok?.id}</span>,
   });
 
   columns.push({
     title: "Status Blok",
     dataIndex: "blok",
-    key: "blok",
+    key: "status_blok",
     align: "center",
     sorter: (a, b) => {
       const sa = a.blok?.statusBlok || "";
@@ -95,7 +89,7 @@ export default function MakamTable(): JSX.Element {
     },
     render: (_, record) => {
       const status = record.blok?.statusBlok || "";
-      return <span className="font-medium">{status}</span>;
+      return <span style={{ fontWeight: 600 }}>{status}</span>;
     },
   });
 
@@ -105,8 +99,8 @@ export default function MakamTable(): JSX.Element {
     key: "nama",
     align: "center",
     sorter: (a, b) => (a.jenazah?.user?.name || "").localeCompare(b.jenazah?.user?.name || ""),
-    render: (value, record) => (
-      <span className="font-medium">{record.jenazah?.user?.name || "-"}</span>
+    render: (_, record) => (
+      <span style={{ fontWeight: 600 }}>{record.jenazah?.user?.name || "-"}</span>
     ),
   });
 
@@ -117,7 +111,9 @@ export default function MakamTable(): JSX.Element {
     align: "center",
     sorter: (a, b) =>
       (a.jenazah?.statusJenazah ?? "").localeCompare(b.jenazah?.statusJenazah ?? ""),
-    render: (value, record) => <span className="font-medium">{record.jenazah?.statusJenazah}</span>,
+    render: (_, record) => (
+      <span style={{ fontWeight: 600 }}>{record.jenazah?.statusJenazah}</span>
+    ),
   });
 
   columns.push({
@@ -126,7 +122,7 @@ export default function MakamTable(): JSX.Element {
     key: "lokasi",
     align: "center",
     sorter: (a, b) => (a.blok?.lokasi || "").localeCompare(b.blok?.lokasi || ""),
-    render: (value, record) => <span>{record.blok?.lokasi || "-"}</span>,
+    render: (_, record) => <span>{record.blok?.lokasi || "-"}</span>,
   });
 
   columns.push({
@@ -164,18 +160,16 @@ export default function MakamTable(): JSX.Element {
       },
       render: (_, record) => {
         if (!record.pj || record.pj.length === 0) return "-";
-
         return record.pj.map((pj, index) => {
           const num = pj.user?.contact;
           if (!num) return null;
-
           return (
             <span key={pj.id}>
               <a
                 href={`https://wa.me/${num}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ textDecoration: "underline" }}
+                style={{ color: "#1d70b8", textDecoration: "underline" }}
               >
                 {num}
               </a>
@@ -192,16 +186,14 @@ export default function MakamTable(): JSX.Element {
       align: "center",
       render: (_, record: Makam) => {
         if (!record.pj || record.pj.length === 0) return "-";
-
         return record.pj.map((pj, index) => {
           const userId = pj.user?.id;
           const userName = pj.user?.name || "-";
           if (!userId) return null;
-
           return (
             <span key={pj.id} className="mr-2">
               <span
-                className="cursor-pointer text-blue-600 underline"
+                style={{ cursor: "pointer", color: "#1d70b8", textDecoration: "underline" }}
                 onClick={() => router.push(`/layanan/histori/user/${userId}`)}
               >
                 {userName}
@@ -214,14 +206,14 @@ export default function MakamTable(): JSX.Element {
     });
 
     columns.push({
-      title: "Edit",
+      title: "Ubah",
       key: "edit",
       align: "center",
-      render: (value, record) => (
+      render: (_, record) => (
         <Link href={`/layanan/makam/${record.id}`} legacyBehavior>
           <a>
             <Button type="primary" size="small">
-              Edit
+              Ubah
             </Button>
           </a>
         </Link>
@@ -230,10 +222,39 @@ export default function MakamTable(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Pemakaman</h2>
+    <div style={{ background: "#f3f2f1", minHeight: "100%" }}>
+      {/* Page title */}
+      <div
+        style={{
+          borderBottom: "2px solid #0b0c0c",
+          paddingBottom: 8,
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "baseline",
+          gap: 12,
+        }}
+      >
+        <h2
+          style={{
+            fontWeight: 700,
+            fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
+            color: "#0b0c0c",
+            margin: 0,
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+          }}
+        >
+          Daftar Pemakaman
+        </h2>
+        {!loading && (
+          <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>
+            {total} data
+          </span>
+        )}
+      </div>
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
+      {/* Toolbar */}
+      <div className="ent-table-toolbar">
         <Search
           placeholder="Cari nama, blok, atau penanggung jawab..."
           allowClear
@@ -242,39 +263,39 @@ export default function MakamTable(): JSX.Element {
             setCurrent(1);
           }}
           value={search}
-          className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
+          style={{ maxWidth: "clamp(180px, 30vw, 300px)" }}
         />
 
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-sm">Tempat Makam:</span>
-          <Select
-            value={selectedLocation}
-            onChange={(val) => {
-              setSelectedLocation(val);
-              setCurrent(1);
-            }}
-            className="w-32 sm:w-40"
-          >
-            <Option value="Semua">Semua</Option>
-            <Option value="Karang Anyar">Karang Anyar</Option>
-            <Option value="Dalem Kaum">Dalem Kaum</Option>
-            <Option value="Dayeuhkolot">Dayeuhkolot</Option>
-          </Select>
-
-          <Select
-            value={pageSize}
-            onChange={(val) => {
-              setPageSize(val);
-              setCurrent(1);
-            }}
-            className="w-24 sm:w-28"
-          >
-            <Option value={5}>Show 5</Option>
-            <Option value={10}>Show 10</Option>
-            <Option value={12}>Show 12</Option>
-            <Option value={20}>Show 20</Option>
-          </Select>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
+          Lokasi:
         </div>
+        <Select
+          value={selectedLocation}
+          onChange={(val) => {
+            setSelectedLocation(val);
+            setCurrent(1);
+          }}
+          style={{ width: "clamp(120px, 15vw, 160px)" }}
+        >
+          <Option value="Semua">Semua</Option>
+          <Option value="Karang Anyar">Karang Anyar</Option>
+          <Option value="Dalem Kaum">Dalem Kaum</Option>
+          <Option value="Dayeuhkolot">Dayeuhkolot</Option>
+        </Select>
+
+        <Select
+          value={pageSize}
+          onChange={(val) => {
+            setPageSize(val);
+            setCurrent(1);
+          }}
+          style={{ width: 100 }}
+        >
+          <Option value={5}>5 baris</Option>
+          <Option value={10}>10 baris</Option>
+          <Option value={12}>12 baris</Option>
+          <Option value={20}>20 baris</Option>
+        </Select>
       </div>
 
       <Table<Makam>
@@ -293,7 +314,8 @@ export default function MakamTable(): JSX.Element {
         }}
         rowKey="id"
         bordered
-        scroll={{ x: 'max-content' }}
+        scroll={{ x: "max-content" }}
+        size="small"
       />
     </div>
   );

@@ -1,144 +1,235 @@
 "use client";
-// import { useState } from "react";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Calendar, CheckCircle, MapPin, List, CreditCard, Users, Phone } from "lucide-react";
-// import NotificationBoard from "@/components/NotificationsBoard";
+import Link from "next/link";
 
-export default function Admin() {
-  // const [notifications, setNotifications] = useState([
-  //   {
-  //     id: 1,
-  //     user: "Budi",
-  //     type: "lewat-pembayaran",
-  //     message: "Telah melewati batas pembayaran.",
-  //     date: "2025-08-25",
-  //     time: "9:41 AM",
-  //   },
-  //   {
-  //     id: 2,
-  //     user: "Agus",
-  //     type: "approved",
-  //     message: "Pesanan telah di-approve.",
-  //     date: "2025-08-25",
-  //     time: "10:15 AM",
-  //   },
-  //   {
-  //     id: 3,
-  //     user: "Rizky",
-  //     type: "tidak-approved",
-  //     message: "Pesanan tidak di-approve.",
-  //     date: "2025-08-25",
-  //     time: "10:15 AM",
-  //   },
-  //   {
-  //     id: 4,
-  //     user: "Dewi",
-  //     type: "pembayaran",
-  //     message: "Telah melakukan pembayaran.",
-  //     date: "2025-08-25",
-  //     time: "10:15 AM",
-  //   },
-  //   {
-  //     id: 5,
-  //     user: "Sari",
-  //     type: "perpanjangan",
-  //     message: "Telah melakukan perpanjangan.",
-  //     date: "2025-08-25",
-  //     time: "11:05 AM",
-  //   },
-  // ]);
+const services = [
+  {
+    title: "Pemesanan",
+    subtitle: "Daftar pemesanan makam baru",
+    icon: <Calendar className="w-4 h-4" />,
+    href: "/layanan/pesan",
+    accent: "#1d70b8",
+  },
+  {
+    title: "Status Pemesanan",
+    subtitle: "Cek dan kelola status pesanan",
+    icon: <CheckCircle className="w-4 h-4" />,
+    href: "/layanan/pesan/status",
+    accent: "#00703c",
+  },
+  {
+    title: "Daftar Makam",
+    subtitle: "Inventaris seluruh blok makam",
+    icon: <List className="w-4 h-4" />,
+    href: "/layanan/makam",
+    accent: "#505a5f",
+  },
+  {
+    title: "Denah Makam",
+    subtitle: "Peta interaktif lokasi makam",
+    icon: <MapPin className="w-4 h-4" />,
+    href: "/layanan/denah",
+    accent: "#f47738",
+  },
+  {
+    title: "Pembayaran",
+    subtitle: "Rekap iuran dan status bayar",
+    icon: <CreditCard className="w-4 h-4" />,
+    href: "/layanan/pembayaran",
+    accent: "#d4351c",
+  },
+  {
+    title: "Daftar Penanggung Jawab",
+    subtitle: "Manajemen data penanggung jawab",
+    icon: <Users className="w-4 h-4" />,
+    href: "/layanan/penanggung-jawab",
+    accent: "#4c2c92",
+  },
+  {
+    title: "Kontak Admin",
+    subtitle: "Direktori kontak pengelola",
+    icon: <Phone className="w-4 h-4" />,
+    href: "/layanan/kontak",
+    accent: "#0b0c0c",
+  },
+];
 
-  // const handleMarkAsRead = (id: number) => {
-  //   setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-  // };
-
-  const services = [
-    {
-      title: "Pemesanan",
-      icon: <Calendar className="w-12 h-12" />,
-      color: "from-blue-500 to-blue-600",
-      href: "/layanan/pesan",
-    },
-    {
-      title: "Status Pemesanan",
-      icon: <CheckCircle className="w-12 h-12" />,
-      color: "from-emerald-500 to-emerald-600",
-      href: "/layanan/pesan/status",
-    },
-    {
-      title: "Daftar Makam",
-      icon: <List className="w-12 h-12" />,
-      color: "from-purple-500 to-purple-600",
-      href: "/layanan/makam",
-    },
-    {
-      title: "Denah Makam",
-      icon: <MapPin className="w-12 h-12" />,
-      color: "from-amber-500 to-amber-600",
-      href: "/layanan/denah",
-    },
-    {
-      title: "Pembayaran",
-      icon: <CreditCard className="w-12 h-12" />,
-      color: "from-rose-500 to-rose-600",
-      href: "/layanan/pembayaran",
-    },
-    {
-      title: "Daftar Penanggung Jawab",
-      icon: <Users className="w-12 h-12" />,
-      color: "from-indigo-500 to-indigo-600",
-      href: "/layanan/penanggung-jawab",
-    },
-    {
-      title: "Kontak Admin",
-      icon: <Phone className="w-12 h-12" />,
-      color: "from-teal-500 to-teal-600",
-      href: "/layanan/kontak",
-    },
-  ];
-
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Notifications Section */}
-        {/* <NotificationBoard notifications={notifications} handleMarkAsRead={handleMarkAsRead} /> */}
+      <main style={{ flex: 1, padding: "clamp(1rem, 2vw, 2rem) clamp(0.75rem, 2vw, 2rem)" }}>
+        {/* Section header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "2px solid #0b0c0c",
+            paddingBottom: 8,
+            marginBottom: 16,
+          }}
+        >
+          <h2
+            style={{
+              fontWeight: 700,
+              fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)",
+              color: "#0b0c0c",
+              margin: 0,
+              letterSpacing: "0.01em",
+              textTransform: "uppercase",
+            }}
+          >
+            Layanan Sistem
+          </h2>
+          <span
+            style={{
+              fontSize: "0.6875rem",
+              fontWeight: 600,
+              color: "#505a5f",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {services.length} Modul Aktif
+          </span>
+        </div>
 
-        {/* Services Section */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Layanan</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => {
-              const isLastCard = index === services.length - 1;
-              return (
-                <a
-                  key={index}
-                  href={service.href}
-                  className={`group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
-                    isLastCard ? "lg:col-start-2" : ""
-                  }`}
+        {/* Polaris-style action list grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(clamp(220px, 25vw, 300px), 1fr))",
+            gap: 1,
+            border: "1px solid #b1b4b6",
+            background: "#b1b4b6",
+          }}
+        >
+          {services.map((service) => (
+            <Link
+              key={service.href}
+              href={service.href}
+              style={{
+                display: "flex",
+                alignItems: "stretch",
+                background: "#fff",
+                textDecoration: "none",
+                color: "inherit",
+                transition: "background 0.08s",
+              }}
+              className="group"
+            >
+              {/* Accent bar */}
+              <div
+                style={{
+                  width: 4,
+                  background: service.accent,
+                  flexShrink: 0,
+                }}
+              />
+
+              {/* Content */}
+              <div
+                style={{
+                  padding: "clamp(10px, 1.2vw, 16px) clamp(10px, 1.2vw, 16px)",
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+                className="group-hover:bg-[#f3f2f1] transition-colors"
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    background: service.accent,
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
                 >
+                  {service.icon}
+                </div>
+                <div style={{ minWidth: 0 }}>
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-                  ></div>
-                  <div className="p-8 flex flex-col items-center text-center relative z-10">
-                    <div
-                      className={`bg-gradient-to-br ${service.color} text-white p-6 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      {service.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
-                      {service.title}
-                    </h3>
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "0.875rem",
+                      color: "#0b0c0c",
+                      lineHeight: 1.3,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {service.title}
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                </a>
-              );
-            })}
-          </div>
-        </section>
+                  <div
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "#505a5f",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {service.subtitle}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    marginLeft: "auto",
+                    color: "#b1b4b6",
+                    fontSize: "1rem",
+                    flexShrink: 0,
+                  }}
+                  className="group-hover:text-[#1d70b8] transition-colors"
+                >
+                  →
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* System info bar */}
+        <div
+          style={{
+            marginTop: 16,
+            padding: "8px 12px",
+            background: "#fff",
+            border: "1px solid #b1b4b6",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px 24px",
+          }}
+        >
+          {[
+            { label: "Sistem", value: "TIMGRAVID" },
+            { label: "Pengelola", value: "Yayasan Sajarah Timbanganten" },
+            { label: "Status", value: "Operasional" },
+          ].map(({ label, value }) => (
+            <div key={label} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <span
+                style={{
+                  fontSize: "0.6875rem",
+                  fontWeight: 700,
+                  color: "#505a5f",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {label}:
+              </span>
+              <span style={{ fontSize: "0.8125rem", color: "#0b0c0c", fontWeight: 600 }}>
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
       </main>
 
       <Footer />

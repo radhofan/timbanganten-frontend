@@ -163,15 +163,15 @@ const CemeteryPlotEditor = () => {
             if (validPlots.length > 0) {
               setPlots(validPlots);
               setSelectedIds([]);
-              alert(`Successfully imported ${validPlots.length} plots!`);
+              alert(`Berhasil mengimpor ${validPlots.length} plot!`);
             } else {
-              alert("No valid plots found in file");
+              alert("Tidak ada plot valid ditemukan dalam file");
             }
           } else {
-            alert("File does not contain valid plot data");
+            alert("File tidak berisi data plot yang valid");
           }
         } catch (error) {
-          alert("Error reading file: " + error.message);
+          alert("Kesalahan membaca file: " + error.message);
         }
       };
       reader.readAsText(file);
@@ -442,7 +442,7 @@ const CemeteryPlotEditor = () => {
   }, [plots, selectedMakam, makamOptions]);
 
   const clearAll = useCallback(() => {
-    if (confirm("Clear all plots?")) {
+    if (confirm("Hapus semua plot?")) {
       setPlots([]);
       setSelectedIds([]);
     }
@@ -457,26 +457,46 @@ const CemeteryPlotEditor = () => {
   const selectedIdsSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
-          <h1 className="text-3xl font-bold mb-4">Cemetery Plot Layout Editor</h1>
+    <div className="min-h-screen" style={{ background: "#f3f2f1", padding: "clamp(0.75rem, 2vw, 1.5rem)" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+        <div style={{ background: "#fff", border: "1px solid #b1b4b6", padding: "clamp(1rem, 2vw, 1.5rem)", marginBottom: "1rem" }}>
+          <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 700, color: "#0b0c0c", marginBottom: "1rem", borderBottom: "4px solid #1d70b8", paddingBottom: "0.5rem" }}>
+            Editor Tata Letak Plot Makam
+          </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Upload Blueprint</label>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                Unggah Denah
+              </label>
               <div className="flex gap-2">
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  style={{ 
+                    display: "block", 
+                    width: "100%", 
+                    fontSize: "0.875rem",
+                    border: "2px solid #0b0c0c",
+                    padding: "0.25rem",
+                    background: "#fff"
+                  }}
                 />
                 {backgroundImage && (
                   <button
                     onClick={removeBackgroundImage}
-                    className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium whitespace-nowrap"
-                    title="Remove background image"
+                    style={{
+                      padding: "0.5rem 0.75rem",
+                      background: "#d4351c",
+                      color: "#fff",
+                      border: "none",
+                      fontWeight: 700,
+                      fontSize: "0.875rem",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap"
+                    }}
+                    title="Hapus gambar latar"
                   >
                     ✕
                   </button>
@@ -485,57 +505,109 @@ const CemeteryPlotEditor = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Import Coordinates</label>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                Impor Koordinat
+              </label>
               <input
                 type="file"
                 accept=".js,.json,.txt"
                 onChange={handleImportCoordinates}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                style={{ 
+                  display: "block", 
+                  width: "100%", 
+                  fontSize: "0.875rem",
+                  border: "2px solid #0b0c0c",
+                  padding: "0.25rem",
+                  background: "#fff"
+                }}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Mode</label>
+              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                Mode
+              </label>
               <div className="flex gap-2">
                 <button
                   onClick={() => setMode("select")}
-                  className={`px-3 py-2 rounded font-medium text-sm ${mode === "select" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    background: mode === "select" ? "#1d70b8" : "#f3f2f1",
+                    color: mode === "select" ? "#fff" : "#0b0c0c",
+                    border: "2px solid #0b0c0c",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    cursor: "pointer"
+                  }}
                 >
-                  Select
+                  Pilih
                 </button>
                 <button
                   onClick={() => setMode("multiselect")}
-                  className={`px-3 py-2 rounded font-medium text-sm ${mode === "multiselect" ? "bg-purple-600 text-white" : "bg-gray-200"}`}
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    background: mode === "multiselect" ? "#1d70b8" : "#f3f2f1",
+                    color: mode === "multiselect" ? "#fff" : "#0b0c0c",
+                    border: "2px solid #0b0c0c",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    cursor: "pointer"
+                  }}
                 >
                   Multi
                 </button>
                 <button
                   onClick={() => setMode("draw")}
-                  className={`px-3 py-2 rounded font-medium text-sm ${mode === "draw" ? "bg-green-600 text-white" : "bg-gray-200"}`}
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    background: mode === "draw" ? "#1d70b8" : "#f3f2f1",
+                    color: mode === "draw" ? "#fff" : "#0b0c0c",
+                    border: "2px solid #0b0c0c",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    cursor: "pointer"
+                  }}
                 >
-                  Draw
+                  Gambar
                 </button>
               </div>
             </div>
 
             {mode === "draw" ? (
               <div>
-                <label className="block text-sm font-medium mb-2">Plot ID</label>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                  ID Plot
+                </label>
                 <input
                   type="text"
                   value={plotIdInput}
                   onChange={(e) => setPlotIdInput(e.target.value)}
                   placeholder="e.g., 28, 27, 1"
-                  className="w-full px-3 py-2 border rounded"
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: "2px solid #0b0c0c",
+                    fontSize: "1rem",
+                    outline: "none"
+                  }}
                 />
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium mb-2">Select Makam</label>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                  Pilih Makam
+                </label>
                 <select
                   value={selectedMakam}
                   onChange={(e) => setSelectedMakam(e.target.value)}
-                  className="w-full px-3 py-2 border rounded font-medium"
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: "2px solid #0b0c0c",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    background: "#fff"
+                  }}
                 >
                   {makamOptions.map((option) => (
                     <option key={option.code} value={option.code}>
@@ -550,40 +622,80 @@ const CemeteryPlotEditor = () => {
           <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={selectAll}
-              className="px-4 py-2 bg-purple-600 text-white rounded font-medium hover:bg-purple-700"
+              style={{
+                padding: "0.5rem 1rem",
+                background: "#1d70b8",
+                color: "#fff",
+                border: "2px solid #0b0c0c",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                cursor: "pointer"
+              }}
             >
-              Select All
+              Pilih Semua
             </button>
             <button
               onClick={deselectAll}
               disabled={selectedIds.length === 0}
-              className="px-4 py-2 bg-gray-600 text-white rounded font-medium hover:bg-gray-700 disabled:bg-gray-400"
+              style={{
+                padding: "0.5rem 1rem",
+                background: selectedIds.length === 0 ? "#b1b4b6" : "#505a5f",
+                color: "#fff",
+                border: "2px solid #0b0c0c",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                cursor: selectedIds.length === 0 ? "not-allowed" : "pointer"
+              }}
             >
-              Deselect All
+              Batal Pilih Semua
             </button>
             <button
               onClick={exportData}
               disabled={plots.length === 0}
-              className="px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 disabled:bg-gray-400"
+              style={{
+                padding: "0.5rem 1rem",
+                background: plots.length === 0 ? "#b1b4b6" : "#00703c",
+                color: "#fff",
+                border: "2px solid #0b0c0c",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                cursor: plots.length === 0 ? "not-allowed" : "pointer"
+              }}
             >
-              Export Data
+              Ekspor Data
             </button>
             <button
               onClick={deletePlot}
               disabled={selectedIds.length === 0}
-              className="px-4 py-2 bg-red-600 text-white rounded font-medium hover:bg-red-700 disabled:bg-gray-400"
+              style={{
+                padding: "0.5rem 1rem",
+                background: selectedIds.length === 0 ? "#b1b4b6" : "#d4351c",
+                color: "#fff",
+                border: "2px solid #0b0c0c",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                cursor: selectedIds.length === 0 ? "not-allowed" : "pointer"
+              }}
             >
-              Delete ({selectedIds.length})
+              Hapus ({selectedIds.length})
             </button>
             <button
               onClick={clearAll}
               disabled={plots.length === 0}
-              className="px-4 py-2 bg-orange-600 text-white rounded font-medium hover:bg-orange-700 disabled:bg-gray-400"
+              style={{
+                padding: "0.5rem 1rem",
+                background: plots.length === 0 ? "#b1b4b6" : "#f47738",
+                color: "#fff",
+                border: "2px solid #0b0c0c",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                cursor: plots.length === 0 ? "not-allowed" : "pointer"
+              }}
             >
-              Clear All
+              Hapus Semua
             </button>
             <div className="ml-auto flex items-center gap-2">
-              <label className="text-sm font-medium">Zoom:</label>
+              <label style={{ fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c" }}>Zoom:</label>
               <input
                 type="range"
                 min="0.5"
@@ -591,40 +703,72 @@ const CemeteryPlotEditor = () => {
                 step="0.1"
                 value={scale}
                 onChange={(e) => setScale(parseFloat(e.target.value))}
-                className="w-32"
+                style={{ width: "128px" }}
               />
-              <span className="text-sm">{Math.round(scale * 100)}%</span>
+              <span style={{ fontSize: "0.875rem", color: "#0b0c0c" }}>{Math.round(scale * 100)}%</span>
             </div>
           </div>
 
           {selectedIds.length > 0 && (
-            <div className="bg-purple-50 p-4 rounded mb-4">
-              <h3 className="font-bold mb-3">Selected: {selectedIds.length} plot(s)</h3>
+            <div style={{ background: "#f3f2f1", padding: "1rem", border: "4px solid #1d70b8", marginBottom: "1rem" }}>
+              <h3 style={{ fontWeight: 700, marginBottom: "0.75rem", color: "#0b0c0c" }}>
+                Terpilih: {selectedIds.length} plot
+              </h3>
 
-              <div className="mb-3">
-                <label className="block text-sm font-medium mb-2">Position Controls</label>
+              <div style={{ marginBottom: "0.75rem" }}>
+                <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.5rem" }}>
+                  Kontrol Posisi
+                </label>
                 <div className="flex gap-2">
                   <button
                     onClick={() => moveSelected(0, -1)}
-                    className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    style={{
+                      padding: "0.5rem 0.75rem",
+                      background: "#1d70b8",
+                      color: "#fff",
+                      border: "2px solid #0b0c0c",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
                   >
                     ↑
                   </button>
                   <button
                     onClick={() => moveSelected(0, 1)}
-                    className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    style={{
+                      padding: "0.5rem 0.75rem",
+                      background: "#1d70b8",
+                      color: "#fff",
+                      border: "2px solid #0b0c0c",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
                   >
                     ↓
                   </button>
                   <button
                     onClick={() => moveSelected(-1, 0)}
-                    className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    style={{
+                      padding: "0.5rem 0.75rem",
+                      background: "#1d70b8",
+                      color: "#fff",
+                      border: "2px solid #0b0c0c",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
                   >
                     ←
                   </button>
                   <button
                     onClick={() => moveSelected(1, 0)}
-                    className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    style={{
+                      padding: "0.5rem 0.75rem",
+                      background: "#1d70b8",
+                      color: "#fff",
+                      border: "2px solid #0b0c0c",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
                   >
                     →
                   </button>
@@ -633,7 +777,9 @@ const CemeteryPlotEditor = () => {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1">Set X</label>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                    Atur X
+                  </label>
                   <input
                     type="number"
                     placeholder={
@@ -645,11 +791,18 @@ const CemeteryPlotEditor = () => {
                         e.target.value = "";
                       }
                     }}
-                    className="w-full px-2 py-1 border rounded text-sm"
+                    style={{ 
+                      width: "100%", 
+                      padding: "0.25rem 0.5rem", 
+                      border: "2px solid #0b0c0c",
+                      fontSize: "0.875rem"
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1">Set Y</label>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                    Atur Y
+                  </label>
                   <input
                     type="number"
                     placeholder={
@@ -661,17 +814,24 @@ const CemeteryPlotEditor = () => {
                         e.target.value = "";
                       }
                     }}
-                    className="w-full px-2 py-1 border rounded text-sm"
+                    style={{ 
+                      width: "100%", 
+                      padding: "0.25rem 0.5rem", 
+                      border: "2px solid #0b0c0c",
+                      fontSize: "0.875rem"
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1">Set Width</label>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                    Atur Lebar
+                  </label>
                   <input
                     type="number"
                     placeholder={
                       selectedPlots.length === 1
                         ? String(Math.round(selectedPlots[0].width))
-                        : "Width"
+                        : "Lebar"
                     }
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -679,17 +839,24 @@ const CemeteryPlotEditor = () => {
                         e.target.value = "";
                       }
                     }}
-                    className="w-full px-2 py-1 border rounded text-sm"
+                    style={{ 
+                      width: "100%", 
+                      padding: "0.25rem 0.5rem", 
+                      border: "2px solid #0b0c0c",
+                      fontSize: "0.875rem"
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1">Set Height</label>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c", marginBottom: "0.25rem" }}>
+                    Atur Tinggi
+                  </label>
                   <input
                     type="number"
                     placeholder={
                       selectedPlots.length === 1
                         ? String(Math.round(selectedPlots[0].height))
-                        : "Height"
+                        : "Tinggi"
                     }
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -697,43 +864,48 @@ const CemeteryPlotEditor = () => {
                         e.target.value = "";
                       }
                     }}
-                    className="w-full px-2 py-1 border rounded text-sm"
+                    style={{ 
+                      width: "100%", 
+                      padding: "0.25rem 0.5rem", 
+                      border: "2px solid #0b0c0c",
+                      fontSize: "0.875rem"
+                    }}
                   />
                 </div>
               </div>
 
               {selectedPlots.length === 1 && (
-                <div className="mt-3 pt-3 border-t grid grid-cols-4 gap-2 text-sm text-gray-600">
-                  <div>X: {Math.round(selectedPlots[0].x)}</div>
-                  <div>Y: {Math.round(selectedPlots[0].y)}</div>
-                  <div>W: {Math.round(selectedPlots[0].width)}</div>
-                  <div>H: {Math.round(selectedPlots[0].height)}</div>
+                <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid #b1b4b6" }} className="grid grid-cols-4 gap-2">
+                  <div style={{ fontSize: "0.875rem", color: "#505a5f" }}>X: {Math.round(selectedPlots[0].x)}</div>
+                  <div style={{ fontSize: "0.875rem", color: "#505a5f" }}>Y: {Math.round(selectedPlots[0].y)}</div>
+                  <div style={{ fontSize: "0.875rem", color: "#505a5f" }}>W: {Math.round(selectedPlots[0].width)}</div>
+                  <div style={{ fontSize: "0.875rem", color: "#505a5f" }}>H: {Math.round(selectedPlots[0].height)}</div>
                 </div>
               )}
             </div>
           )}
 
-          <div className="bg-gray-100 p-2 rounded text-sm mb-4">
-            <strong>Instructions:</strong>
-            <ul className="list-disc ml-5 mt-1">
+          <div style={{ background: "#f3f2f1", padding: "0.5rem", border: "4px solid #0b0c0c", fontSize: "0.875rem", marginBottom: "1rem" }}>
+            <strong style={{ color: "#0b0c0c" }}>Instruksi:</strong>
+            <ul className="list-disc ml-5 mt-1" style={{ color: "#0b0c0c" }}>
               <li>
-                <strong>Select Mode:</strong> Click plots, Ctrl+Click to multi-select
+                <strong>Mode Pilih:</strong> Klik plot, Ctrl+Klik untuk pilih banyak
               </li>
               <li>
-                <strong>Multi Mode:</strong> Drag rectangle to select multiple plots
+                <strong>Mode Multi:</strong> Seret persegi untuk pilih beberapa plot
               </li>
               <li>
-                <strong>Draw Mode:</strong> Click and drag to create new plots
+                <strong>Mode Gambar:</strong> Klik dan seret untuk buat plot baru
               </li>
               <li>
-                <strong>Edit Values:</strong> Type value and press Enter to apply
+                <strong>Ubah Nilai:</strong> Ketik nilai dan tekan Enter untuk terapkan
               </li>
-              <li>Arrow buttons move plots by 1 pixel</li>
+              <li>Tombol panah memindahkan plot 1 piksel</li>
             </ul>
           </div>
         </div>
 
-        <div ref={containerRef} className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div style={{ background: "#fff", border: "1px solid #b1b4b6", overflow: "hidden" }} ref={containerRef}>
           <Stage
             ref={stageRef}
             width={stageSize.width}
@@ -798,15 +970,23 @@ const CemeteryPlotEditor = () => {
           </Stage>
         </div>
 
-        <div className="mt-4 bg-white rounded-lg shadow-lg p-4">
-          <h3 className="font-bold mb-2">Total Plots: {plots.length}</h3>
-          <div className="max-h-40 overflow-y-auto">
+        <div style={{ marginTop: "1rem", background: "#fff", border: "1px solid #b1b4b6", padding: "1rem" }}>
+          <h3 style={{ fontWeight: 700, marginBottom: "0.5rem", color: "#0b0c0c" }}>Total Plot: {plots.length}</h3>
+          <div style={{ maxHeight: "160px", overflowY: "auto" }}>
             <div className="grid grid-cols-8 gap-2">
               {plots.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setSelectedIds([p.id])}
-                  className={`px-2 py-1 rounded text-sm ${selectedIdsSet.has(p.id) ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+                  style={{
+                    padding: "0.5rem",
+                    background: selectedIdsSet.has(p.id) ? "#1d70b8" : "#f3f2f1",
+                    color: selectedIdsSet.has(p.id) ? "#fff" : "#0b0c0c",
+                    border: "2px solid #0b0c0c",
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
                 >
                   {p.id}
                 </button>
