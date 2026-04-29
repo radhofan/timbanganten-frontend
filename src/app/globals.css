@@ -18,13 +18,10 @@
   --ent-border-dk: #505a5f;
 }
 
-/* ─── Base Reset ─────────────────────────────────────────────────────────── */
+/* ─── GOV.UK Width Override (wider for management system) ─────────────────── */
 
-html, body {
-  background-color: var(--ent-gray-lt);
-  color: var(--ent-black);
-  font-size: 16px;
-  line-height: 1.4;
+.govuk-width-container {
+  max-width: 1440px;
 }
 
 /* Kill all border-radius globally */

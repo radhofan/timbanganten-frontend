@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button } from "antd";
+import { GovukButton, GovukFormGroup, GovukInput, GovukSelect, GovukNotificationBanner } from "@/components/govuk";
 
 export default function LoginAdmin() {
   const [email, setEmail] = useState("");
@@ -44,181 +44,103 @@ export default function LoginAdmin() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
-      {/* System bar */}
-      <div style={{ background: "#0b0c0c", borderBottom: "4px solid #1d70b8" }}>
-        <div style={{ background: "#1d70b8", padding: "3px clamp(0.75rem, 2vw, 2rem)", fontSize: "0.6875rem", color: "#fff", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          TIMGRAVID — Sistem Informasi Manajemen Yayasan Sajarah Timbanganten
-        </div>
-        <div style={{ padding: "0 clamp(0.75rem, 2vw, 2rem)", height: 44, display: "flex", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 24, height: 24, position: "relative" }}>
-              <Image src="/images/logo.png" alt="Logo" fill style={{ objectFit: "contain" }} priority />
-            </div>
-            <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.9375rem" }}>Timbanganten</span>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <header className="govuk-header" role="banner">
+        <div className="govuk-header__container govuk-width-container">
+          <div className="govuk-header__logo">
+            <a href="/" className="govuk-header__link govuk-header__link--homepage">
+              <Image src="/images/logo.png" alt="Logo" width={24} height={24} priority style={{ objectFit: "contain", verticalAlign: "middle", marginRight: 8, display: "inline" }} />
+              <span className="govuk-header__logotype-text">TIMGRAVID</span>
+            </a>
+          </div>
+          <div className="govuk-header__content">
+            <span className="govuk-header__service-name">Sistem Manajemen Pemakaman</span>
           </div>
         </div>
+      </header>
+
+      <div className="govuk-width-container" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "2rem", paddingBottom: "2rem" }}>
+        <main className="govuk-main-wrapper" id="main-content" role="main" style={{ width: "100%", maxWidth: 500 }}>
+          <h1 className="govuk-heading-l">Masuk sebagai Admin</h1>
+
+          {showUnauthorized && (
+            <GovukNotificationBanner type="important" title="Akses ditolak">
+              <p className="govuk-body">Harap login terlebih dahulu untuk mengakses fitur ini.</p>
+            </GovukNotificationBanner>
+          )}
+
+          {error && (
+            <div className="govuk-error-summary" data-module="govuk-error-summary">
+              <div role="alert">
+                <h2 className="govuk-error-summary__title">Terjadi masalah</h2>
+                <div className="govuk-error-summary__body">
+                  <p className="govuk-body">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="role">Role</label>
+            <GovukSelect
+              id="role"
+              name="role"
+              value={role}
+              onChange={(e) => { const r = e.target.value; setRole(r); router.push(`/login/${r}`); }}
+            >
+              <option value="admin">Admin</option>
+              <option value="approver">Approver</option>
+              <option value="pengawas">Pengawas</option>
+            </GovukSelect>
+          </div>
+
+          <form onSubmit={handleSubmit} noValidate>
+            <GovukFormGroup id="email" label="Email" error={error ? " " : undefined}>
+              <GovukInput
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+                error={!!error}
+              />
+            </GovukFormGroup>
+
+            <GovukFormGroup id="password" label="Password" error={error ? " " : undefined}>
+              <GovukInput
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+                error={!!error}
+              />
+            </GovukFormGroup>
+
+            <GovukButton type="submit" isLoading={isLoading} style={{ marginRight: 8 }}>
+              Masuk
+            </GovukButton>
+          </form>
+
+          <GovukButton variant="secondary" onClick={handleGuestLogin}>
+            Masuk sebagai Guest
+          </GovukButton>
+        </main>
       </div>
 
-      {/* Main content */}
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(1rem, 3vh, 2rem) clamp(0.75rem, 2vw, 2rem)" }}>
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "clamp(300px, 40vw, 440px)",
-            background: "#fff",
-            border: "2px solid #0b0c0c",
-          }}
-        >
-          {/* Card header */}
-          <div style={{ background: "#0b0c0c", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                Login Admin
-              </div>
-              <div style={{ color: "#b1b4b6", fontSize: "0.75rem" }}>Akses sistem administrator</div>
+      <footer className="govuk-footer">
+        <div className="govuk-width-container">
+          <div className="govuk-footer__meta">
+            <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
+              <span className="govuk-footer__link">© 2025 Yayasan Sejarah Timbanganten</span>
             </div>
-            <Image src="/images/admin.png" alt="Admin" width={28} height={28} style={{ objectFit: "contain", opacity: 0.8 }} />
-          </div>
-
-          <div style={{ padding: "20px" }}>
-            {showUnauthorized && (
-              <div
-                style={{
-                  marginBottom: 16,
-                  padding: "10px 14px",
-                  background: "#fff4e5",
-                  borderLeft: "4px solid #f47738",
-                  color: "#0b0c0c",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                }}
-              >
-                Harap login terlebih dahulu untuk mengakses fitur ini.
-              </div>
-            )}
-            {/* Role switcher */}
-            <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Role:
-              </span>
-              <select
-                name="role"
-                value={role}
-                onChange={(e) => {
-                  const selectedRole = e.target.value;
-                  setRole(selectedRole);
-                  router.push(`/login/${selectedRole}`);
-                }}
-                style={{
-                  border: "2px solid #0b0c0c",
-                  padding: "4px 8px",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  color: "#0b0c0c",
-                  background: "#fff",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-              >
-                <option value="admin">Admin</option>
-                <option value="approver">Approver</option>
-                <option value="pengawas">Pengawas</option>
-              </select>
-            </div>
-
-            {error && (
-              <div
-                style={{
-                  marginBottom: 14,
-                  padding: "8px 12px",
-                  background: "#fdf2f2",
-                  borderLeft: "4px solid #d4351c",
-                  color: "#d4351c",
-                  fontSize: "0.875rem",
-                  fontWeight: 700,
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: 14 }}>
-                <label
-                  htmlFor="email"
-                  style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: 4 }}
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  required
-                  style={{
-                    width: "100%",
-                    border: "2px solid #0b0c0c",
-                    padding: "7px 10px",
-                    fontSize: "1rem",
-                    outline: "none",
-                    background: "#fff",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <label
-                  htmlFor="password"
-                  style={{ display: "block", fontSize: "0.875rem", fontWeight: 700, color: "#0b0c0c", marginBottom: 4 }}
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Masukkan password"
-                  required
-                  style={{
-                    width: "100%",
-                    border: "2px solid #0b0c0c",
-                    padding: "7px 10px",
-                    fontSize: "1rem",
-                    outline: "none",
-                    background: "#fff",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
-
-              <Button
-                htmlType="submit"
-                loading={isLoading}
-                block
-                type="primary"
-                style={{ marginBottom: 8 }}
-              >
-                Masuk
-              </Button>
-            </form>
-
-            <Button block onClick={handleGuestLogin} style={{ borderColor: "#505a5f" }}>
-              Masuk sebagai Guest
-            </Button>
           </div>
         </div>
-      </main>
-
-      <div style={{ background: "#0b0c0c", borderTop: "4px solid #1d70b8", padding: "8px clamp(0.75rem, 2vw, 2rem)" }}>
-        <p style={{ color: "#505a5f", fontSize: "0.8125rem", margin: 0 }}>
-          © 2025 Yayasan Sejarah Timbanganten
-        </p>
-      </div>
+      </footer>
     </div>
   );
 }

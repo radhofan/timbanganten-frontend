@@ -2,15 +2,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PembayaranTable from "@/components/PembayaranTable";
 
-export default function Admin() {
+export default function PembayaranPage() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header hideBanner />
-
-      <main style={{ flex: 1 }} className="page-container">
-        <PembayaranTable />
-      </main>
-
+      <div className="govuk-width-container" style={{ flex: 1 }}>
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <PembayaranTable />
+        </main>
+      </div>
       <Footer />
     </div>
   );

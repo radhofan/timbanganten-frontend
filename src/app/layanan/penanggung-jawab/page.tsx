@@ -3,10 +3,8 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Makam, MakamStatus, User } from "@/lib/types";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Button } from "antd";
-import { UserAddOutlined } from "@ant-design/icons";
+import { GovukButton, GovukTag, GovukPagination } from "@/components/govuk";
 
 type PenanggungJawabData = {
   userId: string;
@@ -30,7 +28,6 @@ export default function PenanggungJawab() {
       try {
         const res = await fetch("/api/penanggungJawab");
         const data = await res.json();
-
         const formattedData = data.map((user: User) => {
           const pj = user.penanggungJawab;
           return {
@@ -42,7 +39,6 @@ export default function PenanggungJawab() {
             makamStatuses: Array.isArray(pj?.makamStatus) ? pj.makamStatus : [],
           };
         });
-
         setPenanggungJawabList(formattedData);
       } catch (error) {
         console.error("Failed to fetch penanggung jawab:", error);
@@ -50,355 +46,122 @@ export default function PenanggungJawab() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   const filteredData = penanggungJawabList.filter((pj) => {
     if (!search) return true;
-    const userName = pj.userName?.toLowerCase() || "";
-    const userContact = pj.userContact?.toLowerCase() || "";
-    const searchLower = search.toLowerCase();
-    return userName.includes(searchLower) || userContact.includes(searchLower);
+    const s = search.toLowerCase();
+    return (pj.userName?.toLowerCase() || "").includes(s) || (pj.userContact?.toLowerCase() || "").includes(s);
   });
 
   const totalPages = Math.ceil(filteredData.length / usersPerPage) || 1;
   const startIndex = (currentPage - 1) * usersPerPage;
-  const endIndex = startIndex + usersPerPage;
-  const currentPJList = filteredData.slice(startIndex, endIndex);
+  const currentPJList = filteredData.slice(startIndex, startIndex + usersPerPage);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
+  useEffect(() => { setCurrentPage(1); }, [search]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxVisiblePages = 5;
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push("...");
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push("...");
-        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push("...");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
-        pages.push("...");
-        pages.push(totalPages);
-      }
-    }
-    return pages;
-  };
-
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header hideBanner />
 
-      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
-        {/* Header row */}
-        <div
-          style={{
-            borderBottom: "2px solid #0b0c0c",
-            paddingBottom: 8,
-            marginBottom: 12,
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 8,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-            <h2
-              style={{
-                fontWeight: 700,
-                fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
-                color: "#0b0c0c",
-                margin: 0,
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}
-            >
-              Daftar Penanggung Jawab
-            </h2>
-            {!loading && (
-              <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>
-                {filteredData.length} data
-              </span>
-            )}
+      <div className="govuk-width-container" style={{ flex: 1 }}>
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "2px solid #0b0c0c", paddingBottom: 8, marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+              <h1 className="govuk-heading-l" style={{ margin: 0 }}>Daftar Penanggung Jawab</h1>
+              {!loading && <span className="govuk-body-s" style={{ color: "#505a5f" }}>{filteredData.length} data</span>}
+            </div>
+            <GovukButton onClick={() => router.push("/layanan/penanggung-jawab/add")}>
+              Tambah PJ
+            </GovukButton>
           </div>
-          <Button
-            type="primary"
-            icon={<UserAddOutlined />}
-            onClick={() => router.push("/layanan/penanggung-jawab/add")}
-          >
-            Tambah PJ
-          </Button>
-        </div>
 
-        {/* Toolbar */}
-        <div
-          style={{
-            padding: "8px 10px",
-            background: "#f3f2f1",
-            border: "1px solid #505a5f",
-            marginBottom: 0,
-          }}
-        >
-          <label className="ent-label">Cari Nama / Kontak</label>
-          <input
-            type="text"
-            placeholder="Contoh: John Doe atau 08XXXXXXXXX"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="ent-input"
-            style={{ maxWidth: "clamp(200px, 35vw, 360px)" }}
-          />
-        </div>
-
-        {/* Result count */}
-        {!loading && (
-          <div
-            style={{
-              padding: "4px 10px",
-              background: "#fff",
-              border: "1px solid #b1b4b6",
-              borderTop: "none",
-              borderBottom: "2px solid #0b0c0c",
-              fontSize: "0.75rem",
-              color: "#505a5f",
-              fontWeight: 600,
-              marginBottom: 8,
-            }}
-          >
-            Menampilkan {currentPJList.length} dari {filteredData.length} pengguna
-            {filteredData.length !== penanggungJawabList.length &&
-              ` (difilter dari ${penanggungJawabList.length} total)`}
+          {/* Search toolbar */}
+          <div className="govuk-form-group" style={{ background: "#f3f2f1", padding: "12px 14px", border: "1px solid #505a5f", marginBottom: 0 }}>
+            <label className="govuk-label" htmlFor="search">Cari Nama / Kontak</label>
+            <input
+              className="govuk-input"
+              type="text"
+              id="search"
+              placeholder="Contoh: John Doe atau 08XXXXXXXXX"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ maxWidth: "clamp(200px, 35vw, 360px)" }}
+            />
           </div>
-        )}
 
-        {/* Table-style list */}
-        {/* Column header */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 120px 80px 100px",
-            gap: 0,
-            background: "#f3f2f1",
-            border: "1px solid #505a5f",
-            borderBottom: "2px solid #505a5f",
-          }}
-        >
-          {["Nama Pengguna", "No. Kontak", "Jml. Makam", "Aksi"].map((col) => (
-            <div
-              key={col}
-              style={{
-                padding: "5px 10px",
-                fontSize: "0.6875rem",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "#0b0c0c",
-                borderRight: "1px solid #b1b4b6",
-              }}
-            >
-              {col}
+          {!loading && (
+            <div className="govuk-body-s" style={{ padding: "4px 10px", background: "#fff", border: "1px solid #b1b4b6", borderTop: "none", borderBottom: "2px solid #0b0c0c", color: "#505a5f", fontWeight: 600, marginBottom: 8 }}>
+              Menampilkan {currentPJList.length} dari {filteredData.length} pengguna
+              {filteredData.length !== penanggungJawabList.length && ` (difilter dari ${penanggungJawabList.length} total)`}
             </div>
-          ))}
-        </div>
-
-        <div style={{ border: "1px solid #b1b4b6", borderTop: "none" }}>
-          {loading ? (
-            <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff" }}>
-              Memuat data...
-            </div>
-          ) : filteredData.length === 0 ? (
-            <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff" }}>
-              Tidak ada pengguna ditemukan.
-            </div>
-          ) : (
-            currentPJList.map((pj, idx) => {
-              const totalMakams = pj.makams.length + pj.makamStatuses.length;
-              const hasActiveMakams = pj.makams.length > 0;
-
-              return (
-                <div
-                  key={pj.userId}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 120px 80px 100px",
-                    background: idx % 2 === 0 ? "#fff" : "#fafafa",
-                    borderBottom: "1px solid #b1b4b6",
-                    borderLeft: `4px solid ${hasActiveMakams ? "#00703c" : "#f47738"}`,
-                    transition: "background 0.08s",
-                  }}
-                  className="hover:bg-[#dce7f5]"
-                >
-                  <div style={{ padding: "6px 10px", display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ fontWeight: 700, fontSize: "0.875rem", color: "#0b0c0c" }}>
-                      {pj.userName || "Nama Tidak Tersedia"}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      padding: "6px 10px",
-                      fontSize: "0.8125rem",
-                      color: "#505a5f",
-                      borderLeft: "1px solid #e8e8e8",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {pj.userContact || "-"}
-                  </div>
-                  <div
-                    style={{
-                      padding: "6px 10px",
-                      borderLeft: "1px solid #e8e8e8",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                        padding: "1px 6px",
-                        border: `1px solid ${hasActiveMakams ? "#00703c" : "#f47738"}`,
-                        color: hasActiveMakams ? "#00703c" : "#a05a00",
-                        background: hasActiveMakams ? "#e3f4eb" : "#fef7e0",
-                      }}
-                    >
-                      {totalMakams}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      padding: "4px 8px",
-                      borderLeft: "1px solid #e8e8e8",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/layanan/penanggung-jawab/${pj.userId}`)}
-                      style={{
-                        background: "#1d70b8",
-                        color: "#fff",
-                        border: "2px solid #003078",
-                        padding: "3px 10px",
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                        cursor: "pointer",
-                      }}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              );
-            })
           )}
-        </div>
 
-        {/* Pagination */}
-        {!loading && filteredData.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 8,
-              marginTop: 10,
-              padding: "6px 10px",
-              background: "#fff",
-              border: "1px solid #b1b4b6",
-            }}
-          >
-            <div style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
-              Halaman {currentPage} dari {totalPages}
+          {/* Table */}
+          <table className="govuk-table" style={{ marginBottom: 0 }}>
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th scope="col" className="govuk-table__header">Nama Pengguna</th>
+                <th scope="col" className="govuk-table__header">No. Kontak</th>
+                <th scope="col" className="govuk-table__header govuk-table__header--numeric">Jml. Makam</th>
+                <th scope="col" className="govuk-table__header">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="govuk-table__body">
+              {loading ? (
+                <tr className="govuk-table__row">
+                  <td className="govuk-table__cell" colSpan={4} style={{ textAlign: "center", color: "#505a5f" }}>Memuat data...</td>
+                </tr>
+              ) : filteredData.length === 0 ? (
+                <tr className="govuk-table__row">
+                  <td className="govuk-table__cell" colSpan={4} style={{ textAlign: "center", color: "#505a5f" }}>Tidak ada pengguna ditemukan.</td>
+                </tr>
+              ) : (
+                currentPJList.map((pj) => {
+                  const totalMakams = pj.makams.length + pj.makamStatuses.length;
+                  const hasActive = pj.makams.length > 0;
+                  return (
+                    <tr key={pj.userId} className="govuk-table__row">
+                      <td className="govuk-table__cell">
+                        <span style={{ fontWeight: 700 }}>{pj.userName || "Nama Tidak Tersedia"}</span>
+                      </td>
+                      <td className="govuk-table__cell">{pj.userContact || "-"}</td>
+                      <td className="govuk-table__cell govuk-table__cell--numeric">
+                        <GovukTag color={hasActive ? "green" : "orange"}>{String(totalMakams)}</GovukTag>
+                      </td>
+                      <td className="govuk-table__cell">
+                        <GovukButton
+                          variant="secondary"
+                          onClick={() => router.push(`/layanan/penanggung-jawab/${pj.userId}`)}
+                          style={{ margin: 0 }}
+                        >
+                          Edit
+                        </GovukButton>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+
+          {!loading && filteredData.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <GovukPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
             </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 3,
-                  padding: "4px 10px",
-                  fontSize: "0.8125rem",
-                  fontWeight: 600,
-                  background: currentPage === 1 ? "#f3f2f1" : "#fff",
-                  color: currentPage === 1 ? "#b1b4b6" : "#0b0c0c",
-                  border: "1px solid",
-                  borderColor: currentPage === 1 ? "#b1b4b6" : "#505a5f",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                }}
-              >
-                <ChevronLeft size={14} />
-                Prev
-              </button>
-
-              {getPageNumbers().map((page, index) => (
-                <button
-                  key={index}
-                  onClick={() => typeof page === "number" && handlePageChange(page)}
-                  disabled={page === "..."}
-                  style={{
-                    padding: "4px 10px",
-                    fontSize: "0.8125rem",
-                    fontWeight: 600,
-                    background: page === currentPage ? "#1d70b8" : "#fff",
-                    color: page === currentPage ? "#fff" : page === "..." ? "#b1b4b6" : "#0b0c0c",
-                    border: "1px solid",
-                    borderColor: page === currentPage ? "#003078" : "#b1b4b6",
-                    cursor: page === "..." ? "default" : "pointer",
-                    minWidth: 32,
-                  }}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 3,
-                  padding: "4px 10px",
-                  fontSize: "0.8125rem",
-                  fontWeight: 600,
-                  background: currentPage === totalPages ? "#f3f2f1" : "#fff",
-                  color: currentPage === totalPages ? "#b1b4b6" : "#0b0c0c",
-                  border: "1px solid",
-                  borderColor: currentPage === totalPages ? "#b1b4b6" : "#505a5f",
-                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                }}
-              >
-                Next
-                <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
+      </div>
 
       <Footer />
     </div>

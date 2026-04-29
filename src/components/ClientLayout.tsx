@@ -2,7 +2,6 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Spin } from "antd";
 import AuthBootstrapper from "./AuthBootstrapper";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
@@ -20,16 +19,19 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
   if (!isReady) {
     return (
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-        }}
-      >
-        <Spin size="large" />
+      <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            border: "4px solid #b1b4b6",
+            borderTopColor: "#1d70b8",
+            borderRadius: "50%",
+            animation: "govuk-spin 0.8s linear infinite",
+          }}
+        />
+        <p className="govuk-body" style={{ color: "#505a5f", margin: 0 }}>Memuat sistem...</p>
+        <style>{`@keyframes govuk-spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
