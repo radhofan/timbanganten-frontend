@@ -58,6 +58,37 @@ export default function MakamTable(): JSX.Element {
   const total = filtered.length;
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
+  const totalPages = Math.ceil(total / pageSize) || 1;
+
+  const handlePageChange = (page: number) => {
+    setCurrent(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (current <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (current >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
 
   const columns: ColumnsType<Makam> = [];
 
@@ -259,10 +290,10 @@ export default function MakamTable(): JSX.Element {
           flexWrap: "wrap",
           gap: 8,
           alignItems: "center",
-          padding: "10px 12px",
+          padding: "8px 10px",
           background: "#f3f2f1",
-          border: "2px solid #0b0c0c",
-          borderBottom: "none"
+          border: "1px solid #505a5f",
+          marginBottom: 0,
         }}
       >
         <Input
@@ -308,25 +339,120 @@ export default function MakamTable(): JSX.Element {
         </Select>
       </div>
 
+      {/* Result count */}
+      {!loading && (
+        <div
+          style={{
+            padding: "4px 10px",
+            background: "#fff",
+            border: "1px solid #b1b4b6",
+            borderTop: "none",
+            borderBottom: "2px solid #0b0c0c",
+            fontSize: "0.75rem",
+            color: "#505a5f",
+            fontWeight: 600,
+            marginBottom: 8,
+          }}
+        >
+          Menampilkan {visibleData.length} dari {total} makam
+          {filtered.length !== data.length && ` (difilter dari ${data.length} total)`}
+        </div>
+      )}
+
       <Table<Makam>
         columns={columns}
         dataSource={visibleData}
         loading={loading}
-        pagination={{
-          current,
-          pageSize,
-          total,
-          showSizeChanger: false,
-          onChange: (page, size) => {
-            setCurrent(page);
-            if (pageSize !== size) setPageSize(size);
-          },
-        }}
+        pagination={false}
         rowKey="id"
         scroll={{ x: "max-content" }}
         size="small"
         className="no-gap-table"
       />
+
+      {/* Pagination */}
+      {!loading && filtered.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 8,
+            marginTop: 10,
+            padding: "6px 10px",
+            background: "#fff",
+            border: "1px solid #b1b4b6",
+          }}
+        >
+          <div style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
+            Halaman {current} dari {totalPages}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <button
+              onClick={() => handlePageChange(current - 1)}
+              disabled={current === 1}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                padding: "4px 10px",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                background: current === 1 ? "#f3f2f1" : "#fff",
+                color: current === 1 ? "#b1b4b6" : "#0b0c0c",
+                border: "1px solid",
+                borderColor: current === 1 ? "#b1b4b6" : "#505a5f",
+                cursor: current === 1 ? "not-allowed" : "pointer",
+              }}
+            >
+              ← Prev
+            </button>
+
+            {getPageNumbers().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => typeof page === "number" && handlePageChange(page)}
+                disabled={page === "..."}
+                style={{
+                  padding: "4px 10px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  background: page === current ? "#1d70b8" : "#fff",
+                  color: page === current ? "#fff" : page === "..." ? "#b1b4b6" : "#0b0c0c",
+                  border: "1px solid",
+                  borderColor: page === current ? "#003078" : "#b1b4b6",
+                  cursor: page === "..." ? "default" : "pointer",
+                  minWidth: 32,
+                }}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(current + 1)}
+              disabled={current === totalPages}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                padding: "4px 10px",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                background: current === totalPages ? "#f3f2f1" : "#fff",
+                color: current === totalPages ? "#b1b4b6" : "#0b0c0c",
+                border: "1px solid",
+                borderColor: current === totalPages ? "#b1b4b6" : "#505a5f",
+                cursor: current === totalPages ? "not-allowed" : "pointer",
+              }}
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

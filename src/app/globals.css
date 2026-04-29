@@ -259,33 +259,74 @@ html, body {
 
 /* Pagination */
 .ant-pagination {
-  margin-top: 8px !important;
+  margin-top: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  padding: 6px 10px !important;
+  background: #fff !important;
+  border: 1px solid #b1b4b6 !important;
 }
 
 .ant-pagination-item {
-  border: 1px solid var(--ent-border-dk) !important;
+  border: 1px solid #b1b4b6 !important;
   background: var(--ent-white) !important;
-  min-width: 28px !important;
-  height: 28px !important;
-  line-height: 26px !important;
+  min-width: 32px !important;
+  height: auto !important;
+  line-height: 1 !important;
   font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+  margin: 0 !important;
+}
+
+.ant-pagination-item a {
+  font-weight: 600 !important;
 }
 
 .ant-pagination-item-active {
   background: var(--ent-blue) !important;
-  border-color: var(--ent-blue-dk) !important;
+  border-color: #003078 !important;
 }
 
 .ant-pagination-item-active a {
   color: var(--ent-white) !important;
 }
 
+.ant-pagination-prev,
+.ant-pagination-next {
+  margin: 0 !important;
+}
+
 .ant-pagination-prev .ant-pagination-item-link,
 .ant-pagination-next .ant-pagination-item-link {
-  border: 1px solid var(--ent-border-dk) !important;
+  border: 1px solid #505a5f !important;
   background: var(--ent-white) !important;
-  height: 28px !important;
-  line-height: 26px !important;
+  height: auto !important;
+  line-height: 1 !important;
+  padding: 4px 10px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+.ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link,
+.ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link {
+  background: #f3f2f1 !important;
+  color: #b1b4b6 !important;
+  border-color: #b1b4b6 !important;
+  cursor: not-allowed !important;
+}
+
+.ant-pagination-total-text {
+  font-size: 0.8125rem !important;
+  color: #505a5f !important;
+  font-weight: 600 !important;
+  order: -1 !important;
 }
 
 /* ─── Ant Design: Buttons (GOV.UK style) ─────────────────────────────────── */
@@ -588,10 +629,10 @@ main {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 10px;
   background: var(--ent-gray-lt);
-  border: 2px solid var(--ent-black);
-  border-bottom: none;
+  border: 1px solid #505a5f;
+  margin-bottom: 0;
 }
 
 /* Prevent AntD Search/Input group from taking full row in toolbar */
