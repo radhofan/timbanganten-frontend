@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MakamStatus } from "@/lib/types";
 import { StatusLabel } from "@/components/StatusLabel";
+import { GovukInput } from "@/components/govuk";
 
 export default function Status() {
   const [data, setData] = useState<MakamStatus[]>([]);
@@ -122,58 +123,34 @@ export default function Status() {
         </div>
 
         {/* Toolbar */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 12,
-            alignItems: "flex-end",
-            padding: "8px 10px",
-            background: "#f3f2f1",
-            border: "1px solid #505a5f",
-            marginBottom: 0,
-          }}
-        >
-          <div style={{ flex: "1 1 clamp(180px, 30vw, 300px)" }}>
-            <label className="ent-label">Cari Nama / Blok / PJ</label>
-            <input
-              type="text"
-              placeholder="Contoh: John Doe, Blok A"
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              className="ent-input"
-            />
-          </div>
-
-          <div>
-            <div className="ent-label" style={{ marginBottom: 4 }}>Filter Pembayaran</div>
-            <div style={{ display: "flex", gap: 12 }}>
-              {["PAID", "PENDING"].map((opt) => (
-                <label
-                  key={opt}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    fontSize: "0.8125rem",
-                    fontWeight: 600,
-                    color: "#0b0c0c",
-                    cursor: "pointer",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={filterPayment.includes(opt)}
-                    onChange={(e) =>
-                      setFilterPayment((prev) =>
-                        e.target.checked ? [...prev, opt] : prev.filter((x) => x !== opt)
-                      )
-                    }
-                    style={{ width: 16, height: 16, accentColor: "#1d70b8" }}
-                  />
-                  {opt}
-                </label>
-              ))}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #505a5f", marginBottom: 0 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="status-search">Cari</label>
+              <GovukInput
+                id="status-search"
+                type="text"
+                placeholder="Nama, blok, atau PJ..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                style={{ width: "clamp(180px, 28vw, 280px)" }}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }}>Filter Pembayaran</label>
+              <div style={{ display: "flex", gap: 12, alignItems: "center", height: 34 }}>
+                {["PAID", "PENDING"].map((opt) => (
+                  <label key={opt} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: "0.875rem", fontWeight: 600, color: "#0b0c0c", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={filterPayment.includes(opt)}
+                      onChange={(e) => setFilterPayment((prev) => e.target.checked ? [...prev, opt] : prev.filter((x) => x !== opt))}
+                      style={{ width: 16, height: 16, accentColor: "#1d70b8" }}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { DENAH } from "@/lib/denah";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Select, Empty } from "antd";
+import { GovukSelect } from "@/components/govuk";
 import CemeteryViewer from "@/components/CemeteryViewer";
 import { Blok } from "@/lib/types";
 import { useUserRoles } from "@/components/CheckRole";
@@ -138,10 +138,9 @@ const Denah = () => {
 
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0b0c0c" }}>Lokasi:</span>
-              <Select
+              <GovukSelect
                 value={selectedDenah}
                 onChange={handleDenahChange}
-                style={{ width: "clamp(130px, 14vw, 170px)" }}
                 options={Object.keys(DENAH).map((lokasi) => ({ value: lokasi, label: lokasi }))}
               />
             </div>
@@ -198,8 +197,8 @@ const Denah = () => {
             </div>
 
             {!selectedPlot.blok ? (
-              <div style={{ padding: "16px 0" }}>
-                <Empty description="Blok makam tidak ditemukan" />
+              <div style={{ padding: "16px 0", textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
+                Blok makam tidak ditemukan
               </div>
             ) : (
               <div

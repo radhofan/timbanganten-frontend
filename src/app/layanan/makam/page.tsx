@@ -4,13 +4,11 @@ import MakamTable from "@/components/MakamTable";
 
 export default function MakamPage() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
-      <div className="govuk-width-container" style={{ flex: 1 }}>
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <MakamTable />
-        </main>
-      </div>
+      <main style={{ flex: 1 }} className="page-container">
+        <MakamTable />
+      </main>
       <Footer />
     </div>
   );

@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Makam, MakamStatus, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { GovukButton, GovukTag, GovukPagination } from "@/components/govuk";
+import { GovukButton, GovukTag, GovukPagination, GovukTable, GovukTableHead, GovukTableBody, GovukTableRow, GovukTableHeader, GovukTableCell, GovukInput } from "@/components/govuk";
 
 type PenanggungJawabData = {
   userId: string;
@@ -70,94 +70,92 @@ export default function PenanggungJawab() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header hideBanner />
 
-      <div className="govuk-width-container" style={{ flex: 1 }}>
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "2px solid #0b0c0c", paddingBottom: 8, marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-              <h1 className="govuk-heading-l" style={{ margin: 0 }}>Daftar Penanggung Jawab</h1>
-              {!loading && <span className="govuk-body-s" style={{ color: "#505a5f" }}>{filteredData.length} data</span>}
+      <div style={{ flex: 1 }} className="page-container">
+        <main id="main-content" role="main">
+          <div style={{ borderBottom: "2px solid #0b0c0c", paddingBottom: 12, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.25rem)", color: "#0b0c0c", margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>Daftar Penanggung Jawab</h1>
+              {!loading && <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>{filteredData.length} data</span>}
             </div>
-            <GovukButton onClick={() => router.push("/layanan/penanggung-jawab/add")}>
-              Tambah PJ
-            </GovukButton>
           </div>
 
           {/* Search toolbar */}
-          <div className="govuk-form-group" style={{ background: "#f3f2f1", padding: "12px 14px", border: "1px solid #505a5f", marginBottom: 0 }}>
-            <label className="govuk-label" htmlFor="search">Cari Nama / Kontak</label>
-            <input
-              className="govuk-input"
-              type="text"
-              id="search"
-              placeholder="Contoh: John Doe atau 08XXXXXXXXX"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ maxWidth: "clamp(200px, 35vw, 360px)" }}
-            />
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #505a5f", marginBottom: 0 }}>
+            {/* Filters - left */}
+            <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="pj-search">Cari</label>
+                <GovukInput
+                  id="pj-search"
+                  type="text"
+                  placeholder="Nama atau kontak..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ width: "clamp(180px, 28vw, 280px)" }}
+                />
+              </div>
+            </div>
+            {/* Actions - right */}
+            <div style={{ display: "flex", alignItems: "flex-end" }}>
+              <GovukButton onClick={() => router.push("/layanan/penanggung-jawab/add")}>
+                Tambah PJ
+              </GovukButton>
+            </div>
           </div>
 
           {!loading && (
-            <div className="govuk-body-s" style={{ padding: "4px 10px", background: "#fff", border: "1px solid #b1b4b6", borderTop: "none", borderBottom: "2px solid #0b0c0c", color: "#505a5f", fontWeight: 600, marginBottom: 8 }}>
+            <div style={{ padding: "4px 10px", background: "#fff", border: "1px solid #b1b4b6", borderTop: "none", borderBottom: "2px solid #0b0c0c", fontSize: "0.75rem", color: "#505a5f", fontWeight: 600, marginBottom: 8 }}>
               Menampilkan {currentPJList.length} dari {filteredData.length} pengguna
               {filteredData.length !== penanggungJawabList.length && ` (difilter dari ${penanggungJawabList.length} total)`}
             </div>
           )}
 
-          {/* Table */}
-          <table className="govuk-table" style={{ marginBottom: 0 }}>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header">Nama Pengguna</th>
-                <th scope="col" className="govuk-table__header">No. Kontak</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric">Jml. Makam</th>
-                <th scope="col" className="govuk-table__header">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
-              {loading ? (
-                <tr className="govuk-table__row">
-                  <td className="govuk-table__cell" colSpan={4} style={{ textAlign: "center", color: "#505a5f" }}>Memuat data...</td>
-                </tr>
-              ) : filteredData.length === 0 ? (
-                <tr className="govuk-table__row">
-                  <td className="govuk-table__cell" colSpan={4} style={{ textAlign: "center", color: "#505a5f" }}>Tidak ada pengguna ditemukan.</td>
-                </tr>
-              ) : (
-                currentPJList.map((pj) => {
-                  const totalMakams = pj.makams.length + pj.makamStatuses.length;
-                  const hasActive = pj.makams.length > 0;
-                  return (
-                    <tr key={pj.userId} className="govuk-table__row">
-                      <td className="govuk-table__cell">
-                        <span style={{ fontWeight: 700 }}>{pj.userName || "Nama Tidak Tersedia"}</span>
-                      </td>
-                      <td className="govuk-table__cell">{pj.userContact || "-"}</td>
-                      <td className="govuk-table__cell govuk-table__cell--numeric">
-                        <GovukTag color={hasActive ? "green" : "orange"}>{String(totalMakams)}</GovukTag>
-                      </td>
-                      <td className="govuk-table__cell">
-                        <GovukButton
-                          variant="secondary"
-                          onClick={() => router.push(`/layanan/penanggung-jawab/${pj.userId}`)}
-                          style={{ margin: 0 }}
-                        >
-                          Edit
-                        </GovukButton>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+          {loading ? (
+            <div style={{ padding: "2rem", textAlign: "center", background: "#fff", border: "1px solid #b1b4b6" }}>
+              <p style={{ color: "#505a5f", fontSize: "0.875rem" }}>Memuat data...</p>
+            </div>
+          ) : (
+            <GovukTable>
+              <GovukTableHead>
+                <GovukTableRow>
+                  <GovukTableHeader>Nama Pengguna</GovukTableHeader>
+                  <GovukTableHeader>No. Kontak</GovukTableHeader>
+                  <GovukTableHeader>Jml. Makam</GovukTableHeader>
+                  <GovukTableHeader last>Aksi</GovukTableHeader>
+                </GovukTableRow>
+              </GovukTableHead>
+              <GovukTableBody>
+                {filteredData.length === 0 ? (
+                  <GovukTableRow>
+                    <GovukTableCell colSpan={4} style={{ textAlign: "center", color: "#505a5f" }}>Tidak ada pengguna ditemukan.</GovukTableCell>
+                  </GovukTableRow>
+                ) : (
+                  currentPJList.map((pj) => {
+                    const totalMakams = pj.makams.length + pj.makamStatuses.length;
+                    const hasActive = pj.makams.length > 0;
+                    return (
+                      <GovukTableRow key={pj.userId}>
+                        <GovukTableCell style={{ fontWeight: 700 }}>{pj.userName || "Nama Tidak Tersedia"}</GovukTableCell>
+                        <GovukTableCell>{pj.userContact || "-"}</GovukTableCell>
+                        <GovukTableCell>
+                          <GovukTag color={hasActive ? "green" : "orange"}>{String(totalMakams)}</GovukTag>
+                        </GovukTableCell>
+                        <GovukTableCell last>
+                          <GovukButton onClick={() => router.push(`/layanan/penanggung-jawab/${pj.userId}`)}>
+                            Ubah
+                          </GovukButton>
+                        </GovukTableCell>
+                      </GovukTableRow>
+                    );
+                  })
+                )}
+              </GovukTableBody>
+            </GovukTable>
+          )}
 
           {!loading && filteredData.length > 0 && (
             <div style={{ marginTop: 16 }}>
-              <GovukPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
+              <GovukPagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             </div>
           )}
         </main>

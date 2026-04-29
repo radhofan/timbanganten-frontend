@@ -6,28 +6,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { DatePicker, Tooltip, Modal } from "antd";
-import dayjs from "dayjs";
+import { GovukDateInput, GovukButton, GovukSelect, GovukFormGroup, GovukInput, GovukTextarea, GovukWarningText } from "@/components/govuk";
 import { StatusLabel } from "./StatusLabel";
 import { useUserRoles } from "./CheckRole";
-import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from "./ui/select";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
 import { makamDefaultValues, MakamPayload, makamSchema } from "@/validation/makam";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-const fieldStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 4 };
 const errorStyle: React.CSSProperties = {
   fontSize: "0.75rem", fontWeight: 700, color: "#d4351c",
   borderLeft: "4px solid #d4351c", background: "#fdf2f2", padding: "2px 8px", marginTop: 2,
-};
-const fieldLabelStyle: React.CSSProperties = {
-  fontSize: "0.6875rem", fontWeight: 700, color: "#505a5f",
-  textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4,
 };
 
 export default function MakamStatus({ page }: { page: string }) {
@@ -232,19 +221,10 @@ export default function MakamStatus({ page }: { page: string }) {
                 <Controller
                   name="namajenazah"
                   control={control}
-                  render={({ field }) => (
-                    <div style={fieldStyle}>
-                      <Label htmlFor="namajenazah">Nama Jenazah</Label>
-                      <Input
-                        {...field}
-                        id="namajenazah"
-                        readOnly={!canEdit}
-                        style={{ width: "100%" }}
-                      />
-                      {errors.namajenazah && (
-                        <div style={errorStyle}>{errors.namajenazah.message}</div>
-                      )}
-                    </div>
+                  render={({ field, fieldState }) => (
+                    <GovukFormGroup label="Nama Jenazah" error={fieldState.error?.message}>
+                      <GovukInput {...field} disabled={!canEdit} />
+                    </GovukFormGroup>
                   )}
                 />
 
@@ -253,16 +233,9 @@ export default function MakamStatus({ page }: { page: string }) {
                   name="namapj"
                   control={control}
                   render={({ field }) => (
-                    <div style={fieldStyle}>
-                      <Label htmlFor="namapj">Nama Penanggung Jawab</Label>
-                      <Input
-                        {...field}
-                        id="namapj"
-                        readOnly
-                        disabled
-                        style={{ width: "100%" }}
-                      />
-                    </div>
+                    <GovukFormGroup label="Nama Penanggung Jawab">
+                      <GovukInput {...field} disabled />
+                    </GovukFormGroup>
                   )}
                 />
 
@@ -271,50 +244,41 @@ export default function MakamStatus({ page }: { page: string }) {
                   name="kontak"
                   control={control}
                   render={({ field }) => (
-                    <div style={fieldStyle}>
-                      <Label htmlFor="kontak">No. Kontak PJ</Label>
-                      <Input
-                        {...field}
-                        id="kontak"
-                        readOnly
-                        disabled
-                        style={{ width: "100%" }}
-                      />
-                    </div>
+                    <GovukFormGroup label="No. Kontak PJ">
+                      <GovukInput {...field} disabled />
+                    </GovukFormGroup>
                   )}
                 />
 
                 {/* Lokasi */}
-                <div style={fieldStyle}>
-                  <Label htmlFor="lokasi">Lokasi</Label>
-                  <Controller
-                    name="lokasi"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value || ""} onValueChange={field.onChange} disabled>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Lokasi Pemakaman" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                          <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                          <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="lokasi"
+                  control={control}
+                  render={({ field }) => (
+                    <GovukFormGroup label="Lokasi">
+                      <GovukSelect
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        disabled
+                        options={[
+                          { value: "", label: "Pilih Lokasi Pemakaman" },
+                          { value: "Karang Anyar", label: "Karang Anyar" },
+                          { value: "Dalem Kaum", label: "Dalem Kaum" },
+                          { value: "Dayeuhkolot", label: "Dayeuhkolot" },
+                        ]}
+                      />
+                    </GovukFormGroup>
+                  )}
+                />
 
                 {/* Blok Makam */}
                 <Controller
                   name="blok"
                   control={control}
-                  render={({ field }) => (
-                    <div style={fieldStyle}>
-                      <Label htmlFor="blok">Blok Makam</Label>
-                      <Input {...field} id="blok" disabled style={{ width: "100%" }} />
-                      {errors.blok && <div style={errorStyle}>{errors.blok.message}</div>}
-                    </div>
+                  render={({ field, fieldState }) => (
+                    <GovukFormGroup label="Blok Makam" error={fieldState.error?.message}>
+                      <GovukInput {...field} disabled />
+                    </GovukFormGroup>
                   )}
                 />
               </div>
@@ -328,47 +292,33 @@ export default function MakamStatus({ page }: { page: string }) {
                 marginBottom: 20,
               }}>
                 {/* Tanggal Pemesanan */}
-                <div style={fieldStyle}>
-                  <Label htmlFor="tanggalPemesanan">Tanggal Pemesanan</Label>
-                  <Controller
-                    name="tanggalPemesanan"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        id="tanggalPemesanan"
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(value) => field.onChange(value ? value.toISOString() : "")}
-                        disabled
-                        className="w-full"
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="tanggalPemesanan"
+                  control={control}
+                  render={({ field }) => (
+                    <GovukFormGroup label="Tanggal Pemesanan">
+                      <GovukDateInput value={field.value} onChange={field.onChange} disabled />
+                    </GovukFormGroup>
+                  )}
+                />
 
                 {/* Tanggal Pemakaman */}
-                <div style={fieldStyle}>
-                  <Label htmlFor="tanggalPemakaman">
-                    Tanggal Pemakaman{" "}
-                    <span style={{ fontWeight: 400, color: "#505a5f", fontSize: "0.6875rem" }}>
-                      * harap diisi sebelum approve
-                    </span>
-                  </Label>
-                  <Controller
-                    name="tanggalPemakaman"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        id="tanggalPemakaman"
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(value) => field.onChange(value ? value.toISOString() : "")}
+                <Controller
+                  name="tanggalPemakaman"
+                  control={control}
+                  render={({ field }) => (
+                    <GovukFormGroup 
+                      label="Tanggal Pemakaman" 
+                      hint="Harap diisi sebelum approve"
+                    >
+                      <GovukDateInput
+                        value={field.value}
+                        onChange={field.onChange}
                         disabled={!canEdit || isTanggalPemakamanLocked}
-                        className="w-full"
                       />
-                    )}
-                  />
-                </div>
+                    </GovukFormGroup>
+                  )}
+                />
               </div>
 
               {/* ── Section 3: Status ── */}
@@ -444,14 +394,10 @@ export default function MakamStatus({ page }: { page: string }) {
                 name="notes"
                 control={control}
                 render={({ field }) => (
-                  <Textarea
-                    id="notes"
+                  <GovukTextarea
                     {...field}
-                    required
                     rows={4}
-                    style={{ width: "100%" }}
-                    readOnly={role !== "admin"}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    disabled={role !== "admin"}
                   />
                 )}
               />
@@ -467,57 +413,41 @@ export default function MakamStatus({ page }: { page: string }) {
                 gap: 8,
                 flexWrap: "wrap",
               }}>
-                <Button
-                  type="button"
-                  variant="destructive"
+                <GovukButton
+                  variant="warning"
                   onClick={() => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam")}
                 >
                   Batal
-                </Button>
+                </GovukButton>
 
                 {role === "admin" && (
-                  <Button type="submit" variant="default">
+                  <GovukButton type="submit">
                     Perbarui
-                  </Button>
+                  </GovukButton>
                 )}
 
                 {role === "approver" && page === "pesan-status" && (
-                  <Tooltip
-                    placement="top"
-                    title={
-                      <div style={{ fontSize: "0.8125rem" }}>
-                        {watch("statusPembayaranPesanan") !== "PAID" && (
-                          <div>• Pembayaran pesanan belum PAID</div>
-                        )}
-                        {!watch("tanggalPemakaman") && <div>• Tanggal pemakaman belum diisi</div>}
-                      </div>
-                    }
-                  >
-                    <span>
-                      <Button
-                        type="button"
-                        variant="default"
-                        disabled={!isApproveReady}
-                        style={isApproveReady ? { background: "#00703c", boxShadow: "0 2px 0 #005a30" } : {}}
-                        onClick={() => {
-                          if (!isApproveReady) return;
-                          Modal.confirm({
-                            title: "Konfirmasi Approve Makam",
-                            content: "Aksi ini akan mengaktifkan makam dan memindahkan data dari status pemesanan ke makam aktif. Lanjutkan?",
-                            okText: "Approve",
-                            okButtonProps: { style: { background: "#00703c", borderColor: "#00703c" } },
-                            cancelText: "Batal",
-                            onOk: async () => {
-                              const success = await convertMakam(id as string);
-                              if (success) router.push("/layanan/makam");
-                            },
+                  <>
+                    {!isApproveReady && (
+                      <GovukWarningText>
+                        {watch("statusPembayaranPesanan") !== "PAID" && "Pembayaran pesanan belum PAID. "}
+                        {!watch("tanggalPemakaman") && "Tanggal pemakaman belum diisi."}
+                      </GovukWarningText>
+                    )}
+                    <GovukButton
+                      disabled={!isApproveReady}
+                      onClick={() => {
+                        if (!isApproveReady) return;
+                        if (window.confirm("Aksi ini akan mengaktifkan makam dan memindahkan data dari status pemesanan ke makam aktif. Lanjutkan?")) {
+                          convertMakam(id as string).then((success) => {
+                            if (success) router.push("/layanan/makam");
                           });
-                        }}
-                      >
-                        Approve
-                      </Button>
-                    </span>
-                  </Tooltip>
+                        }
+                      }}
+                    >
+                      Approve
+                    </GovukButton>
+                  </>
                 )}
               </div>
             </div>

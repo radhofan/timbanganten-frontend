@@ -28,13 +28,6 @@ const services = [
     tag: "grey" as const,
   },
   {
-    title: "Denah Makam",
-    subtitle: "Peta interaktif lokasi makam",
-    icon: <MapPin className="w-5 h-5" />,
-    href: "/layanan/denah",
-    tag: "orange" as const,
-  },
-  {
     title: "Pembayaran",
     subtitle: "Rekap iuran dan status bayar",
     icon: <CreditCard className="w-5 h-5" />,
@@ -55,6 +48,13 @@ const services = [
     href: "/layanan/kontak",
     tag: undefined as undefined,
   },
+  {
+    title: "Denah Makam",
+    subtitle: "Peta interaktif lokasi makam",
+    icon: <MapPin className="w-5 h-5" />,
+    href: "/layanan/denah",
+    tag: "orange" as const,
+  },
 ];
 
 export default function Home() {
@@ -66,43 +66,59 @@ export default function Home() {
         <main className="govuk-main-wrapper" id="main-content" role="main" style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "1rem", borderBottom: "2px solid #0b0c0c", paddingBottom: "0.5rem" }}>
             <h2 className="govuk-heading-m" style={{ margin: 0 }}>Layanan Sistem</h2>
-            <span className="govuk-body-s" style={{ color: "#505a5f" }}>{services.length} Modul Aktif</span>
           </div>
 
-          <div className="govuk-grid-row" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(clamp(220px, 30vw, 340px), 1fr))", gap: 1, background: "#b1b4b6", border: "1px solid #b1b4b6", margin: 0 }}>
-            {services.map((service) => (
-              <Link
-                key={service.href}
-                href={service.href}
-                style={{ display: "flex", alignItems: "stretch", background: "#fff", textDecoration: "none", color: "inherit" }}
-                className="group"
-              >
-                <div
-                  style={{ padding: "clamp(10px, 1.2vw, 16px)", flex: 1, display: "flex", alignItems: "center", gap: 14 }}
-                  className="group-hover:bg-[#f3f2f1] transition-colors"
+          <style>{`
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
+            @media (max-width: 600px) {
+              .services-grid { grid-template-columns: 1fr !important; }
+              .services-grid a { grid-column: 1 !important; justify-content: flex-start !important; }
+              .services-grid a > div { width: 100% !important; }
+            }
+          `}</style>
+          <div className="services-grid" style={{ display: "grid", gap: 1, background: "#b1b4b6", border: "1px solid #b1b4b6", margin: 0 }}>
+            {services.map((service, idx) => {
+              const isLastOdd = services.length % 2 !== 0 && idx === services.length - 1;
+              return (
+                <Link
+                  key={service.href}
+                  href={service.href}
+                  style={{
+                    display: "flex",
+                    alignItems: "stretch",
+                    background: "#fff",
+                    textDecoration: "none",
+                    color: "inherit",
+                    gridColumn: isLastOdd ? "1 / -1" : undefined,
+                    justifyContent: isLastOdd ? "center" : undefined,
+                  }}
+                  className="group"
                 >
                   <div
-                    style={{ flexShrink: 0, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}
+                    style={{ padding: "clamp(10px, 1.2vw, 16px)", width: isLastOdd ? "50%" : undefined, display: "flex", alignItems: "center", gap: 14 }}
+                    className="group-hover:bg-[#f3f2f1] transition-colors"
                   >
-                    {service.icon}
+                    <div style={{ flexShrink: 0, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {service.icon}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p className="govuk-body" style={{ fontWeight: 700, marginBottom: 2 }}>
+                        {service.title}
+                      </p>
+                      <p className="govuk-body-s" style={{ color: "#505a5f", margin: 0 }}>
+                        {service.subtitle}
+                      </p>
+                    </div>
+                    <span style={{ color: "#b1b4b6", flexShrink: 0 }} className="group-hover:text-[#1d70b8] transition-colors">
+                      →
+                    </span>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p className="govuk-body" style={{ fontWeight: 700, marginBottom: 2 }}>
-                      {service.title}
-                    </p>
-                    <p className="govuk-body-s" style={{ color: "#505a5f", margin: 0 }}>
-                      {service.subtitle}
-                    </p>
-                  </div>
-                  <span style={{ color: "#b1b4b6", flexShrink: 0 }} className="group-hover:text-[#1d70b8] transition-colors">
-                    →
-                  </span>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
 
-          <div className="govuk-inset-text" style={{ marginTop: "1rem" }}>
+          {/* <div className="govuk-inset-text" style={{ marginTop: "1rem" }}>
             <dl className="govuk-summary-list" style={{ marginBottom: 0 }}>
               <div className="govuk-summary-list__row" style={{ border: "none", padding: "2px 0" }}>
                 <dt className="govuk-summary-list__key" style={{ width: "auto", paddingRight: 24 }}>Sistem</dt>
@@ -119,7 +135,7 @@ export default function Home() {
                 </dd>
               </div>
             </dl>
-          </div>
+          </div> */}
         </main>
       </div>
 

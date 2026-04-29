@@ -1,25 +1,48 @@
+import Image from "next/image";
+
 export default function Footer() {
   return (
-    <footer className="govuk-footer">
-      <div className="govuk-width-container">
-        <div className="govuk-footer__meta">
-          <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
-            <h2 className="govuk-visually-hidden">Informasi sistem</h2>
-            <ul className="govuk-footer__inline-list">
-              <li className="govuk-footer__inline-list-item">
-                <span className="govuk-footer__link">TIMGRAVID v1.0</span>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <span className="govuk-footer__link">Sistem Manajemen Pemakaman</span>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <span className="govuk-footer__link">Yayasan Sajarah Timbanganten</span>
-              </li>
-            </ul>
-          </div>
-          <div className="govuk-footer__meta-item">
-            <span className="govuk-footer__link">© 2025 Yayasan Sejarah Timbanganten</span>
-          </div>
+    <footer style={{
+      background: "#f3f2f1",
+      borderTop: "4px solid #1d70b8",
+      padding: "30px 16px",
+    }}>
+      <div style={{
+        maxWidth: "1440px",
+        margin: "0 auto",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: 24,
+      }}>
+        {/* Left: text content */}
+        <div>
+          <ul style={{
+            listStyle: "none",
+            margin: "0 0 16px 0",
+            padding: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "4px 20px",
+          }}>
+            <li><span style={{ fontSize: "0.875rem", color: "#505a5f" }}>TIMGRAVID v1.0</span></li>
+            <li><span style={{ fontSize: "0.875rem", color: "#505a5f" }}>Sistem Manajemen Pemakaman</span></li>
+            <li><span style={{ fontSize: "0.875rem", color: "#505a5f" }}>Yayasan Sajarah Timbanganten</span></li>
+          </ul>
+          <p style={{ fontSize: "0.875rem", color: "#505a5f", margin: 0 }}>
+            © 2026 Yayasan Sejarah Timbanganten
+          </p>
+        </div>
+
+        {/* Right: logo */}
+        <div style={{ flexShrink: 0 }}>
+          <Image
+            src="/images/logo.png"
+            alt="Logo Timbanganten"
+            width={60}
+            height={60}
+            style={{ objectFit: "contain", opacity: 0.6 }}
+          />
         </div>
       </div>
     </footer>

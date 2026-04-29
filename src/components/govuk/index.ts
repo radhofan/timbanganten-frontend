@@ -19,3 +19,5 @@ export {
   GovukWarningText,
 } from "./NotificationBanner";
 export { GovukSummaryList, GovukSummaryListRow } from "./SummaryList";
+export { GovukRadios, GovukRadioItem } from "./Radios";
+export { GovukDateInput } from "./DateInput";

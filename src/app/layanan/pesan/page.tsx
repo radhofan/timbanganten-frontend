@@ -5,19 +5,16 @@ import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button, DatePicker } from "antd";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+  GovukButton,
+  GovukInput,
+  GovukTextarea,
+  GovukSelect,
+  GovukRadios,
+  GovukRadioItem,
+  GovukDateInput,
+  GovukFormGroup,
+} from "@/components/govuk";
 import { User } from "@prisma/client";
 import {
   pemesananDefaultValues,
@@ -28,26 +25,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-
-const fieldStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: "0.875rem",
-  fontWeight: 700,
-  color: "#0b0c0c",
-};
-
-const inputOverride: React.CSSProperties = {
-  border: "2px solid #0b0c0c",
-  borderRadius: 0,
-  padding: "6px 10px",
-  fontSize: "1rem",
-  boxShadow: "none",
-};
 
 const errorStyle: React.CSSProperties = {
   color: "#d4351c",
@@ -354,44 +331,28 @@ export default function Pemesanan() {
               <>
                 <div className="ent-section-heading">Penanggung Jawab</div>
 
-                <div style={{ marginBottom: 14 }}>
-                  <RadioGroup
-                    defaultValue={useExisting ? "existing" : "new"}
-                    onValueChange={(val) => {
-                      setUseExisting(val === "existing");
-                      setSelectedUser(null);
-                      setSearchTerm("");
-                    }}
-                    style={{ display: "flex", gap: 20 }}
-                  >
-                    {[
-                      { value: "new", label: "Buat Baru" },
-                      { value: "existing", label: "Gunakan Data Ada" },
-                    ].map((opt) => (
-                      <div key={opt.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <RadioGroupItem value={opt.value} id={opt.value} />
-                        <Label
-                          htmlFor={opt.value}
-                          style={{ fontSize: "0.875rem", fontWeight: 600, color: "#0b0c0c", cursor: "pointer" }}
-                        >
-                          {opt.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
+                <GovukRadios
+                  name="pj-type"
+                  value={useExisting ? "existing" : "new"}
+                  onChange={(val) => {
+                    setUseExisting(val === "existing");
+                    setSelectedUser(null);
+                    setSearchTerm("");
+                  }}
+                >
+                  <GovukRadioItem value="new" label="Buat Baru" />
+                  <GovukRadioItem value="existing" label="Gunakan Data Ada" />
+                </GovukRadios>
 
                 {useExisting ? (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={fieldStyle}>
-                      <label style={labelStyle}>Cari Penanggung Jawab</label>
-                      <Input
+                    <GovukFormGroup label="Cari Penanggung Jawab">
+                      <GovukInput
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Ketik nama atau kontak..."
-                        style={inputOverride}
                       />
-                    </div>
+                    </GovukFormGroup>
                     <div
                       style={{
                         border: "1px solid #505a5f",
@@ -460,36 +421,32 @@ export default function Pemesanan() {
                       { name: "emergencyName" as const, label: "Nama Kontak Darurat", placeholder: "Masukkan Nama" },
                       { name: "emergencyContact" as const, label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX" },
                     ].map((f) => (
-                      <div key={f.name} style={fieldStyle}>
-                        <label style={labelStyle}>{f.label}</label>
-                        <Controller
-                          name={f.name}
-                          control={control}
-                          render={({ field }) => (
-                            <Input {...field} placeholder={f.placeholder} type={f.type || "text"} style={inputOverride} />
-                          )}
-                        />
-                        {errors[f.name] && (
-                          <div style={errorStyle}>{errors[f.name]?.message}</div>
+                      <Controller
+                        key={f.name}
+                        name={f.name}
+                        control={control}
+                        render={({ field }) => (
+                          <GovukFormGroup label={f.label} error={errors[f.name]?.message}>
+                            <GovukInput {...field} placeholder={f.placeholder} type={f.type || "text"} />
+                          </GovukFormGroup>
                         )}
-                      </div>
+                      />
                     ))}
 
-                    <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
-                      <label style={labelStyle}>No. KTP Pemesan</label>
+                    <div style={{ gridColumn: "1 / -1" }}>
                       <Controller
                         name="userPAKTP"
                         control={control}
                         render={({ field }) => (
-                          <Input
-                            {...field}
-                            maxLength={16}
-                            placeholder="Masukkan 16 digit nomor KTP"
-                            style={inputOverride}
-                          />
+                          <GovukFormGroup label="No. KTP Pemesan" error={errors.userPAKTP?.message}>
+                            <GovukInput
+                              {...field}
+                              maxLength={16}
+                              placeholder="Masukkan 16 digit nomor KTP"
+                            />
+                          </GovukFormGroup>
                         )}
                       />
-                      {errors.userPAKTP && <div style={errorStyle}>{errors.userPAKTP.message}</div>}
                     </div>
                   </div>
                 )}
@@ -510,199 +467,173 @@ export default function Pemesanan() {
                   }}
                 >
                   {/* Nama Jenazah — full width */}
-                  <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
-                    <label style={labelStyle}>Nama Jenazah</label>
+                  <div style={{ gridColumn: "1 / -1" }}>
                     <Controller
                       name="namaJenazah"
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder="Nama Jenazah" style={inputOverride} />
+                        <GovukFormGroup label="Nama Jenazah" error={errors.namaJenazah?.message}>
+                          <GovukInput {...field} placeholder="Nama Jenazah" />
+                        </GovukFormGroup>
                       )}
                     />
-                    {errors.namaJenazah && <div style={errorStyle}>{errors.namaJenazah.message}</div>}
                   </div>
 
                   {/* Lokasi */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Lokasi Pemakaman</label>
-                    <Controller
-                      name="lokasi"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => { field.onChange(value); setLokasi(value); }}
+                  <Controller
+                    name="lokasi"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Lokasi Pemakaman" error={errors.lokasi?.message}>
+                        <GovukSelect
                           value={field.value}
-                        >
-                          <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
-                            <SelectValue placeholder="Pilih Lokasi" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                            <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                            <SelectItem value="Dayeuh Kolot">Dayeuh Kolot</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.lokasi && <div style={errorStyle}>{errors.lokasi.message}</div>}
-                  </div>
+                          onChange={(value) => { field.onChange(value); setLokasi(value); }}
+                          options={[
+                            { value: "", label: "Pilih Lokasi" },
+                            { value: "Karang Anyar", label: "Karang Anyar" },
+                            { value: "Dalem Kaum", label: "Dalem Kaum" },
+                            { value: "Dayeuh Kolot", label: "Dayeuh Kolot" },
+                          ]}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
 
                   {/* Jenis Makam */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Jenis Makam</label>
-                    <Select onValueChange={(value) => setJenisMakam(value)} value={jenisMakam}>
-                      <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
-                        <SelectValue placeholder="Pilih Jenis Makam" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="baru">Baru</SelectItem>
-                        <SelectItem value="tumpuk">Tumpuk</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <GovukFormGroup label="Jenis Makam">
+                    <GovukSelect
+                      value={jenisMakam}
+                      onChange={(value) => setJenisMakam(value)}
+                      options={[
+                        { value: "", label: "Pilih Jenis Makam" },
+                        { value: "baru", label: "Baru" },
+                        { value: "tumpuk", label: "Tumpuk" },
+                      ]}
+                    />
+                  </GovukFormGroup>
 
                   {/* Blok Kavling */}
-                  <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <label style={labelStyle}>Blok Kavling</label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setValue("blokId", "");
-                          setSelectedBlok("");
-                          const params = new URLSearchParams();
-                          if (lokasi) params.set("lokasi", lokasi);
-                          if (jenisMakam) params.set("jenismakam", jenisMakam);
-                          fetch(`/api/blok?${params.toString()}`)
-                            .then((res) => res.json())
-                            .then((data) => setBlokList(data))
-                            .catch(console.error);
-                        }}
-                        style={{
-                          fontSize: "0.75rem",
-                          fontWeight: 600,
-                          color: "#505a5f",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "0 4px",
-                        }}
-                      >
-                        Reset
-                      </button>
-                    </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
                     <Controller
                       name="blokId"
                       control={control}
                       render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            handleBlokSelect(value);
-                          }}
-                          value={field.value}
+                        <GovukFormGroup 
+                          label="Blok Kavling" 
+                          error={errors.blokId?.message}
+                          hint={
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setValue("blokId", "");
+                                setSelectedBlok("");
+                                const params = new URLSearchParams();
+                                if (lokasi) params.set("lokasi", lokasi);
+                                if (jenisMakam) params.set("jenismakam", jenisMakam);
+                                fetch(`/api/blok?${params.toString()}`)
+                                  .then((res) => res.json())
+                                  .then((data) => setBlokList(data))
+                                  .catch(console.error);
+                              }}
+                              style={{
+                                fontSize: "0.75rem",
+                                fontWeight: 600,
+                                color: "#1d70b8",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                padding: 0,
+                                textDecoration: "underline",
+                              }}
+                            >
+                              Reset pilihan blok
+                            </button>
+                          }
                         >
-                          <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
-                            <SelectValue placeholder={lokasi ? "Pilih Blok" : "Pilih lokasi dahulu"} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            {blokList.length > 0 ? (
-                              blokList.map((b) => (
-                                <SelectItem key={b.id} value={b.id}>
-                                  {b.id} ({b.lokasi}) ({b.statusBlok})
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="no-blok-available" disabled>
-                                {blokListFetched ? "Tidak ada blok tersedia" : "Memuat data blok..."}
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
+                          <GovukSelect
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value);
+                              handleBlokSelect(value);
+                            }}
+                            options={[
+                              { value: "", label: lokasi ? "Pilih Blok" : "Pilih lokasi dahulu" },
+                              ...blokList.map((b) => ({
+                                value: b.id,
+                                label: `${b.id} (${b.lokasi}) (${b.statusBlok})`,
+                              })),
+                            ]}
+                          />
+                        </GovukFormGroup>
                       )}
                     />
-                    {errors.blokId && <div style={errorStyle}>{errors.blokId.message}</div>}
                   </div>
 
                   {/* Silsilah */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Hubungan dengan Pemesan</label>
-                    <Controller
-                      name="silsilah"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger style={{ ...inputOverride, height: "auto", padding: "6px 10px" }}>
-                            <SelectValue placeholder="Pilih Silsilah" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            {SILSILAH_OPTIONS.map((s) => (
-                              <SelectItem key={s} value={s}>{s}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.silsilah && <div style={errorStyle}>{errors.silsilah.message}</div>}
-                  </div>
+                  <Controller
+                    name="silsilah"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Hubungan dengan Pemesan" error={errors.silsilah?.message}>
+                        <GovukSelect
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={[
+                            { value: "", label: "Pilih Silsilah" },
+                            ...SILSILAH_OPTIONS.map((s) => ({ value: s, label: s })),
+                          ]}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
 
                   {/* Tanggal Pemesanan */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Tanggal Pemesanan</label>
-                    <Controller
-                      name="tanggalPemesanan"
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          id="tanggalPemesanan"
-                          style={{ width: "100%", ...inputOverride }}
-                          onChange={(_, dateString) => field.onChange(dateString)}
+                  <Controller
+                    name="tanggalPemesanan"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Tanggal Pemesanan" error={errors.tanggalPemesanan?.message}>
+                        <GovukDateInput
+                          value={field.value}
+                          onChange={field.onChange}
                         />
-                      )}
-                    />
-                    {errors.tanggalPemesanan && (
-                      <div style={errorStyle}>{errors.tanggalPemesanan.message}</div>
+                      </GovukFormGroup>
                     )}
-                  </div>
+                  />
 
                   {/* Tanggal Pemakaman */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Tanggal Pemakaman</label>
-                    <Controller
-                      name="tanggalPemakaman"
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          id="tanggalPemakaman"
-                          style={{ width: "100%", ...inputOverride }}
-                          onChange={(_, dateString) => field.onChange(dateString)}
+                  <Controller
+                    name="tanggalPemakaman"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup 
+                        label="Tanggal Pemakaman" 
+                        error={errors.tanggalPemakaman?.message}
+                        hint="Diisi jika telah dimakamkan"
+                      >
+                        <GovukDateInput
+                          value={field.value}
+                          onChange={field.onChange}
                         />
-                      )}
-                    />
-                    {errors.tanggalPemakaman && (
-                      <div style={errorStyle}>{errors.tanggalPemakaman.message}</div>
+                      </GovukFormGroup>
                     )}
-                    <span style={{ fontSize: "0.8125rem", color: "#505a5f" }}>
-                      *Diisi jika telah dimakamkan.
-                    </span>
-                  </div>
+                  />
 
                   {/* Notes — full width */}
-                  <div style={{ ...fieldStyle, gridColumn: "1 / -1" }}>
-                    <label style={labelStyle}>Penjelasan Tambahan</label>
+                  <div style={{ gridColumn: "1 / -1" }}>
                     <Controller
                       name="notes"
                       control={control}
                       render={({ field }) => (
-                        <Textarea
-                          {...field}
-                          rows={4}
-                          placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
-                          style={{ ...inputOverride, resize: "none" }}
-                        />
+                        <GovukFormGroup label="Penjelasan Tambahan" error={errors.notes?.message}>
+                          <GovukTextarea
+                            {...field}
+                            rows={4}
+                            placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
+                          />
+                        </GovukFormGroup>
                       )}
                     />
-                    {errors.notes && <div style={errorStyle}>{errors.notes.message}</div>}
                   </div>
                 </div>
               </>
@@ -788,27 +719,27 @@ export default function Pemesanan() {
             >
               <div>
                 {step > 1 && (
-                  <Button onClick={handlePrevStep} disabled={loading}>
+                  <GovukButton variant="secondary" onClick={handlePrevStep} disabled={loading}>
                     ← Kembali
-                  </Button>
+                  </GovukButton>
                 )}
                 {step === 1 && (
-                  <Button danger onClick={() => router.push("/")}>
+                  <GovukButton variant="warning" onClick={() => router.push("/")}>
                     Batal
-                  </Button>
+                  </GovukButton>
                 )}
               </div>
 
               <div>
                 {step < 3 && (
-                  <Button type="primary" onClick={handleNextStep}>
+                  <GovukButton onClick={handleNextStep}>
                     Lanjut →
-                  </Button>
+                  </GovukButton>
                 )}
                 {step === 3 && (
-                  <Button type="primary" htmlType="submit" loading={loading}>
-                    Kirim Pemesanan
-                  </Button>
+                  <GovukButton type="submit" disabled={loading}>
+                    {loading ? "Mengirim..." : "Kirim Pemesanan"}
+                  </GovukButton>
                 )}
               </div>
             </div>

@@ -1,15 +1,23 @@
 "use client";
 
 import { useState, useEffect, useMemo, JSX } from "react";
-import { Table, Input, Select, Button } from "antd";
-import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
 import { Makam } from "@/lib/types";
-
-const { Option } = Select;
+import {
+  GovukTable,
+  GovukTableHead,
+  GovukTableBody,
+  GovukTableRow,
+  GovukTableHeader,
+  GovukTableCell,
+  GovukInput,
+  GovukSelect,
+  GovukButton,
+  GovukPagination,
+} from "@/components/govuk";
 
 export default function MakamTable(): JSX.Element {
   const [data, setData] = useState<Makam[]>([]);
@@ -18,6 +26,8 @@ export default function MakamTable(): JSX.Element {
   const [pageSize, setPageSize] = useState<number>(12);
   const [current, setCurrent] = useState<number>(1);
   const [selectedLocation, setSelectedLocation] = useState<string>("Semua");
+  const [sortField, setSortField] = useState<string>("blok");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const router = useRouter();
 
@@ -45,7 +55,7 @@ export default function MakamTable(): JSX.Element {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return data.filter((item) => {
+    let result = data.filter((item) => {
       const matchesSearch =
         item.jenazah?.user?.name?.toLowerCase().includes(q) ||
         item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(q));
@@ -53,7 +63,52 @@ export default function MakamTable(): JSX.Element {
         selectedLocation === "Semua" || item.blok?.lokasi === selectedLocation;
       return matchesSearch && matchesLocation;
     });
-  }, [data, search, selectedLocation]);
+
+    // Sort
+    result.sort((a, b) => {
+      let aVal: string = "";
+      let bVal: string = "";
+
+      switch (sortField) {
+        case "blok":
+          aVal = a.blok?.id ?? "";
+          bVal = b.blok?.id ?? "";
+          break;
+        case "statusBlok":
+          aVal = a.blok?.statusBlok ?? "";
+          bVal = b.blok?.statusBlok ?? "";
+          break;
+        case "nama":
+          aVal = a.jenazah?.user?.name ?? "";
+          bVal = b.jenazah?.user?.name ?? "";
+          break;
+        case "statusJenazah":
+          aVal = a.jenazah?.statusJenazah ?? "";
+          bVal = b.jenazah?.statusJenazah ?? "";
+          break;
+        case "lokasi":
+          aVal = a.blok?.lokasi ?? "";
+          bVal = b.blok?.lokasi ?? "";
+          break;
+        case "namaPJ":
+          aVal = a.pj.map((pj) => pj.user?.name || "").join(", ");
+          bVal = b.pj.map((pj) => pj.user?.name || "").join(", ");
+          break;
+        case "kontakPJ":
+          aVal = a.pj.map((pj) => pj.user?.contact || "").join(", ");
+          bVal = b.pj.map((pj) => pj.user?.contact || "").join(", ");
+          break;
+      }
+
+      const comparison = aVal.localeCompare(bVal, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [data, search, selectedLocation, sortField, sortOrder]);
 
   const total = filtered.length;
   const sliceStart = (current - 1) * pageSize;
@@ -65,191 +120,14 @@ export default function MakamTable(): JSX.Element {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxVisiblePages = 5;
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      if (current <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push("...");
-        pages.push(totalPages);
-      } else if (current >= totalPages - 2) {
-        pages.push(1);
-        pages.push("...");
-        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push("...");
-        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
-        pages.push("...");
-        pages.push(totalPages);
-      }
+      setSortField(field);
+      setSortOrder("asc");
     }
-    return pages;
   };
-
-  const columns: ColumnsType<Makam> = [];
-
-  columns.push({
-    title: "Blok Makam",
-    dataIndex: "blok",
-    key: "blok",
-    align: "center",
-    sorter: (a, b) =>
-      (a.blok?.id ?? "").localeCompare(b.blok?.id ?? "", undefined, {
-        numeric: true,
-        sensitivity: "base",
-      }),
-    defaultSortOrder: "ascend",
-    sortDirections: ["ascend", "descend"],
-    render: (_, record) => <span>{record.blok?.id}</span>,
-  });
-
-  columns.push({
-    title: "Status Blok",
-    dataIndex: "blok",
-    key: "status_blok",
-    align: "center",
-    sorter: (a, b) => {
-      const sa = a.blok?.statusBlok || "";
-      const sb = b.blok?.statusBlok || "";
-      return sa.localeCompare(sb);
-    },
-    render: (_, record) => {
-      const status = record.blok?.statusBlok || "";
-      return <span style={{ fontWeight: 600 }}>{status}</span>;
-    },
-  });
-
-  columns.push({
-    title: "Nama Jenazah",
-    dataIndex: "nama",
-    key: "nama",
-    align: "center",
-    sorter: (a, b) => (a.jenazah?.user?.name || "").localeCompare(b.jenazah?.user?.name || ""),
-    render: (_, record) => (
-      <span style={{ fontWeight: 600 }}>{record.jenazah?.user?.name || "-"}</span>
-    ),
-  });
-
-  columns.push({
-    title: "Status Jenazah",
-    dataIndex: "status_jenazah",
-    key: "status_jenazah",
-    align: "center",
-    sorter: (a, b) =>
-      (a.jenazah?.statusJenazah ?? "").localeCompare(b.jenazah?.statusJenazah ?? ""),
-    render: (_, record) => (
-      <span style={{ fontWeight: 600 }}>{record.jenazah?.statusJenazah}</span>
-    ),
-  });
-
-  columns.push({
-    title: "Lokasi",
-    dataIndex: "lokasi",
-    key: "lokasi",
-    align: "center",
-    sorter: (a, b) => (a.blok?.lokasi || "").localeCompare(b.blok?.lokasi || ""),
-    render: (_, record) => <span>{record.blok?.lokasi || "-"}</span>,
-  });
-
-  columns.push({
-    title: "Nama PJ",
-    key: "namaPJ",
-    align: "center",
-    sorter: (a, b) => {
-      const nameA = a.pj.map((pj) => pj.user?.name || "").join(", ");
-      const nameB = b.pj.map((pj) => pj.user?.name || "").join(", ");
-      return nameA.localeCompare(nameB);
-    },
-    render: (_, record) => (
-      <span>
-        {record.pj.length > 0
-          ? record.pj.map((pj, index) => (
-              <span key={pj.id}>
-                {pj.user?.name || "-"}
-                {index < record.pj.length - 1 ? ", " : ""}
-              </span>
-            ))
-          : "-"}
-      </span>
-    ),
-  });
-
-  if (!isGuest) {
-    columns.push({
-      title: "No. Kontak PJ",
-      key: "kontakPJ",
-      align: "center",
-      sorter: (a, b) => {
-        const aContacts = a.pj.map((pj) => pj.user?.contact || "").join(", ");
-        const bContacts = b.pj.map((pj) => pj.user?.contact || "").join(", ");
-        return aContacts.localeCompare(bContacts);
-      },
-      render: (_, record) => {
-        if (!record.pj || record.pj.length === 0) return "-";
-        return record.pj.map((pj, index) => {
-          const num = pj.user?.contact;
-          if (!num) return null;
-          return (
-            <span key={pj.id}>
-              <a
-                href={`https://wa.me/${num}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#1d70b8", textDecoration: "underline" }}
-              >
-                {num}
-              </a>
-              {index < record.pj.length - 1 ? ", " : ""}
-            </span>
-          );
-        });
-      },
-    });
-
-    columns.push({
-      title: "Penjelasan",
-      key: "penjelasan",
-      align: "center",
-      render: (_, record: Makam) => {
-        if (!record.pj || record.pj.length === 0) return "-";
-        return record.pj.map((pj, index) => {
-          const userId = pj.user?.id;
-          const userName = pj.user?.name || "-";
-          if (!userId) return null;
-          return (
-            <span key={pj.id} className="mr-2">
-              <span
-                style={{ cursor: "pointer", color: "#1d70b8", textDecoration: "underline" }}
-                onClick={() => router.push(`/layanan/histori/user/${userId}`)}
-              >
-                {userName}
-              </span>
-              {index < record.pj.length - 1 ? ", " : ""}
-            </span>
-          );
-        });
-      },
-    });
-
-    columns.push({
-      title: "Ubah",
-      key: "edit",
-      align: "center",
-      render: (_, record) => (
-        <Link href={`/layanan/makam/${record.id}`} legacyBehavior>
-          <a>
-            <Button type="primary" size="small">
-              Ubah
-            </Button>
-          </a>
-        </Link>
-      ),
-    });
-  }
 
   return (
     <div style={{ background: "#f3f2f1", minHeight: "100%" }}>
@@ -284,59 +162,48 @@ export default function MakamTable(): JSX.Element {
       </div>
 
       {/* Toolbar */}
-      <div 
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          alignItems: "center",
-          padding: "8px 10px",
-          background: "#f3f2f1",
-          border: "1px solid #505a5f",
-          marginBottom: 0,
-        }}
-      >
-        <Input
-          placeholder="Cari nama, blok, atau penanggung jawab..."
-          allowClear
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrent(1);
-          }}
-          value={search}
-          style={{ width: "clamp(180px, 30vw, 300px)" }}
-        />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
-          Lokasi:
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #505a5f", marginBottom: 0 }}>
+        {/* Filters - left */}
+        <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="makam-search">Cari</label>
+            <GovukInput
+              id="makam-search"
+              placeholder="Nama, blok, atau penanggung jawab..."
+              onChange={(e) => { setSearch(e.target.value); setCurrent(1); }}
+              value={search}
+              style={{ width: "clamp(180px, 28vw, 280px)" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="makam-lokasi">Lokasi</label>
+            <GovukSelect
+              id="makam-lokasi"
+              value={selectedLocation}
+              onChange={(e) => { setSelectedLocation(e.target.value); setCurrent(1); }}
+              style={{ width: "clamp(120px, 14vw, 160px)" }}
+            >
+              <option value="Semua">Semua</option>
+              <option value="Karang Anyar">Karang Anyar</option>
+              <option value="Dalem Kaum">Dalem Kaum</option>
+              <option value="Dayeuhkolot">Dayeuhkolot</option>
+            </GovukSelect>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="makam-pagesize">Baris</label>
+            <GovukSelect
+              id="makam-pagesize"
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrent(1); }}
+              style={{ width: 90 }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={12}>12</option>
+              <option value={20}>20</option>
+            </GovukSelect>
+          </div>
         </div>
-        <Select
-          value={selectedLocation}
-          onChange={(val) => {
-            setSelectedLocation(val);
-            setCurrent(1);
-          }}
-          style={{ width: "clamp(120px, 15vw, 160px)" }}
-        >
-          <Option value="Semua">Semua</Option>
-          <Option value="Karang Anyar">Karang Anyar</Option>
-          <Option value="Dalem Kaum">Dalem Kaum</Option>
-          <Option value="Dayeuhkolot">Dayeuhkolot</Option>
-        </Select>
-
-        <Select
-          value={pageSize}
-          onChange={(val) => {
-            setPageSize(val);
-            setCurrent(1);
-          }}
-          style={{ width: 100 }}
-        >
-          <Option value={5}>5 baris</Option>
-          <Option value={10}>10 baris</Option>
-          <Option value={12}>12 baris</Option>
-          <Option value={20}>20 baris</Option>
-        </Select>
       </div>
 
       {/* Result count */}
@@ -359,98 +226,119 @@ export default function MakamTable(): JSX.Element {
         </div>
       )}
 
-      <Table<Makam>
-        columns={columns}
-        dataSource={visibleData}
-        loading={loading}
-        pagination={false}
-        rowKey="id"
-        scroll={{ x: "max-content" }}
-        size="small"
-        className="no-gap-table"
-      />
+      {loading ? (
+        <div style={{ padding: "2rem", textAlign: "center", background: "#fff", border: "1px solid #b1b4b6" }}>
+          <p style={{ color: "#505a5f", fontSize: "0.875rem", margin: 0 }}>Memuat data...</p>
+        </div>
+      ) : (
+        <GovukTable>
+          <GovukTableHead>
+            <GovukTableRow>
+              <GovukTableHeader sortKey="blok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Blok Makam</GovukTableHeader>
+              <GovukTableHeader sortKey="statusBlok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Blok</GovukTableHeader>
+              <GovukTableHeader sortKey="nama" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama Jenazah</GovukTableHeader>
+              <GovukTableHeader sortKey="statusJenazah" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Jenazah</GovukTableHeader>
+              <GovukTableHeader sortKey="lokasi" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Lokasi</GovukTableHeader>
+              <GovukTableHeader sortKey="namaPJ" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama PJ</GovukTableHeader>
+              {!isGuest && (
+                <>
+                  <GovukTableHeader sortKey="kontakPJ" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>No. Kontak PJ</GovukTableHeader>
+                  <GovukTableHeader>Penjelasan</GovukTableHeader>
+                  <GovukTableHeader last>Ubah</GovukTableHeader>
+                </>
+              )}
+            </GovukTableRow>
+          </GovukTableHead>
+          <GovukTableBody>
+            {visibleData.length === 0 ? (
+              <GovukTableRow>
+                <GovukTableCell colSpan={isGuest ? 6 : 9} style={{ textAlign: "center", color: "#505a5f" }}>
+                  Tidak ada data ditemukan
+                </GovukTableCell>
+              </GovukTableRow>
+            ) : (
+              visibleData.map((record) => (
+                <GovukTableRow key={record.id}>
+                  <GovukTableCell>{record.blok?.id}</GovukTableCell>
+                  <GovukTableCell style={{ fontWeight: 700 }}>{record.blok?.statusBlok || ""}</GovukTableCell>
+                  <GovukTableCell style={{ fontWeight: 700 }}>{record.jenazah?.user?.name || "-"}</GovukTableCell>
+                  <GovukTableCell style={{ fontWeight: 700 }}>{record.jenazah?.statusJenazah}</GovukTableCell>
+                  <GovukTableCell>{record.blok?.lokasi || "-"}</GovukTableCell>
+                  <GovukTableCell>
+                    {record.pj.length > 0
+                      ? record.pj.map((pj, index) => (
+                          <span key={pj.id}>
+                            {pj.user?.name || "-"}
+                            {index < record.pj.length - 1 ? ", " : ""}
+                          </span>
+                        ))
+                      : "-"}
+                  </GovukTableCell>
+                  {!isGuest && (
+                    <>
+                      <GovukTableCell>
+                        {record.pj.length === 0
+                          ? "-"
+                          : record.pj.map((pj, index) => {
+                              const num = pj.user?.contact;
+                              if (!num) return null;
+                              return (
+                                <span key={pj.id}>
+                                  <a
+                                    href={`https://wa.me/${num}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "#1d70b8", textDecoration: "underline" }}
+                                  >
+                                    {num}
+                                  </a>
+                                  {index < record.pj.length - 1 ? ", " : ""}
+                                </span>
+                              );
+                            })}
+                      </GovukTableCell>
+                      <GovukTableCell>
+                        {record.pj.length === 0
+                          ? "-"
+                          : record.pj.map((pj, index) => {
+                              const userId = pj.user?.id;
+                              const userName = pj.user?.name || "-";
+                              if (!userId) return null;
+                              return (
+                                <span key={pj.id}>
+                                  <button
+                                    onClick={() => router.push(`/layanan/histori/user/${userId}`)}
+                                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "#1d70b8", textDecoration: "underline", fontSize: "0.8125rem" }}
+                                  >
+                                    {userName}
+                                  </button>
+                                  {index < record.pj.length - 1 ? ", " : ""}
+                                </span>
+                              );
+                            })}
+                      </GovukTableCell>
+                      <GovukTableCell last>
+                        <Link href={`/layanan/makam/${record.id}`}>
+                          <GovukButton>Ubah</GovukButton>
+                        </Link>
+                      </GovukTableCell>
+                    </>
+                  )}
+                </GovukTableRow>
+              ))
+            )}
+          </GovukTableBody>
+        </GovukTable>
+      )}
 
       {/* Pagination */}
       {!loading && filtered.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 8,
-            marginTop: 10,
-            padding: "6px 10px",
-            background: "#fff",
-            border: "1px solid #b1b4b6",
-          }}
-        >
-          <div style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
-            Halaman {current} dari {totalPages}
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <button
-              onClick={() => handlePageChange(current - 1)}
-              disabled={current === 1}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                padding: "4px 10px",
-                fontSize: "0.8125rem",
-                fontWeight: 600,
-                background: current === 1 ? "#f3f2f1" : "#fff",
-                color: current === 1 ? "#b1b4b6" : "#0b0c0c",
-                border: "1px solid",
-                borderColor: current === 1 ? "#b1b4b6" : "#505a5f",
-                cursor: current === 1 ? "not-allowed" : "pointer",
-              }}
-            >
-              ← Prev
-            </button>
-
-            {getPageNumbers().map((page, index) => (
-              <button
-                key={index}
-                onClick={() => typeof page === "number" && handlePageChange(page)}
-                disabled={page === "..."}
-                style={{
-                  padding: "4px 10px",
-                  fontSize: "0.8125rem",
-                  fontWeight: 600,
-                  background: page === current ? "#1d70b8" : "#fff",
-                  color: page === current ? "#fff" : page === "..." ? "#b1b4b6" : "#0b0c0c",
-                  border: "1px solid",
-                  borderColor: page === current ? "#003078" : "#b1b4b6",
-                  cursor: page === "..." ? "default" : "pointer",
-                  minWidth: 32,
-                }}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => handlePageChange(current + 1)}
-              disabled={current === totalPages}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                padding: "4px 10px",
-                fontSize: "0.8125rem",
-                fontWeight: 600,
-                background: current === totalPages ? "#f3f2f1" : "#fff",
-                color: current === totalPages ? "#b1b4b6" : "#0b0c0c",
-                border: "1px solid",
-                borderColor: current === totalPages ? "#b1b4b6" : "#505a5f",
-                cursor: current === totalPages ? "not-allowed" : "pointer",
-              }}
-            >
-              Next →
-            </button>
-          </div>
+        <div style={{ marginTop: 16 }}>
+          <GovukPagination
+            currentPage={current}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       )}
     </div>

@@ -725,3 +725,24 @@ main {
 .slick-next {
   z-index: 15 !important;
 }
+
+/* ─── Main page services grid ────────────────────────────────────────────── */
+
+.services-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+@media (max-width: 640px) {
+  .services-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .services-grid a[style*="1 / -1"] {
+    grid-column: 1 !important;
+    justify-content: flex-start !important;
+  }
+
+  .services-grid a[style*="1 / -1"] > div {
+    width: 100% !important;
+  }
+}
