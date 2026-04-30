@@ -104,7 +104,7 @@ export default function PenanggungJawab() {
           </div>
 
           {!loading && (
-            <div style={{ padding: "4px 10px", background: "#fff", border: "1px solid #b1b4b6", borderTop: "none", borderBottom: "2px solid #0b0c0c", fontSize: "0.75rem", color: "#505a5f", fontWeight: 600, marginBottom: 8 }}>
+            <div style={{ padding: "4px 10px", background: "#fff", border: "1px solid #b1b4b6", borderTop: "none", borderBottom: "1px solid #b1b4b6", fontSize: "0.75rem", color: "#505a5f", fontWeight: 600, marginBottom: 8 }}>
               Menampilkan {currentPJList.length} dari {filteredData.length} pengguna
               {filteredData.length !== penanggungJawabList.length && ` (difilter dari ${penanggungJawabList.length} total)`}
             </div>

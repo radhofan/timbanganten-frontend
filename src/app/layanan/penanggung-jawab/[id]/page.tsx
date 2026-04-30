@@ -186,8 +186,8 @@ export default function UserDetail() {
         ) : (
           <>
             {/* Page title */}
-            <div style={{ borderBottom: "2px solid #0b0c0c", paddingBottom: 8, marginBottom: 14 }}>
-              <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.25rem)", color: "#0b0c0c", margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 14 }}>
+              <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
                 Detail Penanggung Jawab
               </h1>
             </div>
@@ -195,12 +195,12 @@ export default function UserDetail() {
             {/* ── User Info Panel ── */}
             <div style={{ background: "#fff", border: "1px solid #505a5f", borderTop: "3px solid #1d70b8", marginBottom: 12 }}>
               {/* Header bar */}
-              <div style={{ background: "#0b0c0c", padding: "10px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ background: "#f3f2f1", padding: "10px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #b1b4b6" }}>
                 <div style={{ background: "#1d70b8", padding: "5px 8px", display: "flex", alignItems: "center" }}>
                   <UserIcon style={{ color: "#fff", width: 18, height: 18 }} />
                 </div>
                 <div>
-                  <div style={{ color: "#fff", fontWeight: 700, fontSize: "clamp(0.875rem, 1.2vw, 1.1rem)" }}>
+                  <div style={{ color: "#0b0c0c", fontWeight: 700, fontSize: "clamp(0.875rem, 1.2vw, 1.1rem)" }}>
                     {user?.name || ""}
                   </div>
                   <span style={{

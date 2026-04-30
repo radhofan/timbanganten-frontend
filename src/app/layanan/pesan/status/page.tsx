@@ -93,33 +93,22 @@ export default function Status() {
 
       <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
         {/* Header row */}
-        <div
-          style={{
-            borderBottom: "2px solid #0b0c0c",
-            paddingBottom: 8,
-            marginBottom: 12,
-            display: "flex",
-            alignItems: "baseline",
-            gap: 12,
-          }}
-        >
-          <h2
+        <div style={{ marginBottom: 12, borderBottom: "1px solid #b1b4b6", paddingBottom: 10 }}>
+          <h1
             style={{
               fontWeight: 700,
-              fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
+              fontSize: "clamp(1rem, 1.5vw, 1.1875rem)",
               color: "#0b0c0c",
               margin: 0,
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
             }}
           >
             Status Pemesanan
-          </h2>
-          {!loading && (
-            <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>
-              {filteredData.length} data
-            </span>
-          )}
+            {!loading && (
+              <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600, marginLeft: 10 }}>
+                {filteredData.length} data
+              </span>
+            )}
+          </h1>
         </div>
 
         {/* Toolbar */}
@@ -163,7 +152,7 @@ export default function Status() {
               background: "#fff",
               border: "1px solid #b1b4b6",
               borderTop: "none",
-              borderBottom: "2px solid #0b0c0c",
+              borderBottom: "1px solid #b1b4b6",
               fontSize: "0.75rem",
               color: "#505a5f",
               fontWeight: 600,

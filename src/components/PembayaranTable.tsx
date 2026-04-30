@@ -371,7 +371,7 @@ export default function JenazahTable(): JSX.Element {
           <div
             style={{
               background: "#fff",
-              border: "2px solid #0b0c0c",
+              border: "1px solid #b1b4b6",
               maxWidth: 600,
               width: "90%",
               maxHeight: "90vh",
@@ -379,8 +379,8 @@ export default function JenazahTable(): JSX.Element {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ background: "#0b0c0c", padding: "12px 16px" }}>
-              <h2 className="govuk-heading-m" style={{ color: "#fff", margin: 0 }}>
+            <div style={{ background: "#f3f2f1", padding: "12px 16px", borderBottom: "1px solid #b1b4b6", borderTop: "4px solid #1d70b8" }}>
+              <h2 className="govuk-heading-m" style={{ color: "#0b0c0c", margin: 0 }}>
                 Konfirmasi Pembayaran Pesanan
               </h2>
             </div>
@@ -454,7 +454,7 @@ export default function JenazahTable(): JSX.Element {
           <div
             style={{
               background: "#fff",
-              border: "2px solid #0b0c0c",
+              border: "1px solid #b1b4b6",
               maxWidth: 600,
               width: "90%",
               maxHeight: "90vh",
@@ -462,8 +462,8 @@ export default function JenazahTable(): JSX.Element {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ background: "#0b0c0c", padding: "12px 16px" }}>
-              <h2 className="govuk-heading-m" style={{ color: "#fff", margin: 0 }}>
+            <div style={{ background: "#f3f2f1", padding: "12px 16px", borderBottom: "1px solid #b1b4b6", borderTop: "4px solid #1d70b8" }}>
+              <h2 className="govuk-heading-m" style={{ color: "#0b0c0c", margin: 0 }}>
                 Konfirmasi Pembayaran Iuran Tahunan
               </h2>
             </div>

@@ -235,70 +235,56 @@ export default function Pemesanan() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <form
           onSubmit={handleSubmit(onSubmit)}
           style={{
             width: "100%",
             maxWidth: "clamp(480px, 60vw, 760px)",
-            margin: "0 auto",
             background: "#fff",
             border: "1px solid #b1b4b6",
           }}
         >
-          {/* Form header */}
-          <div
-            style={{
-              background: "#0b0c0c",
-              padding: "10px 16px",
-            }}
-          >
-            <div
-              style={{
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}
-            >
+          {/* GOV.UK page heading */}
+          <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
+            <span style={{ display: "block", fontSize: "0.875rem", color: "#505a5f", marginBottom: 2 }}>
+              Langkah {step} dari {STEPS.length}
+            </span>
+            <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
               Form Pemesanan Makam
-            </div>
-            <div style={{ color: "#b1b4b6", fontSize: "0.75rem", marginTop: 2 }}>
-              Lengkapi semua field yang diperlukan
-            </div>
+            </h1>
           </div>
 
           {/* Step indicator */}
-          <div style={{ display: "flex", borderBottom: "2px solid #0b0c0c" }}>
+          <ol style={{ display: "flex", listStyle: "none", margin: 0, padding: 0, borderBottom: "1px solid #b1b4b6" }}>
             {STEPS.map((label, idx) => {
               const stepNum = idx + 1;
               const isActive = step === stepNum;
               const isDone = step > stepNum;
               return (
-                <div
+                <li
                   key={label}
                   style={{
                     flex: 1,
-                    padding: "8px 12px",
-                    background: isActive ? "#1d70b8" : isDone ? "#005a30" : "#f3f2f1",
-                    borderRight: idx < STEPS.length - 1 ? "2px solid #0b0c0c" : "none",
+                    padding: "10px 12px",
+                    borderRight: idx < STEPS.length - 1 ? "1px solid #b1b4b6" : "none",
+                    borderTop: isActive ? "4px solid #1d70b8" : isDone ? "4px solid #00703c" : "4px solid transparent",
+                    background: "#fff",
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
+                    gap: 8,
                   }}
                 >
                   <span
                     style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      background: isActive ? "#fff" : isDone ? "#00703c" : "#b1b4b6",
-                      color: isActive ? "#1d70b8" : isDone ? "#fff" : "#505a5f",
+                      width: 22,
+                      height: 22,
+                      background: isActive ? "#1d70b8" : isDone ? "#00703c" : "#b1b4b6",
+                      color: "#fff",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "0.75rem",
+                      fontSize: "0.6875rem",
                       fontWeight: 700,
                       flexShrink: 0,
                     }}
@@ -307,19 +293,19 @@ export default function Pemesanan() {
                   </span>
                   <span
                     style={{
-                      fontSize: "0.75rem",
+                      fontSize: "0.6875rem",
                       fontWeight: 700,
-                      color: isActive || isDone ? "#fff" : "#505a5f",
+                      color: isActive ? "#1d70b8" : isDone ? "#00703c" : "#505a5f",
                       textTransform: "uppercase",
                       letterSpacing: "0.04em",
                     }}
                   >
                     {label}
                   </span>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ol>
 
           <div style={{ padding: "clamp(14px, 2vw, 22px)" }}>
             {stepError && (
@@ -614,8 +600,8 @@ export default function Pemesanan() {
 
                 <div style={{ background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 16 }}>
                   {/* PJ section */}
-                  <div style={{ padding: "10px 14px", borderBottom: "1px solid #b1b4b6", background: "#0b0c0c" }}>
-                    <div style={{ color: "#b1b4b6", fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  <div style={{ padding: "8px 14px", borderBottom: "1px solid #b1b4b6", background: "#f3f2f1", borderTop: "4px solid #1d70b8" }}>
+                    <div style={{ color: "#0b0c0c", fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                       Penanggung Jawab
                     </div>
                   </div>
@@ -638,8 +624,8 @@ export default function Pemesanan() {
                   </div>
 
                   {/* Makam section */}
-                  <div style={{ padding: "10px 14px", borderBottom: "1px solid #b1b4b6", borderTop: "1px solid #b1b4b6", background: "#0b0c0c" }}>
-                    <div style={{ color: "#b1b4b6", fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  <div style={{ padding: "8px 14px", borderBottom: "1px solid #b1b4b6", borderTop: "1px solid #b1b4b6", background: "#f3f2f1" }}>
+                    <div style={{ color: "#0b0c0c", fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                       Data Makam
                     </div>
                   </div>

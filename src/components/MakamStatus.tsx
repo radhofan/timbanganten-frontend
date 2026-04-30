@@ -186,7 +186,7 @@ export default function MakamStatus({ page }: { page: string }) {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main style={{ flex: 1 }} className="page-container">
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {loading ? (
           <div style={{ padding: "40px 0", color: "#505a5f", fontSize: "0.875rem" }}>
             Memuat data status pemesanan...
@@ -194,17 +194,13 @@ export default function MakamStatus({ page }: { page: string }) {
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
-            style={{ background: "#fff", border: "1px solid #505a5f", marginBottom: 24 }}
+            style={{ width: "100%", maxWidth: "clamp(480px, 60vw, 760px)", background: "#fff", border: "1px solid #b1b4b6", marginBottom: 24 }}
           >
-            {/* Form header bar */}
-            <div style={{ background: "#0b0c0c", padding: "10px 16px" }}>
-              <h2 style={{
-                color: "#fff", fontWeight: 700, margin: 0,
-                fontSize: "clamp(0.875rem, 1.2vw, 1rem)",
-                textTransform: "uppercase", letterSpacing: "0.04em",
-              }}>
+            {/* GOV.UK page heading */}
+            <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
+              <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
                 Status Pemesanan Makam
-              </h2>
+              </h1>
             </div>
 
             <div style={{ padding: "clamp(12px, 2vw, 20px)" }}>
