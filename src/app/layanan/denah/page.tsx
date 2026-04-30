@@ -75,9 +75,9 @@ const Denah = () => {
     [blokMap]
   );
 
-  const handleDenahChange = useCallback((value: Lokasi) => {
+  const handleDenahChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPlot(null);
-    setSelectedDenah(value);
+    setSelectedDenah(e.target.value as Lokasi);
   }, []);
 
   return (
