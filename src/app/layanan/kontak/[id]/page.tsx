@@ -6,40 +6,29 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-
-import { Button } from "antd";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  kontakUpdateSchema,
-  KontakUpdatePayload,
-  kontakUpdateDefaultValues,
-} from "@/validation/kontak";
-
-import { toast } from "react-hot-toast"; // toaster
+import { kontakUpdateSchema, KontakUpdatePayload, kontakUpdateDefaultValues } from "@/validation/kontak";
+import { toast } from "react-hot-toast";
+import { GovukButton, GovukFormGroup, GovukInput } from "@/components/govuk";
 
 export default function KontakDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-
   const user = useStore(authStore, (s) => s.user);
   const role = user?.role;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset } = useForm<KontakUpdatePayload>({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<KontakUpdatePayload>({
     defaultValues: kontakUpdateDefaultValues,
     resolver: zodResolver(kontakUpdateSchema),
   });
 
   useEffect(() => {
     let mounted = true;
-
     fetch(`/api/admin?id=${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Gagal memuat data admin");
@@ -47,46 +36,33 @@ export default function KontakDetailPage() {
       })
       .then((admin) => {
         if (!mounted) return;
-        reset({
-          name: admin.name || "",
-          email: admin.email || "",
-          contact: admin.contact || "",
-          password: "",
-        });
+        reset({ name: admin.name || "", email: admin.email || "", contact: admin.contact || "", password: "" });
         setLoading(false);
       })
       .catch((err) => {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Unknown error");
+        setFetchError(err instanceof Error ? err.message : "Unknown error");
         setLoading(false);
       });
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [id, reset]);
 
   const onSubmit: SubmitHandler<KontakUpdatePayload> = async (data) => {
     if (role !== "admin") return;
-
     setSaving(true);
-
     const payload: Record<string, string> = {
       name: data.name,
       email: data.email,
       contact: data.contact?.trim() || "",
     };
     if (data.password.trim() !== "") payload.password = data.password;
-
     try {
       const res = await fetch(`/api/admin?id=${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) throw new Error("Gagal memperbarui kontak");
-
       toast.success("Kontak berhasil diperbarui", { position: "top-center" });
       setTimeout(() => router.push("/layanan/kontak"), 1500);
     } catch (err) {
@@ -98,118 +74,105 @@ export default function KontakDetailPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start page-container">
-        {loading ? (
-          <p className="text-gray-600">Memuat data kontak...</p>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-400 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-8"
-          >
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-800">Edit Kontak Admin</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Perbarui informasi kontak admin di bawah ini.
-              </p>
+      <div className="govuk-width-container" style={{ flex: 1 }}>
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          {loading ? (
+            <p className="govuk-body" style={{ color: "#505a5f" }}>Memuat data kontak...</p>
+          ) : fetchError ? (
+            <div className="govuk-error-summary" role="alert">
+              <h2 className="govuk-error-summary__title">Terjadi kesalahan</h2>
+              <div className="govuk-error-summary__body">
+                <p className="govuk-body">{fetchError}</p>
+              </div>
             </div>
+          ) : (
+            <div className="govuk-grid-row">
+              <div className="govuk-grid-column-two-thirds">
+                <h1 className="govuk-heading-l">Edit Kontak Admin</h1>
 
-            <section className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Informasi Kontak</h3>
+                <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                  <fieldset className="govuk-fieldset">
+                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                      <h2 className="govuk-fieldset__heading">Informasi Kontak</h2>
+                    </legend>
 
-              {/* Name */}
-              <Controller
-                name="name"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="name" className="mb-2">
-                      Nama
-                    </Label>
-                    <Input {...field} id="name" />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
-
-              {/* Email */}
-              <Controller
-                name="email"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="email" className="mb-2">
-                      Email
-                    </Label>
-                    <Input {...field} id="email" type="email" />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
-
-              {/* Contact */}
-              <Controller
-                name="contact"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="contact" className="mb-2">
-                      No. Kontak
-                    </Label>
-                    <Input {...field} id="contact" placeholder="08XXXXXXXXX" />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
-            </section>
-
-            <section className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Keamanan</h3>
-
-              {/* Password */}
-              <Controller
-                name="password"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="flex flex-col">
-                    <Label htmlFor="password" className="mb-2">
-                      Password Baru
-                    </Label>
-                    <Input
-                      {...field}
-                      id="password"
-                      type="password"
-                      placeholder="Kosongkan jika tidak diubah"
+                    <Controller
+                      name="name"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup id="name" label="Nama" error={errors.name?.message}>
+                          <GovukInput {...field} id="name" error={!!errors.name} style={{ width: "100%" }} />
+                        </GovukFormGroup>
+                      )}
                     />
-                    {fieldState.error && (
-                      <span className="text-red-600 text-sm mt-1">{fieldState.error.message}</span>
-                    )}
-                  </div>
-                )}
-              />
-            </section>
 
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button danger onClick={() => router.push("/layanan/kontak")}>
-                Batal
-              </Button>
-              <Button type="primary" htmlType="submit" loading={saving} disabled={role !== "admin"}>
-                Simpan
-              </Button>
+                    <Controller
+                      name="email"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup id="email" label="Email" error={errors.email?.message}>
+                          <GovukInput {...field} id="email" type="email" error={!!errors.email} style={{ width: "100%" }} />
+                        </GovukFormGroup>
+                      )}
+                    />
+
+                    <Controller
+                      name="contact"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup id="contact" label="No. Kontak" error={errors.contact?.message}>
+                          <GovukInput {...field} id="contact" placeholder="08XXXXXXXXX" error={!!errors.contact} style={{ width: "100%" }} />
+                        </GovukFormGroup>
+                      )}
+                    />
+                  </fieldset>
+
+                  <fieldset className="govuk-fieldset" style={{ marginTop: 8 }}>
+                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                      <h2 className="govuk-fieldset__heading">Keamanan Akun</h2>
+                    </legend>
+
+                    <Controller
+                      name="password"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup
+                          id="password"
+                          label="Password Baru"
+                          hint="Kosongkan jika tidak ingin mengubah password"
+                          error={errors.password?.message}
+                        >
+                          <GovukInput {...field} id="password" type="password" error={!!errors.password} style={{ width: "100%" }} />
+                        </GovukFormGroup>
+                      )}
+                    />
+                  </fieldset>
+
+                  <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                    <GovukButton
+                      type="submit"
+                      isLoading={saving}
+                      disabled={role !== "admin"}
+                    >
+                      Simpan
+                    </GovukButton>
+                    <GovukButton
+                      type="button"
+                      variant="secondary"
+                      onClick={() => router.push("/layanan/kontak")}
+                    >
+                      Batal
+                    </GovukButton>
+                  </div>
+                </form>
+              </div>
             </div>
-          </form>
-        )}
-      </main>
+          )}
+        </main>
+      </div>
 
       <Footer />
     </div>

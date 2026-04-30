@@ -4,11 +4,11 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { DENAH } from "@/lib/denah";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Select, Empty } from "antd";
-import CemeteryPlotEditor from "@/components/CemetryPlotEditor";
+import { GovukSelect } from "@/components/govuk";
 import CemeteryViewer from "@/components/CemeteryViewer";
 import { Blok } from "@/lib/types";
 import { useUserRoles } from "@/components/CheckRole";
+import { useRouter } from "next/navigation";
 
 interface Plot {
   id: string;
@@ -26,35 +26,26 @@ type Lokasi = keyof typeof DENAH;
 
 const Denah = () => {
   const { isAdmin } = useUserRoles();
+  const router = useRouter();
   const [selectedPlot, setSelectedPlot] = useState<PlotWithBlok | null>(null);
   const [selectedDenah, setSelectedDenah] = useState<Lokasi>("Dalem Kaum");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [stageSize, setStageSize] = useState({ width: 1400, height: 700 });
-  const [mode, setMode] = useState<"view" | "edit">("view");
   const [blokMap, setBlokMap] = useState<Record<string, Blok>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Memoize plots to prevent unnecessary re-renders
   const plots = useMemo(() => DENAH[selectedDenah].plots, [selectedDenah]);
 
-  // Fetch blok data
   useEffect(() => {
     const fetchBlok = async () => {
       setIsLoading(true);
       try {
-        console.log("[Denah] fetching blok for:", selectedDenah);
-
         const res = await fetch(`/api/getBlok?lokasi=${encodeURIComponent(selectedDenah)}`);
         const data: Blok[] = await res.json();
-
         const map: Record<string, Blok> = {};
-        data.forEach((blok) => {
-          map[blok.id] = blok;
-        });
-
-        console.log("[Denah] blokMap keys:", Object.keys(map));
+        data.forEach((blok) => { map[blok.id] = blok; });
         setBlokMap(map);
       } catch (err) {
         console.error("Failed to fetch blok", err);
@@ -62,11 +53,9 @@ const Denah = () => {
         setIsLoading(false);
       }
     };
-
     fetchBlok();
   }, [selectedDenah]);
 
-  // Resize handler
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
@@ -79,177 +68,178 @@ const Denah = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  // Reset selected plot when switching modes
-  useEffect(() => {
-    if (mode === "edit") {
-      setSelectedPlot(null);
-    }
-  }, [mode]);
-
-  // Memoized plot click handler
   const handlePlotClick = useCallback(
     (plot: Plot) => {
-      const blok = blokMap[plot.id];
-      console.log("[Plot Click]", { plotId: plot.id, blok });
-
-      setSelectedPlot({
-        ...plot,
-        blok,
-      });
+      setSelectedPlot({ ...plot, blok: blokMap[plot.id] });
     },
     [blokMap]
   );
 
-  // Memoized mode toggle handler
-  const toggleMode = useCallback(() => {
-    setMode((prev) => (prev === "view" ? "edit" : "view"));
-  }, []);
-
-  // Memoized denah change handler
   const handleDenahChange = useCallback((value: Lokasi) => {
     setSelectedPlot(null);
     setSelectedDenah(value);
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
-      <main className="big-white flex-1">
-        <div className="w-full bg-white page-container">
-          <div className="max-w-7xl mx-auto">
-            <div className="mx-auto" style={{ width: "clamp(50vw, 70vw, 90vw)" }}>
-              {" "}
-              <h1 className="text-3xl font-bold text-black mb-4 mx-auto">
-                Denah Makam Timbanganten
-              </h1>
+
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
+        {/* Page title */}
+        <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 14 }}>
+          <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
+            Denah Makam Timbanganten
+          </h1>
+        </div>
+
+        {/* Toolbar panel */}
+        <div
+          ref={containerRef}
+          style={{
+            background: "#f3f2f1",
+            border: "1px solid #b1b4b6",
+            padding: "8px 12px",
+            marginBottom: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          {/* Legend */}
+          {[
+            { color: "#00703c", label: "Available" },
+            { color: "#d4351c", label: "Occupied" },
+            { color: "#1d70b8", label: "Selected" },
+          ].map((item) => (
+            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{ width: 16, height: 16, background: item.color, border: "1px solid rgba(0,0,0,0.3)", flexShrink: 0 }} />
+              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#0b0c0c" }}>{item.label}</span>
             </div>
+          ))}
 
-            <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 mb-8 p-4 mx-auto" style={{ width: "clamp(50vw, 70vw, 90vw)" }}>
-              <div className="flex items-center justify-between text-black">
-                <div className="flex gap-4 items-center text-black w-full">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-green-500 border-2 border-green-300"></div>
-                    <span>Available</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-red-500 border-2 border-red-300"></div>
-                    <span>Occupied</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-blue-500 border-2 border-blue-300"></div>
-                    <span>Selected</span>
-                  </div>
-                  {isAdmin && (
-                    <button
-                      onClick={toggleMode}
-                      className={`px-4 py-2 rounded-lg font-semibold transition ${
-                        mode === "edit"
-                          ? "bg-gray-600 hover:bg-gray-700 text-white"
-                          : "bg-blue-500 hover:bg-blue-600 text-white"
-                      }`}
-                    >
-                      {mode === "edit" ? "Back to Denah" : "Edit Denah"}
-                    </button>
-                  )}
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            {isAdmin && (
+              <button
+                onClick={() => router.push("/layanan/denah/editor")}
+                style={{
+                  padding: "4px 12px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 700,
+                  background: "#1d70b8",
+                  color: "#fff",
+                  border: "2px solid #003078",
+                  cursor: "pointer",
+                }}
+              >
+                Edit Denah →
+              </button>
+            )}
 
-                  <div className="ml-auto flex items-center gap-2">
-                    <div>Lokasi:</div>
-                    <Select
-                      value={selectedDenah}
-                      onChange={handleDenahChange}
-                      className="w-40"
-                      options={Object.keys(DENAH).map((lokasi) => ({
-                        value: lokasi,
-                        label: lokasi,
-                      }))}
-                    />
-                  </div>
-                </div>
-              </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0b0c0c" }}>Lokasi:</span>
+              <GovukSelect
+                value={selectedDenah}
+                onChange={handleDenahChange}
+                options={Object.keys(DENAH).map((lokasi) => ({ value: lokasi, label: lokasi }))}
+              />
             </div>
+          </div>
+        </div>
 
+        {/* Map canvas */}
+        <div
+          style={{
+            border: "1px solid #b1b4b6",
+            borderTop: "none",
+            background: "#fff",
+            marginBottom: selectedPlot ? 12 : 0,
+            overflow: "hidden",
+          }}
+        >
+          {isLoading && (
+            <div style={{ padding: 40, textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
+              Memuat data blok...
+            </div>
+          )}
+          {!isLoading && (
+            <CemeteryViewer
+              plots={plots}
+              selectedPlot={selectedPlot}
+              onPlotClick={handlePlotClick}
+            />
+          )}
+        </div>
+
+        {/* Plot info panel */}
+        {selectedPlot && (
+          <div
+            style={{
+              background: "#fff",
+              border: "1px solid #b1b4b6",
+              borderTop: "3px solid #1d70b8",
+              padding: "12px 16px",
+            }}
+          >
             <div
-              className="mx-auto rounded-lg overflow-hidden shadow-2xl border border-gray-300"
-              style={{ 
-                width: "clamp(50vw, 70vw, 90vw)",
-                marginBottom: selectedPlot ? "3rem" : "6rem"
+              style={{
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                color: "#0b0c0c",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                borderBottom: "1px solid #b1b4b6",
+                paddingBottom: 6,
+                marginBottom: 10,
               }}
             >
-              {isLoading && (
-                <div className="flex items-center justify-center p-12">
-                  <div className="text-gray-500">Loading...</div>
-                </div>
-              )}
-              {!isLoading && mode === "view" && (
-                <CemeteryViewer
-                  plots={plots}
-                  selectedPlot={selectedPlot}
-                  onPlotClick={handlePlotClick}
-                />
-              )}
-              {!isLoading && mode === "edit" && <CemeteryPlotEditor />}
+              Informasi Blok: {selectedPlot.id}
             </div>
 
-            {selectedPlot && (
-              <div className="rounded-lg overflow-hidden shadow-2xl border border-gray-300 p-4 mx-auto" style={{ width: "clamp(50vw, 70vw, 90vw)" }}>
-                <h2 className="text-xl font-bold mb-4">Blok Information</h2>
-
-                {!selectedPlot.blok ? (
-                  <div className="py-12">
-                    <Empty description="Blok makam tidak ditemukan" />
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4 text-black">
-                    <div>
-                      <p className="text-gray-400">Blok ID</p>
-                      <p className="font-semibold">{selectedPlot.id}</p>
+            {!selectedPlot.blok ? (
+              <div style={{ padding: "16px 0", textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
+                Blok makam tidak ditemukan
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(clamp(140px, 20vw, 220px), 1fr))",
+                  gap: "8px 20px",
+                }}
+              >
+                {[
+                  { label: "Blok ID", value: selectedPlot.id },
+                  { label: "Lokasi", value: selectedPlot.blok.lokasi },
+                  {
+                    label: "Availability",
+                    value: selectedPlot.blok.availability,
+                    color: selectedPlot.blok.availability === "AVAILABLE" ? "#00703c" : "#d4351c",
+                  },
+                  { label: "Status Blok", value: selectedPlot.blok.statusBlok },
+                  { label: "Status Pesanan", value: selectedPlot.blok.statusPesanan },
+                  {
+                    label: "Tgl. Pemakaman Terakhir",
+                    value: selectedPlot.blok.tanggalPemakamanTerakhir
+                      ? new Date(selectedPlot.blok.tanggalPemakamanTerakhir).toLocaleDateString()
+                      : "-",
+                  },
+                ].map(({ label, value, color }) => (
+                  <div key={label}>
+                    <div style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+                      {label}
                     </div>
-
-                    <div>
-                      <p className="text-gray-400">Lokasi</p>
-                      <p>{selectedPlot.blok.lokasi}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-400">Availability</p>
-                      <p
-                        className={`font-semibold ${
-                          selectedPlot.blok.availability === "AVAILABLE"
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {selectedPlot.blok.availability}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-400">Status Blok</p>
-                      <p>{selectedPlot.blok.statusBlok}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-400">Status Pesanan</p>
-                      <p>{selectedPlot.blok.statusPesanan}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-400">Tanggal Pemakaman Terakhir</p>
-                      <p>
-                        {selectedPlot.blok.tanggalPemakamanTerakhir
-                          ? new Date(
-                              selectedPlot.blok.tanggalPemakamanTerakhir
-                            ).toLocaleDateString()
-                          : "-"}
-                      </p>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 700, color: color || "#0b0c0c" }}>
+                      {value || "-"}
                     </div>
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>
-        </div>
+        )}
       </main>
+
       <Footer />
     </div>
   );

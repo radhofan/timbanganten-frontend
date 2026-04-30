@@ -1,16 +1,26 @@
 "use client";
 
 import { useState, useEffect, useMemo, JSX } from "react";
-import { Table, Input, Button } from "antd";
-import type { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
 import { Admin } from "@/lib/types";
+import {
+  GovukTable,
+  GovukTableHead,
+  GovukTableBody,
+  GovukTableRow,
+  GovukTableHeader,
+  GovukTableCell,
+  GovukInput,
+  GovukButton,
+  GovukPagination,
+  GovukTag,
+} from "@/components/govuk";
 
-const { Search } = Input;
+
 
 export default function AdminTable(): JSX.Element {
   const [data, setData] = useState<Admin[]>([]);
@@ -24,7 +34,6 @@ export default function AdminTable(): JSX.Element {
 
   useEffect(() => {
     let mounted = true;
-
     fetch("/api/admin")
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch admins");
@@ -40,125 +49,174 @@ export default function AdminTable(): JSX.Element {
         setData([]);
         setLoading(false);
       });
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return data;
-
-    return data.filter((item) => {
-      return (
-        item.name.toLowerCase().includes(q) ||
-        item.email.toLowerCase().includes(q) ||
-        (item.contact ?? "").toLowerCase().includes(q)
-      );
-    });
+    return data.filter((item) =>
+      item.name.toLowerCase().includes(q) ||
+      item.email.toLowerCase().includes(q) ||
+      (item.contact ?? "").toLowerCase().includes(q)
+    );
   }, [data, search]);
 
   const total = filtered.length;
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
+  const totalPages = Math.ceil(total / pageSize) || 1;
 
-  const columns: ColumnsType<Admin> = [];
+  const handlePageChange = (page: number) => {
+    setCurrent(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  columns.push({
-    title: "Nama",
-    dataIndex: "name",
-    key: "name",
-    align: "center",
-    sorter: (a, b) => a.name.localeCompare(b.name),
-    render: (_, record) => <span className="font-medium">{record.name}</span>,
-  });
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (current <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (current >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
 
-  columns.push({
-    title: "Kontak",
-    dataIndex: "contact",
-    key: "contact",
-    align: "center",
-    sorter: (a, b) => (a.contact ?? "").localeCompare(b.contact ?? ""),
-    render: (_, record) => <span>{record.contact ?? "-"}</span>,
-  });
+  const [sortField, setSortField] = useState<keyof Admin | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  columns.push({
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    align: "center",
-    sorter: (a, b) => a.email.localeCompare(b.email),
-    render: (_, record) => <span>{record.email}</span>,
-  });
+  const handleSort = (field: keyof Admin) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
-  columns.push({
-    title: "Role",
-    key: "role",
-    align: "center",
-    render: () => <span className="font-medium">Admin</span>,
-  });
-
-  if (role === "admin") {
-    columns.push({
-      title: "Edit",
-      key: "edit",
-      align: "center",
-      render: (_, record) => (
-        <Link href={`/layanan/kontak/${record.id}`}>
-          <Button type="primary" size="small">
-            Edit
-          </Button>
-        </Link>
-      ),
+  const sortedData = useMemo(() => {
+    if (!sortField) return visibleData;
+    return [...visibleData].sort((a, b) => {
+      const aVal = a[sortField] ?? "";
+      const bVal = b[sortField] ?? "";
+      const comparison = String(aVal).localeCompare(String(bVal));
+      return sortDirection === "asc" ? comparison : -comparison;
     });
-  }
+  }, [visibleData, sortField, sortDirection]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 page-container">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Kontak</h2>
+      <main style={{ flex: 1 }} className="page-container">
+        {/* Page title */}
+        <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 12 }}>
+          <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
+            Daftar Kontak Admin
+          </h1>
+        </div>
 
-        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
-          <Search
-            placeholder="Cari nama, email, atau kontak..."
-            allowClear
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrent(1);
-            }}
-            className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
-          />
-
+        {/* Toolbar */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 0 }}>
+          {/* Filters - left */}
+          <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="kontak-search">Cari</label>
+              <GovukInput
+                id="kontak-search"
+                placeholder="Nama, email, atau kontak..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setCurrent(1); }}
+                style={{ width: "clamp(180px, 28vw, 280px)" }}
+              />
+            </div>
+          </div>
+          {/* Actions - right */}
           {role === "admin" && (
-            <Link href="/layanan/kontak/add">
-              <Button type="primary" className="w-full sm:w-auto">Tambah Kontak Baru</Button>
-            </Link>
+            <div style={{ display: "flex", alignItems: "flex-end" }}>
+              <Link href="/layanan/kontak/add">
+                <GovukButton>Tambah Kontak Baru</GovukButton>
+              </Link>
+            </div>
           )}
         </div>
 
-        <Table<Admin>
-          columns={columns}
-          dataSource={visibleData}
-          loading={loading}
-          pagination={{
-            current,
-            pageSize,
-            total,
-            showSizeChanger: true,
-            pageSizeOptions: [5, 10, 20],
-            onChange: (page, size) => {
-              setCurrent(page);
-              if (pageSize !== size) setPageSize(size);
-            },
-          }}
-          rowKey="id"
-          bordered
-          scroll={{ x: 'max-content' }}
-        />
+        {/* Result count */}
+        {!loading && (
+          <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
+            Menampilkan {visibleData.length} dari {total} admin
+            {filtered.length !== data.length && ` (difilter dari ${data.length} total)`}
+          </p>
+        )}
+
+        <GovukTable>
+          <GovukTableHead>
+            <GovukTableRow>
+              <GovukTableHeader sortKey="name" currentSort={sortField ?? ""} sortDir={sortDirection} onSort={(k) => handleSort(k as keyof Admin)} style={{ minWidth: 120 }}>Nama</GovukTableHeader>
+              <GovukTableHeader sortKey="contact" currentSort={sortField ?? ""} sortDir={sortDirection} onSort={(k) => handleSort(k as keyof Admin)}>Kontak</GovukTableHeader>
+              <GovukTableHeader sortKey="email" currentSort={sortField ?? ""} sortDir={sortDirection} onSort={(k) => handleSort(k as keyof Admin)}>Email</GovukTableHeader>
+              <GovukTableHeader>Role</GovukTableHeader>
+              {role === "admin" && <GovukTableHeader last>Ubah</GovukTableHeader>}
+            </GovukTableRow>
+          </GovukTableHead>
+          <GovukTableBody>
+            {loading ? (
+              <GovukTableRow>
+                <GovukTableCell colSpan={role === "admin" ? 5 : 4} style={{ textAlign: "center", color: "#505a5f" }}>
+                  Memuat data...
+                </GovukTableCell>
+              </GovukTableRow>
+            ) : sortedData.length > 0 ? (
+              sortedData.map((admin) => (
+                <GovukTableRow key={admin.id}>
+                  <GovukTableCell style={{ fontWeight: 700 }}>{admin.name}</GovukTableCell>
+                  <GovukTableCell>{admin.contact ?? "-"}</GovukTableCell>
+                  <GovukTableCell>{admin.email}</GovukTableCell>
+                  <GovukTableCell>
+                    <GovukTag color="blue">Admin</GovukTag>
+                  </GovukTableCell>
+                  {role === "admin" && (
+                    <GovukTableCell last>
+                      <Link href={`/layanan/kontak/${admin.id}`}>
+                        <GovukButton>Ubah</GovukButton>
+                      </Link>
+                    </GovukTableCell>
+                  )}
+                </GovukTableRow>
+              ))
+            ) : (
+              <GovukTableRow>
+                <GovukTableCell colSpan={role === "admin" ? 5 : 4} style={{ textAlign: "center", color: "#505a5f" }}>
+                  Tidak ada data ditemukan
+                </GovukTableCell>
+              </GovukTableRow>
+            )}
+          </GovukTableBody>
+        </GovukTable>
+
+        {/* Pagination */}
+        {!loading && filtered.length > 0 && (
+          <GovukPagination
+            currentPage={current}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </main>
 
       <Footer />

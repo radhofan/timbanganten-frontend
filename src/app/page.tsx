@@ -1,145 +1,143 @@
 "use client";
-// import { useState } from "react";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Calendar, CheckCircle, MapPin, List, CreditCard, Users, Phone } from "lucide-react";
-// import NotificationBoard from "@/components/NotificationsBoard";
+import Link from "next/link";
 
-export default function Admin() {
-  // const [notifications, setNotifications] = useState([
-  //   {
-  //     id: 1,
-  //     user: "Budi",
-  //     type: "lewat-pembayaran",
-  //     message: "Telah melewati batas pembayaran.",
-  //     date: "2025-08-25",
-  //     time: "9:41 AM",
-  //   },
-  //   {
-  //     id: 2,
-  //     user: "Agus",
-  //     type: "approved",
-  //     message: "Pesanan telah di-approve.",
-  //     date: "2025-08-25",
-  //     time: "10:15 AM",
-  //   },
-  //   {
-  //     id: 3,
-  //     user: "Rizky",
-  //     type: "tidak-approved",
-  //     message: "Pesanan tidak di-approve.",
-  //     date: "2025-08-25",
-  //     time: "10:15 AM",
-  //   },
-  //   {
-  //     id: 4,
-  //     user: "Dewi",
-  //     type: "pembayaran",
-  //     message: "Telah melakukan pembayaran.",
-  //     date: "2025-08-25",
-  //     time: "10:15 AM",
-  //   },
-  //   {
-  //     id: 5,
-  //     user: "Sari",
-  //     type: "perpanjangan",
-  //     message: "Telah melakukan perpanjangan.",
-  //     date: "2025-08-25",
-  //     time: "11:05 AM",
-  //   },
-  // ]);
+const services = [
+  {
+    title: "Pemesanan",
+    subtitle: "Daftar pemesanan makam baru",
+    icon: <Calendar className="w-5 h-5" />,
+    href: "/layanan/pesan",
+    tag: "blue" as const,
+  },
+  {
+    title: "Status Pemesanan",
+    subtitle: "Cek dan kelola status pesanan",
+    icon: <CheckCircle className="w-5 h-5" />,
+    href: "/layanan/pesan/status",
+    tag: "green" as const,
+  },
+  {
+    title: "Daftar Makam",
+    subtitle: "Inventaris seluruh blok makam",
+    icon: <List className="w-5 h-5" />,
+    href: "/layanan/makam",
+    tag: "grey" as const,
+  },
+  {
+    title: "Pembayaran",
+    subtitle: "Rekap iuran dan status bayar",
+    icon: <CreditCard className="w-5 h-5" />,
+    href: "/layanan/pembayaran",
+    tag: "red" as const,
+  },
+  {
+    title: "Daftar Penanggung Jawab",
+    subtitle: "Manajemen data penanggung jawab",
+    icon: <Users className="w-5 h-5" />,
+    href: "/layanan/penanggung-jawab",
+    tag: "purple" as const,
+  },
+  {
+    title: "Kontak Admin",
+    subtitle: "Direktori kontak pengelola",
+    icon: <Phone className="w-5 h-5" />,
+    href: "/layanan/kontak",
+    tag: undefined as undefined,
+  },
+  {
+    title: "Denah Makam",
+    subtitle: "Peta interaktif lokasi makam",
+    icon: <MapPin className="w-5 h-5" />,
+    href: "/layanan/denah",
+    tag: "orange" as const,
+  },
+];
 
-  // const handleMarkAsRead = (id: number) => {
-  //   setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-  // };
-
-  const services = [
-    {
-      title: "Pemesanan",
-      icon: <Calendar className="w-12 h-12" />,
-      color: "from-blue-500 to-blue-600",
-      href: "/layanan/pesan",
-    },
-    {
-      title: "Status Pemesanan",
-      icon: <CheckCircle className="w-12 h-12" />,
-      color: "from-emerald-500 to-emerald-600",
-      href: "/layanan/pesan/status",
-    },
-    {
-      title: "Daftar Makam",
-      icon: <List className="w-12 h-12" />,
-      color: "from-purple-500 to-purple-600",
-      href: "/layanan/makam",
-    },
-    {
-      title: "Denah Makam",
-      icon: <MapPin className="w-12 h-12" />,
-      color: "from-amber-500 to-amber-600",
-      href: "/layanan/denah",
-    },
-    {
-      title: "Pembayaran",
-      icon: <CreditCard className="w-12 h-12" />,
-      color: "from-rose-500 to-rose-600",
-      href: "/layanan/pembayaran",
-    },
-    {
-      title: "Daftar Penanggung Jawab",
-      icon: <Users className="w-12 h-12" />,
-      color: "from-indigo-500 to-indigo-600",
-      href: "/layanan/penanggung-jawab",
-    },
-    {
-      title: "Kontak Admin",
-      icon: <Phone className="w-12 h-12" />,
-      color: "from-teal-500 to-teal-600",
-      href: "/layanan/kontak",
-    },
-  ];
-
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Notifications Section */}
-        {/* <NotificationBoard notifications={notifications} handleMarkAsRead={handleMarkAsRead} /> */}
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main" style={{ flex: 1 }}>
+          <div style={{ marginBottom: "1rem", borderBottom: "1px solid #b1b4b6", paddingBottom: "0.5rem" }}>
+            <h2 className="govuk-heading-m" style={{ margin: 0 }}>Layanan Sistem</h2>
+          </div>
 
-        {/* Services Section */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Layanan</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => {
-              const isLastCard = index === services.length - 1;
+          <style>{`
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
+            @media (max-width: 600px) {
+              .services-grid { grid-template-columns: 1fr !important; }
+              .services-grid a { grid-column: 1 !important; justify-content: flex-start !important; }
+              .services-grid a > div { width: 100% !important; }
+            }
+          `}</style>
+          <div className="services-grid" style={{ display: "grid", gap: 1, background: "#b1b4b6", border: "1px solid #b1b4b6", margin: 0 }}>
+            {services.map((service, idx) => {
+              const isLastOdd = services.length % 2 !== 0 && idx === services.length - 1;
               return (
-                <a
-                  key={index}
+                <Link
+                  key={service.href}
                   href={service.href}
-                  className={`group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden ${
-                    isLastCard ? "lg:col-start-2" : ""
-                  }`}
+                  style={{
+                    display: "flex",
+                    alignItems: "stretch",
+                    background: "#fff",
+                    textDecoration: "none",
+                    color: "inherit",
+                    gridColumn: isLastOdd ? "1 / -1" : undefined,
+                    justifyContent: isLastOdd ? "center" : undefined,
+                  }}
+                  className="group"
                 >
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-                  ></div>
-                  <div className="p-8 flex flex-col items-center text-center relative z-10">
-                    <div
-                      className={`bg-gradient-to-br ${service.color} text-white p-6 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                    >
+                    style={{ padding: "clamp(10px, 1.2vw, 16px)", width: isLastOdd ? "50%" : undefined, display: "flex", alignItems: "center", gap: 14 }}
+                    className="group-hover:bg-[#f3f2f1] transition-colors"
+                  >
+                    <div style={{ flexShrink: 0, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {service.icon}
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
-                      {service.title}
-                    </h3>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p className="govuk-body" style={{ fontWeight: 700, marginBottom: 2 }}>
+                        {service.title}
+                      </p>
+                      <p className="govuk-body-s" style={{ color: "#505a5f", margin: 0 }}>
+                        {service.subtitle}
+                      </p>
+                    </div>
+                    <span style={{ color: "#b1b4b6", flexShrink: 0 }} className="group-hover:text-[#1d70b8] transition-colors">
+                      →
+                    </span>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                </a>
+                </Link>
               );
             })}
           </div>
-        </section>
-      </main>
+
+          {/* <div className="govuk-inset-text" style={{ marginTop: "1rem" }}>
+            <dl className="govuk-summary-list" style={{ marginBottom: 0 }}>
+              <div className="govuk-summary-list__row" style={{ border: "none", padding: "2px 0" }}>
+                <dt className="govuk-summary-list__key" style={{ width: "auto", paddingRight: 24 }}>Sistem</dt>
+                <dd className="govuk-summary-list__value">TIMGRAVID</dd>
+              </div>
+              <div className="govuk-summary-list__row" style={{ border: "none", padding: "2px 0" }}>
+                <dt className="govuk-summary-list__key" style={{ width: "auto", paddingRight: 24 }}>Pengelola</dt>
+                <dd className="govuk-summary-list__value">Yayasan Sajarah Timbanganten</dd>
+              </div>
+              <div className="govuk-summary-list__row" style={{ border: "none", padding: "2px 0" }}>
+                <dt className="govuk-summary-list__key" style={{ width: "auto", paddingRight: 24 }}>Status</dt>
+                <dd className="govuk-summary-list__value">
+                  <strong className="govuk-tag govuk-tag--green">Operasional</strong>
+                </dd>
+              </div>
+            </dl>
+          </div> */}
+        </main>
+      </div>
 
       <Footer />
     </div>

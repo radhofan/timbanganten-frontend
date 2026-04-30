@@ -6,19 +6,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { DatePicker, Tooltip } from "antd";
-import dayjs from "dayjs";
+import { GovukDateInput, GovukButton, GovukSelect, GovukFormGroup, GovukInput, GovukTextarea, GovukWarningText } from "@/components/govuk";
 import { StatusLabel } from "./StatusLabel";
 import { useUserRoles } from "./CheckRole";
-import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from "./ui/select";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
 import { makamDefaultValues, MakamPayload, makamSchema } from "@/validation/makam";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
+const errorStyle: React.CSSProperties = {
+  fontSize: "0.75rem", fontWeight: 700, color: "#d4351c",
+  borderLeft: "4px solid #d4351c", background: "#fdf2f2", padding: "2px 8px", marginTop: 2,
+};
 
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
@@ -95,9 +94,7 @@ export default function MakamStatus({ page }: { page: string }) {
     try {
       const res = await fetch("/api/convertMakam", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
 
@@ -118,6 +115,7 @@ export default function MakamStatus({ page }: { page: string }) {
       return false;
     }
   }
+
   const onSubmit = async (data: MakamPayload) => {
     setLoading(true);
 
@@ -129,7 +127,6 @@ export default function MakamStatus({ page }: { page: string }) {
         blok: validatedData.blok,
         nama: validatedData.namajenazah,
         lokasi: validatedData.lokasi,
-        // silsilah: validatedData.silsilah,
         nama_penanggung_jawab: validatedData.namapj,
         kontak_penanggung_jawab: validatedData.kontak,
         description: validatedData.notes,
@@ -182,45 +179,48 @@ export default function MakamStatus({ page }: { page: string }) {
     }
   };
 
+  const isApproveReady =
+    watch("statusPembayaranPesanan") === "PAID" && !!watch("tanggalPemakaman");
+
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 p-6 md:p-10 bg-white flex justify-center items-start mb-24">
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {loading ? (
-          <div className="w-full max-w-4xl text-center py-20">
-            <p className="text-gray-500 text-lg animate-pulse">Memuat data status pemesanan...</p>
+          <div style={{ padding: "40px 0", color: "#505a5f", fontSize: "0.875rem" }}>
+            Memuat data status pemesanan...
           </div>
         ) : (
           <form
-            className="bg-white border border-gray-400 rounded-lg p-6 md:p-10 w-full max-w-4xl space-y-8"
             onSubmit={handleSubmit(onSubmit)}
+            style={{ width: "100%", maxWidth: "clamp(480px, 60vw, 760px)", background: "#fff", border: "1px solid #b1b4b6", marginBottom: 24 }}
           >
-            <h2 className="text-2xl font-semibold text-center text-gray-800">
-              Status Pemesanan Makam
-            </h2>
+            {/* GOV.UK page heading */}
+            <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
+              <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
+                Status Pemesanan Makam
+              </h1>
+            </div>
 
-            {/* Section 1: Basic Information */}
-            <section>
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Informasi Dasar</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{ padding: "clamp(12px, 2vw, 20px)" }}>
+
+              {/* ── Section 1: Informasi Dasar ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Informasi Dasar</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 20,
+              }}>
                 {/* Nama Jenazah */}
                 <Controller
                   name="namajenazah"
                   control={control}
-                  render={({ field }) => (
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="namajenazah">Nama Jenazah</Label>
-                      <Input
-                        {...field}
-                        id="namajenazah"
-                        readOnly={!canEdit}
-                        className="text-center"
-                      />
-                      {errors.namajenazah && (
-                        <p className="text-red-600 text-sm mt-0">{errors.namajenazah.message}</p>
-                      )}
-                    </div>
+                  render={({ field, fieldState }) => (
+                    <GovukFormGroup label="Nama Jenazah" error={fieldState.error?.message}>
+                      <GovukInput {...field} disabled={!canEdit} style={{ width: "100%" }} />
+                    </GovukFormGroup>
                   )}
                 />
 
@@ -229,16 +229,9 @@ export default function MakamStatus({ page }: { page: string }) {
                   name="namapj"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="namapj">Nama Penanggung Jawab</Label>
-                      <Input
-                        {...field}
-                        id="namapj"
-                        readOnly
-                        disabled
-                        className="text-center bg-muted text-muted-foreground"
-                      />
-                    </div>
+                    <GovukFormGroup label="Nama Penanggung Jawab">
+                      <GovukInput {...field} disabled style={{ width: "100%" }} />
+                    </GovukFormGroup>
                   )}
                 />
 
@@ -247,116 +240,100 @@ export default function MakamStatus({ page }: { page: string }) {
                   name="kontak"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="kontak">No. Kontak PJ</Label>
-                      <Input
-                        {...field}
-                        id="kontak"
-                        readOnly
-                        disabled
-                        className="text-center bg-muted text-muted-foreground"
-                      />
-                    </div>
+                    <GovukFormGroup label="No. Kontak PJ">
+                      <GovukInput {...field} disabled style={{ width: "100%" }} />
+                    </GovukFormGroup>
                   )}
                 />
 
                 {/* Lokasi */}
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="lokasi">Lokasi</Label>
-                  <Controller
-                    name="lokasi"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value || ""} onValueChange={field.onChange} disabled>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Lokasi Pemakaman" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                          <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                          <SelectItem value="Dayeuhkolot">Dayeuhkolot</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="lokasi"
+                  control={control}
+                  render={({ field }) => (
+                    <GovukFormGroup label="Lokasi">
+                      <GovukSelect
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        disabled
+                        style={{ width: "100%" }}
+                        options={[
+                          { value: "", label: "Pilih Lokasi Pemakaman" },
+                          { value: "Karang Anyar", label: "Karang Anyar" },
+                          { value: "Dalem Kaum", label: "Dalem Kaum" },
+                          { value: "Dayeuhkolot", label: "Dayeuhkolot" },
+                        ]}
+                      />
+                    </GovukFormGroup>
+                  )}
+                />
 
                 {/* Blok Makam */}
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="blok">Blok Makam</Label>
-                  <Controller
-                    name="blok"
-                    control={control}
-                    render={({ field }) => (
-                      <>
-                        <Input {...field} id="blok" className="text-center" disabled />
-                        {errors.blok && (
-                          <p className="text-red-600 text-sm mt-0">{errors.blok.message}</p>
-                        )}
-                      </>
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="blok"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <GovukFormGroup label="Blok Makam" error={fieldState.error?.message}>
+                      <GovukInput {...field} disabled style={{ width: "100%" }} />
+                    </GovukFormGroup>
+                  )}
+                />
               </div>
-            </section>
 
-            {/* Section 2: Dates */}
-            <section>
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Tanggal</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* ── Section 2: Tanggal ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Tanggal</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 20,
+              }}>
                 {/* Tanggal Pemesanan */}
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="tanggalPemesanan">Tanggal Pemesanan</Label>
-                  <Controller
-                    name="tanggalPemesanan"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        id="tanggalPemesanan"
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(value) => field.onChange(value ? value.toISOString() : "")}
-                        disabled
-                        className="w-full"
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="tanggalPemesanan"
+                  control={control}
+                  render={({ field }) => (
+                    <GovukFormGroup label="Tanggal Pemesanan">
+                      <GovukDateInput id="tanggalPemesanan" value={field.value} onChange={(v) => field.onChange(v)} disabled style={{ width: "100%" }} />
+                    </GovukFormGroup>
+                  )}
+                />
 
                 {/* Tanggal Pemakaman */}
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="tanggalPemakaman">
-                    Tanggal Pemakaman *(Harap diisi sebelum di approve)
-                  </Label>
+                <div>
                   <Controller
                     name="tanggalPemakaman"
                     control={control}
                     render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        id="tanggalPemakaman"
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(value) => field.onChange(value ? value.toISOString() : "")}
-                        disabled={!canEdit || isTanggalPemakamanLocked}
-                        className="w-full"
-                      />
+                      <GovukFormGroup label="Tanggal Pemakaman">
+                        <GovukDateInput
+                          id="tanggalPemakaman"
+                          value={field.value}
+                          onChange={(v) => field.onChange(v)}
+                          disabled={!canEdit || isTanggalPemakamanLocked}
+                          style={{ width: "100%" }}
+                        />
+                      </GovukFormGroup>
                     )}
                   />
+                  <p className="govuk-hint" style={{ marginTop: -20, fontSize: "0.75rem" }}>Harap diisi sebelum approve</p>
                 </div>
               </div>
-            </section>
 
-            {/* Section 3: Statuses */}
-            <section>
-              <h3 className="text-lg font-medium text-gray-700 mb-4">Status</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Status Blok */}
+              {/* ── Section 3: Status ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Status</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
+                gap: "10px 16px",
+                marginBottom: 20,
+              }}>
                 <Controller
                   name="statusBlok"
                   control={control}
                   render={({ field }) => (
                     <StatusLabel
-                      label="Status Blok Sekarang"
+                      label="Status Blok"
                       id="statusBlok"
                       {...field}
                       readOnly
@@ -365,7 +342,6 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
-                {/* Status Jenazah */}
                 <Controller
                   name="statusJenazah"
                   control={control}
@@ -380,7 +356,6 @@ export default function MakamStatus({ page }: { page: string }) {
                   )}
                 />
 
-                {/* Status Pembayaran Pesanan */}
                 <Controller
                   name="statusPembayaranPesanan"
                   control={control}
@@ -389,13 +364,12 @@ export default function MakamStatus({ page }: { page: string }) {
                       label="Status Pembayaran Pesanan"
                       id="statusPembayaranPesanan"
                       value={field.value || "UNKNOWN"}
-                      readOnly={true}
-                      disabled={true}
+                      readOnly
+                      disabled
                     />
                   )}
                 />
 
-                {/* Status Pembayaran Iuran Tahunan */}
                 {page !== "pesan-status" && (
                   <Controller
                     name="statusPembayaranIuranTahunan"
@@ -405,90 +379,76 @@ export default function MakamStatus({ page }: { page: string }) {
                         label="Status Pembayaran Iuran Tahunan"
                         id="statusPembayaranIuranTahunan"
                         value={field.value || "UNKNOWN"}
-                        readOnly={true}
-                        disabled={true}
+                        readOnly
+                        disabled
                       />
                     )}
                   />
                 )}
               </div>
-            </section>
 
-            {/* Notes Section */}
-            <section>
-              <Label htmlFor="notes">Penjelasan</Label>
+              {/* ── Section 4: Penjelasan ── */}
+              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Penjelasan</div>
               <Controller
                 name="notes"
                 control={control}
                 render={({ field }) => (
-                  <Textarea
-                    id="notes"
+                  <GovukTextarea
                     {...field}
-                    required
                     rows={4}
-                    className="w-full mt-1"
-                    readOnly={role !== "admin"}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    disabled={role !== "admin"}
                   />
                 )}
               />
-            </section>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3 pt-6 border-t">
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => router.push("/layanan/pesan/status")}
-              >
-                Cancel
-              </Button>
-
-              {role === "admin" && (
-                <Button type="submit" variant="default">
-                  Update
-                </Button>
-              )}
-
-              {role === "approver" && page === "pesan-status" && (
-                <Tooltip
-                  placement="top"
-                  title={
-                    <div className="text-sm">
-                      {watch("statusPembayaranPesanan") !== "PAID" && (
-                        <div>• Pembayaran pesanan belum PAID</div>
-                      )}
-                      {!watch("tanggalPemakaman") && <div>• Tanggal pemakaman belum diisi</div>}
-                    </div>
-                  }
+              {/* ── Action Buttons ── */}
+              <div style={{
+                borderTop: "1px solid #b1b4b6",
+                paddingTop: 12,
+                marginTop: 16,
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+              }}>
+                <GovukButton
+                  variant="warning"
+                  onClick={() => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam")}
                 >
-                  <span>
-                    <Button
-                      type="button"
-                      disabled={
-                        watch("statusPembayaranPesanan") !== "PAID" || !watch("tanggalPemakaman")
-                      }
-                      onClick={async () => {
-                        if (
-                          watch("statusPembayaranPesanan") !== "PAID" ||
-                          !watch("tanggalPemakaman")
-                        )
-                          return;
+                  Batal
+                </GovukButton>
 
-                        const success = await convertMakam(id as string);
-                        if (success) router.push("/layanan/makam");
+                {role === "admin" && (
+                  <GovukButton type="submit">
+                    Perbarui
+                  </GovukButton>
+                )}
+
+                {role === "approver" && page === "pesan-status" && (
+                  <>
+                    {!isApproveReady && (
+                      <GovukWarningText>
+                        {watch("statusPembayaranPesanan") !== "PAID" && "Pembayaran pesanan belum PAID. "}
+                        {!watch("tanggalPemakaman") && "Tanggal pemakaman belum diisi."}
+                      </GovukWarningText>
+                    )}
+                    <GovukButton
+                      disabled={!isApproveReady}
+                      onClick={() => {
+                        if (!isApproveReady) return;
+                        if (window.confirm("Aksi ini akan mengaktifkan makam dan memindahkan data dari status pemesanan ke makam aktif. Lanjutkan?")) {
+                          convertMakam(id as string).then((success) => {
+                            if (success) router.push("/layanan/makam");
+                          });
+                        }
                       }}
-                      className={
-                        watch("statusPembayaranPesanan") === "PAID" && watch("tanggalPemakaman")
-                          ? "bg-green-600 hover:bg-green-700"
-                          : ""
-                      }
                     >
                       Approve
-                    </Button>
-                  </span>
-                </Tooltip>
-              )}
+                    </GovukButton>
+                  </>
+                )}
+              </div>
             </div>
           </form>
         )}

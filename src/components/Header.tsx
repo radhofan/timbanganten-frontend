@@ -1,34 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { UserCircle, Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-
-// 1. Import at the top
+import { ChevronRight, ChevronLeft, Menu, X } from "lucide-react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-// 2. Replace the single <Image> in the banner with a carousel
 const bannerImages = ["/images/timbanganten/makam-1.png", "/images/timbanganten/makam-2.jpg"];
 
 function NextArrow({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="absolute top-1/2 right-4 z-20 -translate-y-1/2 opacity-70 hover:opacity-100 text-white p-1 rounded-full shadow-lg"
+      style={{
+        position: "absolute", top: "50%", right: 12, zIndex: 20,
+        transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)",
+        border: "1px solid rgba(255,255,255,0.4)", color: "#fff",
+        padding: "6px 8px", cursor: "pointer", display: "flex", alignItems: "center",
+      }}
+      aria-label="Next slide"
     >
-      <ChevronRight className="w-8 h-8 stroke-2" />
+      <ChevronRight style={{ width: 20, height: 20 }} />
     </button>
   );
 }
@@ -37,241 +34,177 @@ function PrevArrow({ onClick }: { onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="absolute top-1/2 left-4 z-20 -translate-y-1/2 opacity-70 hover:opacity-100 text-white p-1 rounded-full shadow-lg"
+      style={{
+        position: "absolute", top: "50%", left: 12, zIndex: 20,
+        transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)",
+        border: "1px solid rgba(255,255,255,0.4)", color: "#fff",
+        padding: "6px 8px", cursor: "pointer", display: "flex", alignItems: "center",
+      }}
+      aria-label="Previous slide"
     >
-      <ChevronLeft className="w-8 h-8 stroke-2" />
+      <ChevronLeft style={{ width: 20, height: 20 }} />
     </button>
   );
 }
 
-export default function Header({ hideBanner = false }: { hideBanner?: boolean }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const router = useRouter();
+export default function Header({ hideBanner = false, hideNav = false }: { hideBanner?: boolean; hideNav?: boolean }) {
   const user = useStore(authStore, (s) => s.user);
+  const logout = useStore(authStore, (s) => s.logout);
+  const roleLabel = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : null;
+  const isLoggedIn = !!user && user.role !== "guest";
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    logout();
+    setMenuOpen(false);
+    router.push("/login/admin");
+  };
 
   return (
     <>
-      <header className="flex items-center justify-between p-4 bg-white shadow-md relative z-50">
-        <Link href="/">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 relative">
-              <Image
-                src="/images/logo.png"
-                alt="Logo"
-                fill
-                style={{ objectFit: "contain" }}
-                priority
-              />
-            </div>
-            <h1 className="text-xl font-bold cursor-pointer text-gray-800">Timbanganten</h1>
-          </div>
-        </Link>
-
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? (
-            <X className="w-7 h-7 text-gray-700" />
-          ) : (
-            <Menu className="w-7 h-7 text-gray-700" />
-          )}
-        </button>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-6 ml-auto mr-4">
-          <Link href="/">
-            <h1 className="text-lg font-medium cursor-pointer hover:text-green-600 transition-colors">Home</h1>
-          </Link>
-
-          {/* User Info Card - Beautiful Design */}
-          <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-xl shadow-sm">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md">
-              <UserCircle className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="text-sm font-bold text-gray-800">{user?.name || "Guest"}</span>
-              <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full inline-block w-fit">
-                {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Guest"}
-              </span>
-            </div>
+      <style>{`
+        .header-nav-items { display: flex; align-items: center; gap: 16px; }
+        .mobile-menu-item { display: none; }
+        @media (max-width: 640px) {
+          .header-nav-items { display: none; }
+          .header-service-name { display: none !important; }
+          .mobile-menu-item { display: block; }
+        }
+      `}</style>
+      <header role="banner" style={{ background: "#1d70b8", color: "#fff", position: "relative", zIndex: 100 }}>
+        <div style={{
+          maxWidth: "1440px", margin: "0 auto", padding: "0 16px",
+          display: "flex", alignItems: "center", justifyContent: "space-between", height: 52,
+        }}>
+          {/* Left: logo + service name */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1.0625rem" }}>
+              <Image src="/images/logo.png" alt="Logo Timbanganten" width={28} height={28} priority style={{ objectFit: "contain" }} />
+              <span>TIMGRAVID</span>
+            </Link>
+            <span style={{ borderLeft: "1px solid rgba(255,255,255,0.3)", paddingLeft: 12, fontSize: "0.8125rem", color: "rgba(255,255,255,0.8)", fontWeight: 400 }}
+              className="header-service-name">
+              Sistem Manajemen Pemakaman Timbanganten
+            </span>
           </div>
 
-          {/* Dropdown Menu - Beautiful Design */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none transition-all duration-200 hover:shadow-md">
-                <Menu className="w-6 h-6 text-gray-700" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-white border border-gray-200 rounded-xl shadow-2xl p-2"
-            >
-              <div className="px-3 py-2 mb-2 border-b border-gray-100">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Login Sebagai</p>
-              </div>
-              
-              <DropdownMenuItem 
-                onClick={() => router.push("/login/pengawas")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 cursor-pointer transition-all duration-200"
-              >
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">👮</span>
-                </div>
-                <span className="font-medium text-gray-700">Pengawas</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem 
-                onClick={() => router.push("/login/admin")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 cursor-pointer transition-all duration-200"
-              >
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">👨‍💼</span>
-                </div>
-                <span className="font-medium text-gray-700">Admin</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem 
-                onClick={() => router.push("/login/approver")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 cursor-pointer transition-all duration-200"
-              >
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">✅</span>
-                </div>
-                <span className="font-medium text-gray-700">Approver</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </nav>
-
-        {/* Mobile Dropdown - Clean Design matching Desktop */}
-        {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-2xl z-50 border-t border-gray-200">
-            <div className="flex flex-col p-6 space-y-4">
-              {/* User Info Card */}
-              <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 rounded-xl shadow-sm">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md">
-                  <UserCircle className="w-8 h-8 text-white" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-base font-bold text-gray-800">{user?.name || "Guest"}</span>
-                  <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-full inline-block w-fit">
-                    {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Guest"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Navigation Links */}
-              <Link href="/" className="w-full" onClick={() => setMobileMenuOpen(false)}>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200 border border-gray-200">
-                  <span className="text-lg">🏠</span>
-                  <span className="text-base font-medium text-gray-700">Home</span>
-                </div>
+          {/* Right: Beranda + user info + burger */}
+          <div style={{ display: hideNav ? "none" : "flex", alignItems: "center", gap: 16, position: "relative" }}>
+            <div className="header-nav-items">
+              <Link href="/" style={{ color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
+                Beranda
               </Link>
-
-              {/* Login Options */}
-              <div className="pt-2 border-t border-gray-200">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-2">Login Sebagai</p>
-                
-                <button
-                  onClick={() => {
-                    router.push("/login/pengawas");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-200 border border-gray-200 mb-2"
-                >
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">👮</span>
-                  </div>
-                  <span className="text-base font-medium text-gray-700">Pengawas</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    router.push("/login/admin");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 transition-all duration-200 border border-gray-200 mb-2"
-                >
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">👨‍💼</span>
-                  </div>
-                  <span className="text-base font-medium text-gray-700">Admin</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    router.push("/login/approver");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 transition-all duration-200 border border-gray-200"
-                >
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">✅</span>
-                  </div>
-                  <span className="text-base font-medium text-gray-700">Approver</span>
-                </button>
-              </div>
+              {isLoggedIn && (
+                <span style={{ fontSize: "0.8125rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>
+                  {user.name} · {roleLabel}
+                </span>
+              )}
             </div>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
+              aria-expanded={menuOpen}
+              style={{
+                background: menuOpen ? "#fff" : "transparent",
+                border: "2px solid rgba(255,255,255,0.7)",
+                color: menuOpen ? "#1d70b8" : "#fff",
+                height: 36,
+                padding: "0 12px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                fontSize: "0.875rem",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                boxSizing: "border-box",
+              }}
+            >
+              {menuOpen ? <X style={{ width: 16, height: 16, flexShrink: 0 }} /> : <Menu style={{ width: 16, height: 16, flexShrink: 0 }} />}
+              Menu
+            </button>
+
+            {/* Dropdown */}
+            {menuOpen && (
+              <div style={{
+                position: "absolute",
+                top: "100%",
+                right: 0,
+                background: "#1d70b8",
+                width: "auto",
+                minWidth: "100%",
+                zIndex: 200,
+                borderTop: "3px solid #ffdd00",
+                border: "1px solid #003078",
+                borderTopColor: "#ffdd00",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+              }}>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  <li className="mobile-menu-item" style={{ borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+                    <Link href="/" onClick={() => setMenuOpen(false)} style={{ display: "block", padding: "12px 20px", color: "#fff", textDecoration: "none", fontSize: "0.9375rem", fontWeight: 600, whiteSpace: "nowrap" }}>
+                      Beranda
+                    </Link>
+                  </li>
+                  {isLoggedIn && (
+                    <li className="mobile-menu-item" style={{ padding: "10px 20px", borderBottom: "1px solid rgba(255,255,255,0.15)", fontSize: "0.875rem", color: "rgba(255,255,255,0.8)", fontWeight: 600, whiteSpace: "nowrap" }}>
+                      {user.name} · {roleLabel}
+                    </li>
+                  )}
+                  {isLoggedIn ? (
+                    <li>
+                      <button onClick={handleLogout} style={{ display: "block", width: "100%", textAlign: "left", padding: "12px 20px", color: "#fff", background: "none", border: "none", fontSize: "0.9375rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+                        Logout
+                      </button>
+                    </li>
+                  ) : (
+                    <li>
+                      <Link href="/login/admin" onClick={() => setMenuOpen(false)} style={{ display: "block", padding: "12px 20px", color: "#fff", textDecoration: "none", fontSize: "0.9375rem", fontWeight: 600, whiteSpace: "nowrap" }}>
+                        Login
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
       </header>
 
       {!hideBanner && (
-        <div
-          className="w-full relative mb-12 bg-gray-900"
-          style={{
-            height: "clamp(40vh, 60vh, 70vh)",
-            clipPath:
-              "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-            WebkitClipPath:
-              "polygon(0 0, 100% 0, 100% 92%, 90% 94%, 80% 92%, 70% 95%, 60% 92%, 50% 95%, 40% 92%, 30% 95%, 20% 92%, 10% 94%, 0 92%)",
-          }}
-        >
-          {/* Slider */}
-          <Slider
-            autoplay
-            autoplaySpeed={5000}
-            infinite
-            dots={true}
-            arrows={true}
-            nextArrow={<NextArrow />}
-            prevArrow={<PrevArrow />}
-          >
+        <div style={{ width: "100%", height: "clamp(420px, 58vh, 680px)", background: "#0b0c0c", position: "relative", overflow: "hidden" }}>
+          <Slider autoplay autoplaySpeed={5000} infinite dots arrows nextArrow={<NextArrow />} prevArrow={<PrevArrow />}>
             {bannerImages.map((src, idx) => (
               <div key={idx}>
-                <div 
-                  className="relative w-full"
-                  style={{ height: "clamp(40vh, 60vh, 70vh)" }}
-                >
+                <div style={{ height: "clamp(420px, 58vh, 680px)", width: "100%" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt={`Banner ${idx + 1}`}
-                    style={{ 
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block'
-                    }}
-                  />
+                  <img src={src} alt={`Banner ${idx + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </div>
               </div>
             ))}
           </Slider>
 
-          {/* Dark Overlay - AFTER slider so it's on top */}
-          <div className="absolute inset-0 bg-black/60 pointer-events-none" style={{ zIndex: 5 }}></div>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.6)", zIndex: 5, pointerEvents: "none" }} />
 
-          {/* Text Content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4" style={{ zIndex: 10 }}>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight sm:leading-relaxed drop-shadow-lg">
-              Sistem Informasi Manajemen <br />
-              Yayasan Sajarah Timbanganten Bandung
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", zIndex: 10, padding: "0 clamp(1rem, 5vw, 5rem)" }}>
+            <strong style={{ display: "inline-block", background: "#1d70b8", color: "#fff", padding: "4px 12px", fontSize: "0.8125rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>
+              Sistem Informasi Manajemen Pemakaman
+            </strong>
+            <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "#fff", margin: "0 0 10px 0", textShadow: "0 2px 6px rgba(0,0,0,0.7)", lineHeight: 1.15 }}>
+              Yayasan Sajarah Timbanganten
             </h1>
+            <p style={{ fontSize: "clamp(1rem, 2.5vw, 1.375rem)", color: "#b1b4b6", fontWeight: 400, margin: 0 }}>
+              Bandung — Portal Layanan Resmi
+            </p>
           </div>
+
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: "#1d70b8", zIndex: 15 }} />
         </div>
       )}
     </>

@@ -5,32 +5,17 @@ import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button, DatePicker } from "antd";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+  GovukButton,
+  GovukInput,
+  GovukTextarea,
+  GovukSelect,
+  GovukRadios,
+  GovukRadioItem,
+  GovukDateInput,
+  GovukFormGroup,
+} from "@/components/govuk";
 import { User } from "@prisma/client";
-import {
-  UserCircle,
-  MapPin,
-  Calendar,
-  FileText,
-  Building2,
-  Mail,
-  Phone,
-  CreditCard,
-  Users,
-  Hash,
-} from "lucide-react";
 import {
   pemesananDefaultValues,
   PemesananPayload,
@@ -41,10 +26,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
+const errorStyle: React.CSSProperties = {
+  color: "#d4351c",
+  fontSize: "0.875rem",
+  fontWeight: 700,
+  padding: "3px 8px",
+  borderLeft: "4px solid #d4351c",
+  background: "#fdf2f2",
+};
+
+const STEPS = ["Penanggung Jawab", "Data Makam", "Konfirmasi"];
+
+const SILSILAH_OPTIONS = [
+  "Diri Sendiri",
+  "Anak",
+  "Orang Tua",
+  "Kakak Adik",
+  "Sepupu",
+  "Keponakan",
+  "Paman Bibi",
+  "Kakek Nenek",
+  "Cucu",
+  "Lebih 2 Generasi di Atas",
+  "Lebih 2 Generasi di Bawah",
+];
+
 export default function Pemesanan() {
-  const [blokList, setBlokList] = useState<{ id: string; lokasi: string; statusBlok: string }[]>(
-    []
-  );
+  const [blokList, setBlokList] = useState<{ id: string; lokasi: string; statusBlok: string }[]>([]);
   const [lokasi, setLokasi] = useState<string>("");
   const [jenisMakam, setJenisMakam] = useState<string>("");
 
@@ -58,16 +66,23 @@ export default function Pemesanan() {
   const [blokListFetched, setBlokListFetched] = useState(false);
   const [selectedBlok, setSelectedBlok] = useState<string>("");
 
+  const [step, setStep] = useState(1);
+  const [stepError, setStepError] = useState("");
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
+    trigger,
   } = useForm<PemesananPayload>({
     resolver: zodResolver(pemesananSchema),
     mode: "onChange",
     defaultValues: pemesananDefaultValues,
   });
+
+  const watchedValues = watch();
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -75,13 +90,11 @@ export default function Pemesanan() {
       const endpoint = searchTerm.trim()
         ? `/api/filterPenanggungJawab?query=${encodeURIComponent(searchTerm)}`
         : "/api/filterPenanggungJawab";
-
       fetch(endpoint)
         .then((res) => res.json())
         .then((data) => setUsers(data))
         .catch(console.error);
     }, 300);
-
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, useExisting]);
 
@@ -89,10 +102,7 @@ export default function Pemesanan() {
     const params = new URLSearchParams();
     if (lokasi) params.set("lokasi", lokasi);
     if (jenisMakam) params.set("jenismakam", jenisMakam);
-
-    const url = `/api/blok?${params.toString()}`;
-
-    fetch(url)
+    fetch(`/api/blok?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         setBlokList(data);
@@ -106,20 +116,43 @@ export default function Pemesanan() {
     if (selectedBlokData) {
       setValue("blokId", blokId);
       setSelectedBlok(blokId);
-
       setValue("lokasi", selectedBlokData.lokasi);
       setLokasi(selectedBlokData.lokasi);
-
       const jenisFromStatus = selectedBlokData.statusBlok === "KOSONG" ? "baru" : "tumpuk";
       setJenisMakam(jenisFromStatus);
     }
   };
 
+  const handleNextStep = async () => {
+    setStepError("");
+
+    if (step === 1) {
+      if (useExisting && !selectedUser) {
+        setStepError("Pilih penanggung jawab terlebih dahulu.");
+        return;
+      }
+      if (!useExisting) {
+        const valid = await trigger(["userPAName", "userPAContact", "userPAEmail", "emergencyName", "emergencyContact", "userPAKTP"]);
+        if (!valid) return;
+      }
+    }
+
+    if (step === 2) {
+      const valid = await trigger(["namaJenazah", "blokId", "lokasi", "silsilah", "tanggalPemesanan"]);
+      if (!valid) return;
+    }
+
+    setStep((s) => s + 1);
+  };
+
+  const handlePrevStep = () => {
+    setStepError("");
+    setStep((s) => s - 1);
+  };
+
   const onSubmit = async (data: PemesananPayload) => {
     setLoading(true);
-
     const diriSendiri = data.silsilah === "Diri Sendiri";
-
     const basePayload = {
       namaJenazah: data.namaJenazah,
       blokId: selectedBlok,
@@ -130,7 +163,6 @@ export default function Pemesanan() {
       tanggalPemakaman: data.tanggalPemakaman ? new Date(data.tanggalPemakaman) : undefined,
       tanggalPemesanan: data.tanggalPemesanan ? new Date(data.tanggalPemesanan) : undefined,
     };
-
     const userPayload =
       useExisting && selectedUser
         ? {
@@ -154,7 +186,6 @@ export default function Pemesanan() {
             emergencyName: data.emergencyName,
             emergencyContact: data.emergencyContact,
           };
-
     const payload = {
       ...basePayload,
       ...userPayload,
@@ -164,14 +195,12 @@ export default function Pemesanan() {
         userPBEmail: "",
       }),
     };
-
     try {
       const res = await fetch("/api/pemesanan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (res.ok) {
         toast.success("Pemesanan berhasil disimpan!", { position: "top-center", duration: 1000 });
         setSelectedUser(null);
@@ -179,7 +208,6 @@ export default function Pemesanan() {
         setTimeout(() => router.push("/layanan/pesan/status"), 1500);
       } else {
         const responseData = await res.json();
-
         if (responseData.errors) {
           const allMessages = Object.values(responseData.errors).join("\n");
           toast.error(allMessages, { position: "top-center", duration: 5000 });
@@ -201,523 +229,490 @@ export default function Pemesanan() {
     }
   };
 
+  const selectedBlokData = blokList.find((b) => b.id === selectedBlok);
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start page-container">
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-10"
+          style={{
+            width: "100%",
+            maxWidth: "clamp(480px, 60vw, 760px)",
+            background: "#fff",
+            border: "1px solid #b1b4b6",
+          }}
         >
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-800">Form Pemesanan Makam</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Silakan lengkapi data di bawah ini untuk melakukan pemesanan.
-            </p>
+          {/* GOV.UK page heading */}
+          <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
+            <span style={{ display: "block", fontSize: "0.875rem", color: "#505a5f", marginBottom: 2 }}>
+              Langkah {step} dari {STEPS.length}
+            </span>
+            <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
+              Form Pemesanan Makam
+            </h1>
           </div>
 
-          {/* Penanggung Jawab Section */}
-          <section className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg shadow-md">
-                <UserCircle className="w-5 h-5 text-white" />
-              </div>
-              Penanggung Jawab
-            </h3>
+          {/* Step indicator */}
+          <ol style={{ display: "flex", listStyle: "none", margin: 0, padding: 0, borderBottom: "1px solid #b1b4b6" }}>
+            {STEPS.map((label, idx) => {
+              const stepNum = idx + 1;
+              const isActive = step === stepNum;
+              const isDone = step > stepNum;
+              return (
+                <li
+                  key={label}
+                  style={{
+                    flex: 1,
+                    padding: "10px 12px",
+                    borderRight: idx < STEPS.length - 1 ? "1px solid #b1b4b6" : "none",
+                    borderTop: isActive ? "4px solid #1d70b8" : isDone ? "4px solid #00703c" : "4px solid transparent",
+                    background: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 22,
+                      height: 22,
+                      background: isActive ? "#1d70b8" : isDone ? "#00703c" : "#b1b4b6",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.6875rem",
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {isDone ? "✓" : stepNum}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.6875rem",
+                      fontWeight: 700,
+                      color: isActive ? "#1d70b8" : isDone ? "#00703c" : "#505a5f",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
 
-            <RadioGroup
-              defaultValue={useExisting ? "existing" : "new"}
-              onValueChange={(val) => setUseExisting(val === "existing")}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="new" id="new" />
-                <Label htmlFor="new">Buat Baru</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="existing" id="existing" />
-                <Label htmlFor="existing">Gunakan Data Ada</Label>
-              </div>
-            </RadioGroup>
+          <div style={{ padding: "clamp(14px, 2vw, 22px)" }}>
+            {stepError && (
+              <div style={{ ...errorStyle, marginBottom: 14 }}>{stepError}</div>
+            )}
 
-            {useExisting ? (
-              <div className="space-y-2">
-                <div className="flex flex-col">
-                  <Label htmlFor="userSearch" className="mb-2 flex items-center gap-2">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    Cari Penanggung Jawab
-                  </Label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="userSearch"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Ketik nama atau kontak..."
-                      className="pl-10"
+            {/* ── Step 1: Penanggung Jawab ── */}
+            {step === 1 && (
+              <>
+                <div className="ent-section-heading">Penanggung Jawab</div>
+
+                <GovukRadios name="pj-type" inline small>
+                  <GovukRadioItem
+                    name="pj-type"
+                    value="new"
+                    label="Buat Baru"
+                    checked={!useExisting}
+                    onChange={() => { setUseExisting(false); setSelectedUser(null); setSearchTerm(""); }}
+                  />
+                  <GovukRadioItem
+                    name="pj-type"
+                    value="existing"
+                    label="Gunakan Data Ada"
+                    checked={useExisting}
+                    onChange={() => setUseExisting(true)}
+                  />
+                </GovukRadios>
+
+                {useExisting ? (
+                  <div style={{ marginBottom: 16 }}>
+                    <GovukFormGroup label="Pilih Penanggung Jawab">
+                      <GovukSelect
+                        value={selectedUser?.id || ""}
+                        onChange={(e) => {
+                          const found = users.find((u) => u.id === e.target.value) || null;
+                          setSelectedUser(found);
+                        }}
+                        style={{ width: "100%" }}
+                        options={[
+                          { value: "", label: "Pilih penanggung jawab..." },
+                          ...users.map((u) => ({ value: u.id, label: `${u.name} — ${u.contact}` })),
+                        ]}
+                      />
+                    </GovukFormGroup>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))",
+                      gap: "10px 16px",
+                      marginBottom: 16,
+                    }}
+                  >
+                    {[
+                      { name: "userPAName" as const, label: "Nama Penanggung Jawab", placeholder: "Masukkan Nama PJ" },
+                      { name: "userPAContact" as const, label: "No. Kontak", placeholder: "08XXXXXXXXX" },
+                      { name: "userPAEmail" as const, label: "Email", placeholder: "user@gmail.com", type: "email" },
+                      { name: "emergencyName" as const, label: "Nama Kontak Darurat", placeholder: "Masukkan Nama" },
+                      { name: "emergencyContact" as const, label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX" },
+                    ].map((f) => (
+                      <Controller
+                        key={f.name}
+                        name={f.name}
+                        control={control}
+                        render={({ field }) => (
+                          <GovukFormGroup label={f.label} error={errors[f.name]?.message}>
+                            <GovukInput {...field} placeholder={f.placeholder} type={f.type || "text"} style={{ width: "100%" }} />
+                          </GovukFormGroup>
+                        )}
+                      />
+                    ))}
+
+                    <Controller
+                      name="userPAKTP"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup label="No. KTP Pemesan" error={errors.userPAKTP?.message}>
+                          <GovukInput
+                            {...field}
+                            maxLength={16}
+                            placeholder="Masukkan 16 digit nomor KTP"
+                            style={{ width: "100%" }}
+                          />
+                        </GovukFormGroup>
+                      )}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ── Step 2: Data Makam ── */}
+            {step === 2 && (
+              <>
+                <div className="ent-section-heading">Data Pemesanan</div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))",
+                    gap: "10px 16px",
+                    marginBottom: 16,
+                  }}
+                >
+                  {/* Nama Jenazah — full width */}
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <Controller
+                      name="namaJenazah"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup label="Nama Jenazah" error={errors.namaJenazah?.message}>
+                          <GovukInput {...field} placeholder="Nama Jenazah" style={{ width: "100%" }} />
+                        </GovukFormGroup>
+                      )}
+                    />
+                  </div>
+
+                  {/* Lokasi */}
+                  <Controller
+                    name="lokasi"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Lokasi Pemakaman" error={errors.lokasi?.message}>
+                        <GovukSelect
+                          value={field.value}
+                          onChange={(e) => { const v = e.target.value; field.onChange(v); setLokasi(v); }}
+                          style={{ width: "100%" }}
+                          options={[
+                            { value: "", label: "Pilih Lokasi" },
+                            { value: "Karang Anyar", label: "Karang Anyar" },
+                            { value: "Dalem Kaum", label: "Dalem Kaum" },
+                            { value: "Dayeuh Kolot", label: "Dayeuh Kolot" },
+                          ]}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
+
+                  {/* Jenis Makam */}
+                  <GovukFormGroup label="Jenis Makam">
+                    <GovukSelect
+                      value={jenisMakam}
+                      onChange={(e) => setJenisMakam(e.target.value)}
+                      style={{ width: "100%" }}
+                      options={[
+                        { value: "", label: "Pilih Jenis Makam" },
+                        { value: "baru", label: "Baru" },
+                        { value: "tumpuk", label: "Tumpuk" },
+                      ]}
+                    />
+                  </GovukFormGroup>
+
+                  {/* Blok Kavling */}
+                  <div>
+                    <Controller
+                      name="blokId"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup
+                          label="Blok Kavling"
+                          error={errors.blokId?.message}
+                        >
+                          <GovukSelect
+                            value={field.value}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              field.onChange(v);
+                              handleBlokSelect(v);
+                            }}
+                            style={{ width: "100%" }}
+                            options={[
+                              { value: "", label: lokasi ? "Pilih Blok" : "Pilih lokasi dahulu" },
+                              ...blokList.map((b) => ({
+                                value: b.id,
+                                label: `${b.id} (${b.lokasi}) (${b.statusBlok})`,
+                              })),
+                            ]}
+                          />
+                        </GovukFormGroup>
+                      )}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setValue("blokId", "");
+                        setSelectedBlok("");
+                        const params = new URLSearchParams();
+                        if (lokasi) params.set("lokasi", lokasi);
+                        if (jenisMakam) params.set("jenismakam", jenisMakam);
+                        fetch(`/api/blok?${params.toString()}`)
+                          .then((res) => res.json())
+                          .then((data) => setBlokList(data))
+                          .catch(console.error);
+                      }}
+                      style={{
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        color: "#505a5f",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        textDecoration: "underline",
+                        marginTop: -20,
+                        display: "block",
+                      }}
+                    >
+                      Reset pilihan blok
+                    </button>
+                  </div>
+
+                  {/* Silsilah */}
+                  <Controller
+                    name="silsilah"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Hubungan dengan Pemesan" error={errors.silsilah?.message}>
+                        <GovukSelect
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          style={{ width: "100%" }}
+                          options={[
+                            { value: "", label: "Pilih Silsilah" },
+                            ...SILSILAH_OPTIONS.map((s) => ({ value: s, label: s })),
+                          ]}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
+
+                  {/* Tanggal Pemesanan */}
+                  <Controller
+                    name="tanggalPemesanan"
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label="Tanggal Pemesanan" error={errors.tanggalPemesanan?.message}>
+                        <GovukDateInput
+                          id="tanggalPemesanan"
+                          value={field.value}
+                          onChange={(v) => field.onChange(v)}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
+
+                  {/* Tanggal Pemakaman */}
+                  <div>
+                    <Controller
+                      name="tanggalPemakaman"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup
+                          label="Tanggal Pemakaman"
+                          error={errors.tanggalPemakaman?.message}
+                        >
+                          <GovukDateInput
+                            id="tanggalPemakaman"
+                            value={field.value}
+                            onChange={(v) => field.onChange(v)}
+                          />
+                        </GovukFormGroup>
+                      )}
+                    />
+                    <p className="govuk-hint" style={{ marginTop: -20, fontSize: "0.75rem" }}>Diisi jika telah dimakamkan</p>
+                  </div>
+
+                  {/* Notes — full width */}
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <Controller
+                      name="notes"
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup label="Penjelasan Tambahan" error={errors.notes?.message}>
+                          <GovukTextarea
+                            {...field}
+                            rows={4}
+                            placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
+                          />
+                        </GovukFormGroup>
+                      )}
                     />
                   </div>
                 </div>
-
-                <ul className="border border-gray-200 rounded-lg bg-white divide-y divide-gray-100 max-h-56 overflow-y-auto shadow-sm">
-                  {users.length > 0 ? (
-                    users.map((u) => (
-                      <li
-                        key={u.id}
-                        onClick={() => {
-                          setSelectedUser(u);
-                          setSearchTerm(u.name || "");
-                        }}
-                        className={`px-4 py-2 text-sm cursor-pointer transition ${selectedUser?.id === u.id ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50 text-gray-700"}`}
-                      >
-                        {u.name} — {u.contact}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="px-4 py-2 text-sm text-gray-500">Tidak ada hasil ditemukan</li>
-                  )}
-                </ul>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  <Label htmlFor="namapj" className="mb-2 flex items-center gap-2">
-                    <UserCircle className="w-4 h-4 text-purple-600" />
-                    Nama Penanggung Jawab
-                  </Label>
-                  <Controller
-                    name="userPAName"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="namapj"
-                          placeholder="Masukkan Nama PJ"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.userPAName && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAName.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="kontak" className="mb-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-green-600" />
-                    No. Kontak
-                  </Label>
-                  <Controller
-                    name="userPAContact"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input {...field} id="kontak" placeholder="08XXXXXXXXX" className="pl-10" />
-                      </div>
-                    )}
-                  />
-                  {errors.userPAContact && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAContact.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="email" className="mb-2 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-blue-600" />
-                    Email
-                  </Label>
-                  <Controller
-                    name="userPAEmail"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="email"
-                          type="email"
-                          placeholder="user@gmail.com"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.userPAEmail && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAEmail.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="emergencyName" className="mb-2 flex items-center gap-2">
-                    <UserCircle className="w-4 h-4 text-indigo-600" />
-                    Nama Kontak Darurat
-                  </Label>
-                  <Controller
-                    name="emergencyName"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="emergencyName"
-                          placeholder="Masukkan Nama"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.emergencyName && (
-                    <p className="text-red-600 text-sm mt-2">{errors.emergencyName.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <Label htmlFor="emergencyContact" className="mb-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-teal-600" />
-                    No. Kontak Darurat
-                  </Label>
-                  <Controller
-                    name="emergencyContact"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="emergencyContact"
-                          placeholder="08XXXXXXXXX"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.emergencyContact && (
-                    <p className="text-red-600 text-sm mt-2">{errors.emergencyContact.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col col-span-2">
-                  <Label htmlFor="ktpNum" className="mb-2 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-amber-600" />
-                    No KTP Pemesan
-                  </Label>
-                  <Controller
-                    name="userPAKTP"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                          {...field}
-                          id="ktpNum"
-                          maxLength={16}
-                          placeholder="Masukkan 16 digit nomor KTP"
-                          className="pl-10"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.userPAKTP && (
-                    <p className="text-red-600 text-sm mt-2">{errors.userPAKTP.message}</p>
-                  )}
-                </div>
-              </div>
+              </>
             )}
-          </section>
 
-          {/* Data Pemesanan Section */}
-          <section className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2 rounded-lg shadow-md">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              Data Pemesanan
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col col-span-2">
-                <Label htmlFor="namajenazah" className="mb-2 flex items-center gap-2">
-                  <UserCircle className="w-4 h-4 text-rose-600" />
-                  Nama Jenazah
-                </Label>
-                <Controller
-                  name="namaJenazah"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="namajenazah"
-                        placeholder="Nama Jenazah"
-                        className="pl-10"
-                      />
+            {/* ── Step 3: Konfirmasi ── */}
+            {step === 3 && (
+              <>
+                <div className="ent-section-heading">Konfirmasi Data</div>
+
+                <div style={{ background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 16 }}>
+                  {/* PJ section */}
+                  <div style={{ padding: "8px 14px", borderBottom: "1px solid #b1b4b6", background: "#f3f2f1", borderTop: "4px solid #1d70b8" }}>
+                    <div style={{ color: "#0b0c0c", fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      Penanggung Jawab
                     </div>
-                  )}
-                />
-                {errors.namaJenazah && (
-                  <p className="text-red-600 text-sm mt-2">{errors.namaJenazah.message}</p>
-                )}
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="blokId" className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 text-indigo-600" />
-                    Blok Kavling
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
-                    onClick={() => {
-                      setValue("blokId", "");
-                      setSelectedBlok("");
-                      const params = new URLSearchParams();
-                      if (lokasi) params.set("lokasi", lokasi);
-                      if (jenisMakam) params.set("jenismakam", jenisMakam);
-                      fetch(`/api/blok?${params.toString()}`)
-                        .then((res) => res.json())
-                        .then((data) => setBlokList(data))
-                        .catch(console.error);
-                    }}
-                    className="mr-2"
-                  />
-                </div>
-                <Controller
-                  name="blokId"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        handleBlokSelect(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Blok" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {blokList.length > 0 ? (
-                          blokList.map((b) => (
-                            <SelectItem key={b.id} value={b.id}>
-                              {b.id} ({b.lokasi}) ({b.statusBlok})
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="no-blok-available" disabled>
-                            {blokListFetched ? "Tidak ada blok tersedia" : "Memuat data blok..."}
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.blokId && (
-                  <p className="text-red-600 text-sm mt-2">{errors.blokId.message}</p>
-                )}
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="lokasi" className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-red-600" />
-                    Lokasi Pemakaman
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
-                    onClick={() => {
-                      setValue("lokasi", "");
-                      setLokasi("");
-                    }}
-                    className="mr-2"
-                  />
-                </div>
-                <Controller
-                  name="lokasi"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        setLokasi(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Lokasi Pemakaman" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="Karang Anyar">Karang Anyar</SelectItem>
-                        <SelectItem value="Dalem Kaum">Dalem Kaum</SelectItem>
-                        <SelectItem value="Dayeuh Kolot">Dayeuh Kolot</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.lokasi && (
-                  <p className="text-red-600 text-sm mt-2">{errors.lokasi.message}</p>
-                )}
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="silsilah" className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-teal-600" />
-                    Hubungan dengan pemesan
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
-                    onClick={() => setValue("silsilah", "" as Silsilah)}
-                    className="mr-2"
-                  />
-                </div>
-                <Controller
-                  name="silsilah"
-                  control={control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih Silsilah" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="Diri Sendiri">Diri Sendiri</SelectItem>
-                        <SelectItem value="Anak">Anak</SelectItem>
-                        <SelectItem value="Orang Tua">Orang Tua</SelectItem>
-                        <SelectItem value="Kakak Adik">Kakak/Adik</SelectItem>
-                        <SelectItem value="Sepupu">Sepupu</SelectItem>
-                        <SelectItem value="Keponakan">Keponakan</SelectItem>
-                        <SelectItem value="Paman Bibi">Paman/Bibi</SelectItem>
-                        <SelectItem value="Kakek Nenek">Kakek/Nenek</SelectItem>
-                        <SelectItem value="Cucu">Cucu</SelectItem>
-                        <SelectItem value="Lebih 2 Generasi di Atas">
-                          {">2 Generasi di Atas"}
-                        </SelectItem>
-                        <SelectItem value="Lebih 2 Generasi di Bawah">
-                          {">2 Generasi di Bawah"}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.silsilah && (
-                  <p className="text-red-600 text-sm mt-2">{errors.silsilah.message}</p>
-                )}
-              </div>
-              <div className="flex flex-col flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="jenismakam" className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-cyan-600" />
-                    Jenis Makam
-                  </Label>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<span className="text-lg">×</span>}
-                    onClick={() => setJenisMakam("")}
-                    className="mr-2"
-                  />
-                </div>
-                <Select onValueChange={(value) => setJenisMakam(value)} value={jenisMakam}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Jenis Makam" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="baru">Baru</SelectItem>
-                    <SelectItem value="tumpuk">Tumpuk</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-col flex-1">
-                <Label htmlFor="tanggalPemesan" className="mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-emerald-600" />
-                  Tanggal Pemesanan
-                </Label>
-                <Controller
-                  name="tanggalPemesanan"
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      id="tanggalPemesanan"
-                      className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
-                      onChange={(date, dateString) => {
-                        field.onChange(dateString);
-                      }}
-                    />
-                  )}
-                />
-                {errors.tanggalPemesanan && (
-                  <p className="text-red-600 text-sm mt-2">{errors.tanggalPemesanan.message}</p>
-                )}
-              </div>
-              <div className="flex flex-col flex-1">
-                <Label htmlFor="tanggalPemakaman" className="mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-orange-600" />
-                  Tanggal Pemakaman
-                </Label>
-                <Controller
-                  name="tanggalPemakaman"
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      id="tanggalPemakaman"
-                      className="w-full border border-gray-300 rounded-md hover:border-blue-400 transition-colors"
-                      onChange={(date, dateString) => {
-                        field.onChange(dateString);
-                      }}
-                    />
-                  )}
-                />
-                {errors.tanggalPemakaman && (
-                  <p className="text-red-600 text-sm mt-2">{errors.tanggalPemakaman.message}</p>
-                )}
-                <span className="text-sm text-gray-600 mt-1">*Diisi jika telah dimakamkan.</span>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <Label htmlFor="notes" className="mb-2 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-violet-600" />
-                Penjelasan Tambahan
-              </Label>
-              <Controller
-                name="notes"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    id="notes"
-                    rows={4}
-                    placeholder="Tuliskan penjelasan tambahan terkait pemesanan..."
-                    className="resize-none"
-                  />
-                )}
-              />
-              {errors.notes && <p className="text-red-600 text-sm mt-2">{errors.notes.message}</p>}
-            </div>
-          </section>
+                  </div>
+                  <div style={{ padding: "12px 14px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 16px" }}>
+                    {useExisting && selectedUser ? (
+                      <>
+                        <ReviewField label="Nama" value={selectedUser.name || "-"} />
+                        <ReviewField label="No. Kontak" value={selectedUser.contact || "-"} />
+                      </>
+                    ) : (
+                      <>
+                        <ReviewField label="Nama" value={watchedValues.userPAName || "-"} />
+                        <ReviewField label="No. Kontak" value={watchedValues.userPAContact || "-"} />
+                        <ReviewField label="Email" value={watchedValues.userPAEmail || "-"} />
+                        <ReviewField label="No. KTP" value={watchedValues.userPAKTP || "-"} />
+                        <ReviewField label="Kontak Darurat" value={watchedValues.emergencyName || "-"} />
+                        <ReviewField label="No. Kontak Darurat" value={watchedValues.emergencyContact || "-"} />
+                      </>
+                    )}
+                  </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button danger onClick={() => router.push("/")} className="min-w-[clamp(6.25rem,10vw,8rem)]">
-              Batal
-            </Button>
+                  {/* Makam section */}
+                  <div style={{ padding: "8px 14px", borderBottom: "1px solid #b1b4b6", borderTop: "1px solid #b1b4b6", background: "#f3f2f1" }}>
+                    <div style={{ color: "#0b0c0c", fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      Data Makam
+                    </div>
+                  </div>
+                  <div style={{ padding: "12px 14px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 16px" }}>
+                    <ReviewField label="Nama Jenazah" value={watchedValues.namaJenazah || "-"} />
+                    <ReviewField label="Lokasi" value={watchedValues.lokasi || "-"} />
+                    <ReviewField label="Blok Kavling" value={selectedBlok || "-"} />
+                    <ReviewField label="Status Blok" value={selectedBlokData?.statusBlok || "-"} />
+                    <ReviewField label="Jenis Makam" value={jenisMakam || "-"} />
+                    <ReviewField label="Hubungan" value={watchedValues.silsilah || "-"} />
+                    <ReviewField label="Tgl. Pemesanan" value={watchedValues.tanggalPemesanan ? String(watchedValues.tanggalPemesanan) : "-"} />
+                    <ReviewField label="Tgl. Pemakaman" value={watchedValues.tanggalPemakaman ? String(watchedValues.tanggalPemakaman) : "-"} />
+                    {watchedValues.notes && (
+                      <div style={{ gridColumn: "1 / -1" }}>
+                        <ReviewField label="Penjelasan" value={watchedValues.notes} />
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            <Button type="primary" htmlType="submit" loading={loading} className="min-w-[clamp(6.25rem,10vw,8rem)]">
-              Kirim
-            </Button>
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    background: "#fff4e5",
+                    borderLeft: "4px solid #f47738",
+                    fontSize: "0.875rem",
+                    color: "#0b0c0c",
+                    marginBottom: 16,
+                  }}
+                >
+                  Periksa kembali data di atas sebelum mengirim. Data yang telah dikirim tidak dapat diubah melalui form ini.
+                </div>
+              </>
+            )}
+
+            {/* Actions */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                paddingTop: 12,
+                borderTop: "1px solid #b1b4b6",
+              }}
+            >
+              <div>
+                {step > 1 && (
+                  <GovukButton variant="secondary" onClick={handlePrevStep} disabled={loading}>
+                    ← Kembali
+                  </GovukButton>
+                )}
+                {step === 1 && (
+                  <GovukButton variant="warning" onClick={() => router.push("/")}>
+                    Batal
+                  </GovukButton>
+                )}
+              </div>
+
+              <div>
+                {step < 3 && (
+                  <GovukButton onClick={handleNextStep}>
+                    Lanjut →
+                  </GovukButton>
+                )}
+                {step === 3 && (
+                  <GovukButton type="submit" disabled={loading}>
+                    {loading ? "Mengirim..." : "Kirim Pemesanan"}
+                  </GovukButton>
+                )}
+              </div>
+            </div>
           </div>
         </form>
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+function ReviewField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "#0b0c0c" }}>{value}</div>
     </div>
   );
 }

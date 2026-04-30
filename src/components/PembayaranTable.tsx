@@ -1,15 +1,24 @@
 "use client";
 
 import { useState, useEffect, useMemo, JSX } from "react";
-import { Table, Input, Select } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { Modal, Button, Descriptions, message } from "antd";
-
 import { Jenazah } from "@/lib/types";
-import { StatusLabel } from "./StatusLabel";
-
-const { Search } = Input;
-const { Option } = Select;
+import {
+  GovukTable,
+  GovukTableHead,
+  GovukTableBody,
+  GovukTableRow,
+  GovukTableHeader,
+  GovukTableCell,
+  GovukInput,
+  GovukSelect,
+  GovukButton,
+  GovukPagination,
+  GovukTag,
+  statusToTag,
+  GovukSummaryList,
+  GovukSummaryListRow,
+} from "@/components/govuk";
+import toast from "react-hot-toast";
 
 export default function JenazahTable(): JSX.Element {
   const [data, setData] = useState<Jenazah[]>([]);
@@ -18,6 +27,8 @@ export default function JenazahTable(): JSX.Element {
   const [pageSize, setPageSize] = useState<number>(12);
   const [current, setCurrent] = useState<number>(1);
   const [selectedLocation, setSelectedLocation] = useState<string>("Semua");
+  const [sortField, setSortField] = useState<string>("blok");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const [pesananModalOpen, setPesananModalOpen] = useState(false);
   const [selectedPesanan, setSelectedPesanan] = useState<Jenazah | null>(null);
@@ -56,7 +67,7 @@ export default function JenazahTable(): JSX.Element {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return data.filter((item) => {
+    let result = data.filter((item) => {
       const name = item.user?.name?.toLowerCase() || "";
       const block = item.blok?.id?.toLowerCase() || "";
       const matchesSearch = name.includes(q) || block.includes(q);
@@ -64,351 +75,420 @@ export default function JenazahTable(): JSX.Element {
         selectedLocation === "Semua" || item.blok?.lokasi === selectedLocation;
       return matchesSearch && matchesLocation;
     });
-  }, [data, search, selectedLocation]);
+
+    // Sort
+    result.sort((a, b) => {
+      let aVal: string | number = "";
+      let bVal: string | number = "";
+
+      switch (sortField) {
+        case "blok":
+          aVal = a.blok?.id || "";
+          bVal = b.blok?.id || "";
+          break;
+        case "statusBlok":
+          aVal = a.blok?.statusBlok || "";
+          bVal = b.blok?.statusBlok || "";
+          break;
+        case "statusJenazah":
+          aVal = a.statusJenazah || "";
+          bVal = b.statusJenazah || "";
+          break;
+        case "tanggalPemakaman":
+          aVal = a.tanggalPemakaman ? new Date(a.tanggalPemakaman).getTime() : 0;
+          bVal = b.tanggalPemakaman ? new Date(b.tanggalPemakaman).getTime() : 0;
+          break;
+        case "pj":
+          const allA = [...(a.makam?.pj || []), ...(a.makamStatus?.pj || [])];
+          const allB = [...(b.makam?.pj || []), ...(b.makamStatus?.pj || [])];
+          aVal = allA.map((p) => p.user?.name || "").join(", ");
+          bVal = allB.map((p) => p.user?.name || "").join(", ");
+          break;
+        case "masaAktif":
+          aVal = a.masaAktif ? new Date(a.masaAktif).getTime() : 0;
+          bVal = b.masaAktif ? new Date(b.masaAktif).getTime() : 0;
+          break;
+        case "statusPembayaranPesanan":
+          aVal = a.statusPembayaranPesanan || "";
+          bVal = b.statusPembayaranPesanan || "";
+          break;
+        case "statusPembayaranIuranTahunan":
+          aVal = a.statusPembayaranIuranTahunan || "";
+          bVal = b.statusPembayaranIuranTahunan || "";
+          break;
+      }
+
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+      }
+
+      const comparison = String(aVal).localeCompare(String(bVal), undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [data, search, selectedLocation, sortField, sortOrder]);
 
   const total = filtered.length;
   const sliceStart = (current - 1) * pageSize;
   const visibleData = filtered.slice(sliceStart, sliceStart + pageSize);
+  const totalPages = Math.ceil(total / pageSize) || 1;
 
-  const columns: ColumnsType<Jenazah> = [];
+  const handlePageChange = (page: number) => {
+    setCurrent(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  columns.push({
-    title: "Blok",
-    dataIndex: "blok",
-    key: "blok",
-    align: "center",
-    sorter: (a, b) => (a.blok?.id || "").localeCompare(b.blok?.id || ""),
-    render: (_, record) => record.blok?.id || "",
-  });
-
-  columns.push({
-    title: "Status Blok",
-    dataIndex: "blok",
-    key: "status_blok",
-    align: "center",
-    sorter: (a, b) => (a.blok?.statusBlok || "").localeCompare(b.blok?.statusBlok || ""),
-    render: (_, record) => record.blok?.statusBlok || "",
-  });
-
-  columns.push({
-    title: "Nama Jenazah",
-    dataIndex: "status_jenazah",
-    key: "status_jenazah",
-    align: "center",
-    sorter: (a, b) => (a.statusJenazah || "").localeCompare(b.statusJenazah || ""),
-    render: (_, record) => record.statusJenazah || "",
-  });
-
-  columns.push({
-    title: "Tanggal Pemakaman",
-    dataIndex: "tanggal_pemakaman",
-    key: "tanggal_pemakaman",
-    align: "center",
-    sorter: (a, b) => {
-      const ta = recordToDate(a.tanggalPemakaman);
-      const tb = recordToDate(b.tanggalPemakaman);
-      return ta - tb;
-    },
-    render: (_, record) =>
-      record.tanggalPemakaman ? new Date(record.tanggalPemakaman).toLocaleDateString("id-ID") : "-",
-  });
-
-  columns.push({
-    title: "Penanggung Jawab",
-    key: "pj",
-    align: "center",
-    sorter: (a, b) => {
-      const allA = [...(a.makam?.pj || []), ...(a.makamStatus?.pj || [])];
-      const allB = [...(b.makam?.pj || []), ...(b.makamStatus?.pj || [])];
-
-      const nameA = allA.map((p) => p.user?.name || "").join(", ");
-      const nameB = allB.map((p) => p.user?.name || "").join(", ");
-      return nameA.localeCompare(nameB);
-    },
-    render: (_, record) => {
-      const allPJs = [...(record.makam?.pj || []), ...(record.makamStatus?.pj || [])];
-
-      return allPJs.length > 0
-        ? allPJs.map((p, i) => (
-            <span key={p.id}>
-              {p.user?.name || "-"}
-              {i < allPJs.length - 1 ? ", " : ""}
-            </span>
-          ))
-        : "-";
-    },
-  });
-
-  columns.push({
-    title: "Masa Aktif",
-    dataIndex: "masa_aktif",
-    key: "masa_aktif",
-    align: "center",
-    sorter: (a, b) =>
-      (a.masaAktif ? new Date(a.masaAktif).getTime() : 0) -
-      (b.masaAktif ? new Date(b.masaAktif).getTime() : 0),
-    render: (_, record) =>
-      record.masaAktif ? new Date(record.masaAktif).toLocaleDateString() : "-",
-  });
-
-  columns.push({
-    title: "Pembayaran Pesanan",
-    dataIndex: "status_pembayaran_pesanan",
-    key: "status_pembayaran_pesanan",
-    align: "center",
-    sorter: (a, b) =>
-      (a.statusPembayaranPesanan || "").localeCompare(b.statusPembayaranPesanan || ""),
-    render: (_, record) => {
-      const val = record.statusPembayaranPesanan ?? "";
-      const clickable = val !== "PAID";
-
-      return (
-        <div
-          style={{ display: "inline-block", cursor: clickable ? "pointer" : "default" }}
-          onClick={() => {
-            if (clickable) openPesananModal(record);
-          }}
-        >
-          <div style={{ pointerEvents: "none" }}>
-            <StatusLabel
-              label=""
-              id={`status-${record.id}`}
-              value={val || "-"}
-              readOnly
-              size="small"
-            />
-          </div>
-        </div>
-      );
-    },
-  });
-
-  columns.push({
-    title: "Pembayaran Iuran",
-    dataIndex: "status_pembayaran_iuran_tahunan",
-    key: "status_pembayaran_iuran_tahunan",
-    align: "center",
-    sorter: (a, b) =>
-      (a.statusPembayaranIuranTahunan || "").localeCompare(b.statusPembayaranIuranTahunan || ""),
-    render: (_, record) => {
-      const val = record.statusPembayaranIuranTahunan ?? "";
-      const clickable = val !== "PAID";
-
-      return (
-        <div
-          style={{ display: "inline-block", cursor: clickable ? "pointer" : "default" }}
-          onClick={() => {
-            if (clickable) openIuranModal(record);
-          }}
-        >
-          <div style={{ pointerEvents: "none" }}>
-            <StatusLabel
-              label=""
-              id={`status-iuran-${record.id}`}
-              value={val || "-"}
-              readOnly
-              size="small"
-            />
-          </div>
-        </div>
-      );
-    },
-  });
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
 
   return (
-    <div className="w-full">
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-4 sm:mb-6">Daftar Jenazah</h2>
+    <div style={{ background: "#f3f2f1", minHeight: "100%" }}>
+      {/* Page title */}
+      <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 12 }}>
+        <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
+          Daftar Jenazah &amp; Pembayaran
+        </h1>
+      </div>
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 justify-between items-stretch sm:items-center mb-4">
-        <Search
-          placeholder="Cari nama atau blok"
-          allowClear
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrent(1);
-          }}
-          value={search}
-          className="w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
-        />
-
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-sm">Lokasi</span>
-          <Select
-            value={selectedLocation}
-            onChange={(val) => {
-              setSelectedLocation(val);
-              setCurrent(1);
-            }}
-            className="w-32 sm:w-40"
-          >
-            <Option value="Semua">Semua</Option>
-            <Option value="Karang Anyar">Karang Anyar</Option>
-            <Option value="Dalem Kaum">Dalem Kaum</Option>
-            <Option value="Dayeuh Kolot">Dayeuh Kolot</Option>
-          </Select>
-
-          <Select
-            value={pageSize}
-            onChange={(val) => {
-              setPageSize(val);
-              setCurrent(1);
-            }}
-            className="w-24 sm:w-28"
-          >
-            <Option value={5}>Show 5</Option>
-            <Option value={10}>Show 10</Option>
-            <Option value={12}>Show 12</Option>
-            <Option value={20}>Show 20</Option>
-          </Select>
+      {/* Toolbar */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 0 }}>
+        {/* Filters - left */}
+        <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="bayar-search">Cari</label>
+            <GovukInput
+              id="bayar-search"
+              placeholder="Nama atau blok..."
+              onChange={(e) => { setSearch(e.target.value); setCurrent(1); }}
+              value={search}
+              style={{ width: "clamp(180px, 28vw, 280px)" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="bayar-lokasi">Lokasi</label>
+            <GovukSelect
+              id="bayar-lokasi"
+              value={selectedLocation}
+              onChange={(e) => { setSelectedLocation(e.target.value); setCurrent(1); }}
+              style={{ width: "clamp(120px, 14vw, 160px)" }}
+            >
+              <option value="Semua">Semua</option>
+              <option value="Karang Anyar">Karang Anyar</option>
+              <option value="Dalem Kaum">Dalem Kaum</option>
+              <option value="Dayeuh Kolot">Dayeuh Kolot</option>
+            </GovukSelect>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="bayar-pagesize">Baris</label>
+            <GovukSelect
+              id="bayar-pagesize"
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrent(1); }}
+              style={{ width: 90 }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={12}>12</option>
+              <option value={20}>20</option>
+            </GovukSelect>
+          </div>
         </div>
       </div>
 
-      <Table<Jenazah>
-        columns={columns}
-        dataSource={visibleData}
-        loading={loading}
-        pagination={{
-          current,
-          pageSize,
-          total,
-          showSizeChanger: false,
-          onChange: (page, size) => {
-            setCurrent(page);
-            if (pageSize !== size) setPageSize(size);
-          },
-        }}
-        rowKey="id"
-        bordered
-        scroll={{ x: 'max-content' }}
-      />
+      {/* Result count */}
+      {!loading && (
+        <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
+          Menampilkan {visibleData.length} dari {total} jenazah
+          {filtered.length !== data.length && ` (difilter dari ${data.length} total)`}
+        </p>
+      )}
 
-      <Modal
-        open={pesananModalOpen}
-        title="Pembayaran Pesanan"
-        onCancel={() => {
-          setPesananModalOpen(false);
-          setSelectedPesanan(null);
-        }}
-        footer={[
-          <Button key="cancel" onClick={() => setPesananModalOpen(false)}>
-            Batal
-          </Button>,
-          <Button
-            key="paid"
-            type="primary"
-            onClick={async () => {
-              if (!selectedPesanan) return;
+      {loading ? (
+        <div style={{ padding: "2rem", textAlign: "center", background: "#fff", border: "1px solid #b1b4b6" }}>
+          <p style={{ color: "#505a5f", fontSize: "0.875rem", margin: 0 }}>Memuat data...</p>
+        </div>
+      ) : (
+        <GovukTable>
+          <GovukTableHead>
+            <GovukTableRow>
+              <GovukTableHeader sortKey="blok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Blok</GovukTableHeader>
+              <GovukTableHeader sortKey="statusBlok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Blok</GovukTableHeader>
+              <GovukTableHeader sortKey="statusJenazah" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama Jenazah</GovukTableHeader>
+              <GovukTableHeader sortKey="tanggalPemakaman" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Tanggal Pemakaman</GovukTableHeader>
+              <GovukTableHeader sortKey="pj" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Penanggung Jawab</GovukTableHeader>
+              <GovukTableHeader sortKey="masaAktif" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Masa Aktif</GovukTableHeader>
+              <GovukTableHeader sortKey="statusPembayaranPesanan" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Bayar Pesanan</GovukTableHeader>
+              <GovukTableHeader sortKey="statusPembayaranIuranTahunan" currentSort={sortField} sortDir={sortOrder} onSort={handleSort} last>Bayar Iuran</GovukTableHeader>
+            </GovukTableRow>
+          </GovukTableHead>
+          <GovukTableBody>
+            {visibleData.length === 0 ? (
+              <GovukTableRow>
+                <GovukTableCell colSpan={8} style={{ textAlign: "center", color: "#505a5f" }}>
+                  Tidak ada data ditemukan
+                </GovukTableCell>
+              </GovukTableRow>
+            ) : (
+              visibleData.map((record) => {
+                const allPJs = [...(record.makam?.pj || []), ...(record.makamStatus?.pj || [])];
+                const pesananTag = statusToTag(record.statusPembayaranPesanan ?? "");
+                const iuranTag = statusToTag(record.statusPembayaranIuranTahunan ?? "");
+                const pesananClickable = record.statusPembayaranPesanan !== "PAID";
+                const iuranClickable = record.statusPembayaranIuranTahunan !== "PAID";
 
-              await fetch("/api/bayarPesanan", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  id: selectedPesanan.id,
-                  tanggal_pemesanan: selectedPesanan.tanggalPemakaman,
-                }),
-              });
+                return (
+                  <GovukTableRow key={record.id}>
+                    <GovukTableCell>{record.blok?.id || ""}</GovukTableCell>
+                    <GovukTableCell style={{ fontWeight: 700 }}>{record.blok?.statusBlok || ""}</GovukTableCell>
+                    <GovukTableCell style={{ fontWeight: 700 }}>{record.statusJenazah || ""}</GovukTableCell>
+                    <GovukTableCell>
+                      {record.tanggalPemakaman
+                        ? new Date(record.tanggalPemakaman).toLocaleDateString("id-ID")
+                        : "-"}
+                    </GovukTableCell>
+                    <GovukTableCell>
+                      {allPJs.length > 0
+                        ? allPJs.map((p, i) => (
+                            <span key={p.id}>
+                              {p.user?.name || "-"}
+                              {i < allPJs.length - 1 ? ", " : ""}
+                            </span>
+                          ))
+                        : "-"}
+                    </GovukTableCell>
+                    <GovukTableCell>
+                      {record.masaAktif ? new Date(record.masaAktif).toLocaleDateString() : "-"}
+                    </GovukTableCell>
+                    <GovukTableCell>
+                      <button
+                        onClick={() => pesananClickable && openPesananModal(record)}
+                        disabled={!pesananClickable}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: pesananClickable ? "pointer" : "default",
+                          padding: 0,
+                        }}
+                      >
+                        <GovukTag color={pesananTag.color}>{pesananTag.label}</GovukTag>
+                      </button>
+                    </GovukTableCell>
+                    <GovukTableCell>
+                      <button
+                        onClick={() => iuranClickable && openIuranModal(record)}
+                        disabled={!iuranClickable}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: iuranClickable ? "pointer" : "default",
+                          padding: 0,
+                        }}
+                      >
+                        <GovukTag color={iuranTag.color}>{iuranTag.label}</GovukTag>
+                      </button>
+                    </GovukTableCell>
+                  </GovukTableRow>
+                );
+              })
+            )}
+          </GovukTableBody>
+        </GovukTable>
+      )}
 
-              message.success("Status pesanan diperbarui");
+      {/* Pagination */}
+      {!loading && filtered.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <GovukPagination
+            currentPage={current}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
 
-              setData((prev) =>
-                prev.map((j) =>
-                  j.id === selectedPesanan.id ? { ...j, statusPembayaranPesanan: "PAID" } : j
-                )
-              );
-
-              setPesananModalOpen(false);
+      {/* Pesanan Modal */}
+      {pesananModalOpen && selectedPesanan && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setPesananModalOpen(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              border: "1px solid #b1b4b6",
+              maxWidth: 600,
+              width: "90%",
+              maxHeight: "90vh",
+              overflow: "auto",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            Tandai LUNAS
-          </Button>,
-        ]}
-      >
-        {selectedPesanan && (
-          <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="Blok">{selectedPesanan.blok?.id}</Descriptions.Item>
+            <div style={{ background: "#f3f2f1", padding: "12px 16px", borderBottom: "1px solid #b1b4b6", borderTop: "4px solid #1d70b8" }}>
+              <h2 className="govuk-heading-m" style={{ color: "#0b0c0c", margin: 0 }}>
+                Konfirmasi Pembayaran Pesanan
+              </h2>
+            </div>
+            <div style={{ padding: 16 }}>
+              <GovukSummaryList>
+                <GovukSummaryListRow label="Blok" value={selectedPesanan.blok?.id || "-"} />
+                <GovukSummaryListRow
+                  label="Nama Jenazah"
+                  value={selectedPesanan.user?.name || "-"}
+                />
+                <GovukSummaryListRow
+                  label="Status Saat Ini"
+                  value={selectedPesanan.statusPembayaranPesanan || "-"}
+                />
+              </GovukSummaryList>
 
-            <Descriptions.Item label="Nama Jenazah">
-              {selectedPesanan.user?.name || "-"}
-            </Descriptions.Item>
+              <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                <GovukButton
+                  variant="secondary"
+                  onClick={() => {
+                    setPesananModalOpen(false);
+                    setSelectedPesanan(null);
+                  }}
+                >
+                  Batal
+                </GovukButton>
+                <GovukButton
+                  onClick={async () => {
+                    await fetch("/api/bayarPesanan", {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        id: selectedPesanan.id,
+                        tanggal_pemesanan: selectedPesanan.tanggalPemakaman,
+                      }),
+                    });
+                    toast.success("Status pesanan diperbarui");
+                    setData((prev) =>
+                      prev.map((j) =>
+                        j.id === selectedPesanan.id ? { ...j, statusPembayaranPesanan: "PAID" } : j
+                      )
+                    );
+                    setPesananModalOpen(false);
+                  }}
+                >
+                  Tandai LUNAS
+                </GovukButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-            <Descriptions.Item label="Status Saat Ini">
-              {selectedPesanan.statusPembayaranPesanan}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
-      <Modal
-        open={iuranModalOpen}
-        title="Pembayaran Iuran Tahunan"
-        onCancel={() => {
-          setIuranModalOpen(false);
-          setSelectedIuran(null);
-        }}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => {
-              setIuranModalOpen(false);
-              setSelectedIuran(null);
+      {/* Iuran Modal */}
+      {iuranModalOpen && selectedIuran && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setIuranModalOpen(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              border: "1px solid #b1b4b6",
+              maxWidth: 600,
+              width: "90%",
+              maxHeight: "90vh",
+              overflow: "auto",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            Batal
-          </Button>,
-          <Button
-            key="paid"
-            type="primary"
-            onClick={async () => {
-              if (!selectedIuran) return;
+            <div style={{ background: "#f3f2f1", padding: "12px 16px", borderBottom: "1px solid #b1b4b6", borderTop: "4px solid #1d70b8" }}>
+              <h2 className="govuk-heading-m" style={{ color: "#0b0c0c", margin: 0 }}>
+                Konfirmasi Pembayaran Iuran Tahunan
+              </h2>
+            </div>
+            <div style={{ padding: 16 }}>
+              <GovukSummaryList>
+                <GovukSummaryListRow label="Blok" value={selectedIuran.blok?.id || "-"} />
+                <GovukSummaryListRow
+                  label="Nama Jenazah"
+                  value={selectedIuran.user?.name || "-"}
+                />
+                <GovukSummaryListRow
+                  label="Masa Aktif Saat Ini"
+                  value={
+                    selectedIuran.masaAktif
+                      ? new Date(selectedIuran.masaAktif).toLocaleDateString("id-ID")
+                      : "-"
+                  }
+                />
+                <GovukSummaryListRow
+                  label="Status Saat Ini"
+                  value={selectedIuran.statusPembayaranIuranTahunan || "-"}
+                />
+              </GovukSummaryList>
 
-              await fetch("/api/bayarIuranTahunan", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  id: selectedIuran.id,
-                }),
-              });
-
-              message.success("Iuran tahunan berhasil diperbarui");
-
-              setData((prev) =>
-                prev.map((j) =>
-                  j.id === selectedIuran.id ? { ...j, statusPembayaranIuranTahunan: "PAID" } : j
-                )
-              );
-
-              setIuranModalOpen(false);
-              setSelectedIuran(null);
-            }}
-          >
-            Tandai LUNAS
-          </Button>,
-        ]}
-      >
-        {selectedIuran && (
-          <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="Blok">{selectedIuran.blok?.id}</Descriptions.Item>
-
-            <Descriptions.Item label="Nama Jenazah">
-              {selectedIuran.user?.name || "-"}
-            </Descriptions.Item>
-
-            <Descriptions.Item label="Masa Aktif Saat Ini">
-              {selectedIuran.masaAktif
-                ? new Date(selectedIuran.masaAktif).toLocaleDateString("id-ID")
-                : "-"}
-            </Descriptions.Item>
-
-            <Descriptions.Item label="Status Saat Ini">
-              {selectedIuran.statusPembayaranIuranTahunan}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
+              <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                <GovukButton
+                  variant="secondary"
+                  onClick={() => {
+                    setIuranModalOpen(false);
+                    setSelectedIuran(null);
+                  }}
+                >
+                  Batal
+                </GovukButton>
+                <GovukButton
+                  onClick={async () => {
+                    await fetch("/api/bayarIuranTahunan", {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ id: selectedIuran.id }),
+                    });
+                    toast.success("Iuran tahunan berhasil diperbarui");
+                    setData((prev) =>
+                      prev.map((j) =>
+                        j.id === selectedIuran.id
+                          ? { ...j, statusPembayaranIuranTahunan: "PAID" }
+                          : j
+                      )
+                    );
+                    setIuranModalOpen(false);
+                    setSelectedIuran(null);
+                  }}
+                >
+                  Tandai LUNAS
+                </GovukButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function recordToDate(d: string | Date | null): number {
-  if (!d) return 0;
-  return new Date(d).getTime();
 }

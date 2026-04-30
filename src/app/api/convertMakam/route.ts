@@ -133,12 +133,16 @@ export async function POST(request: Request) {
         where: { id: status.jenazahId },
       });
 
-      if (!jenazahData?.blokId) return;
+      if (!jenazahData?.blokId) {
+        return NextResponse.json({ error: "Blok ID tidak ditemukan pada jenazah." }, { status: 400 });
+      }
 
       const blokData = await prisma.blok.findUnique({
         where: { id: jenazahData.blokId },
       });
-      if (!blokData) return;
+      if (!blokData) {
+        return NextResponse.json({ error: "Blok tidak ditemukan." }, { status: 404 });
+      }
 
       await prisma.blok.update({
         where: { id: blokData.id },

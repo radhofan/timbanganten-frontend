@@ -7,22 +7,21 @@ interface StatusLabelProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
   disabled?: boolean;
-  size?: "big" | "small"; // new prop
+  size?: "big" | "small";
 }
 
-// Define all statuses and their Tailwind styles
-const STATUS_STYLES: Record<string, string> = {
-  PAID: "border-green-400 text-green-700 bg-green-50",
-  UNPAID: "border-red-400 text-red-700 bg-red-50",
-  UNKNOWN: "border-gray-300 text-gray-500 bg-gray-100",
-  DIPESAN: "border-yellow-400 text-yellow-700 bg-yellow-50",
-  DIKUBURKAN: "border-red-400 text-red-700 bg-red-50",
-  APPROVED: "border-green-400 text-green-700 bg-green-50",
-  KOSONG: "border-green-400 text-green-700 bg-green-50",
-  "DIGUNAKAN-1": "border-yellow-400 text-yellow-700 bg-yellow-50",
-  "DIGUNAKAN-2": "border-yellow-400 text-yellow-700 bg-yellow-50",
-  "DIGUNAKAN-3": "border-yellow-400 text-yellow-700 bg-yellow-50",
-  "DIGUNAKAN-4": "border-red-400 text-red-700 bg-red-50",
+const STATUS_STYLES: Record<string, { bg: string; color: string; border: string }> = {
+  PAID:          { bg: "#e3f4eb", color: "#00703c", border: "#00703c" },
+  UNPAID:        { bg: "#fde8e6", color: "#d4351c", border: "#d4351c" },
+  UNKNOWN:       { bg: "#f3f2f1", color: "#505a5f", border: "#b1b4b6" },
+  DIPESAN:       { bg: "#fef7e0", color: "#a05a00", border: "#f47738" },
+  DIKUBURKAN:    { bg: "#fde8e6", color: "#d4351c", border: "#d4351c" },
+  APPROVED:      { bg: "#e3f4eb", color: "#00703c", border: "#00703c" },
+  KOSONG:        { bg: "#e3f4eb", color: "#00703c", border: "#00703c" },
+  "DIGUNAKAN-1": { bg: "#fef7e0", color: "#a05a00", border: "#f47738" },
+  "DIGUNAKAN-2": { bg: "#fef7e0", color: "#a05a00", border: "#f47738" },
+  "DIGUNAKAN-3": { bg: "#fef7e0", color: "#a05a00", border: "#f47738" },
+  "DIGUNAKAN-4": { bg: "#fde8e6", color: "#d4351c", border: "#d4351c" },
 };
 
 export const StatusLabel: React.FC<StatusLabelProps> = ({
@@ -32,20 +31,30 @@ export const StatusLabel: React.FC<StatusLabelProps> = ({
   onChange,
   readOnly,
   disabled,
-  size = "big", // default to big
+  size = "big",
 }) => {
   const isInactive = readOnly || disabled;
-  const statusStyle = STATUS_STYLES[value] || "";
+  const style = STATUS_STYLES[value];
 
-  // Adjust classes based on size
-  const sizeClasses =
-    size === "small" ? "px-2 py-1 text-xs rounded-md" : "px-3 py-2 text-sm rounded-lg";
+  const sizePad = size === "small" ? "2px 6px" : "4px 10px";
+  const sizeFontSize = size === "small" ? "0.6875rem" : "0.8125rem";
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
-      </label>
+      {label && (
+        <label
+          htmlFor={id}
+          style={{
+            display: "block",
+            fontSize: "0.8125rem",
+            fontWeight: 700,
+            color: "#0b0c0c",
+            marginBottom: 4,
+          }}
+        >
+          {label}
+        </label>
+      )}
       <input
         type="text"
         id={id}
@@ -54,12 +63,22 @@ export const StatusLabel: React.FC<StatusLabelProps> = ({
         onChange={onChange}
         readOnly={readOnly}
         disabled={disabled}
-        className={`w-full ${sizeClasses} text-center font-medium border focus:outline-none focus:ring-2
-          ${
-            isInactive
-              ? statusStyle || "bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed"
-              : "border-gray-300 focus:ring-blue-500"
-          }`}
+        style={{
+          display: "block",
+          width: "100%",
+          padding: sizePad,
+          fontSize: sizeFontSize,
+          fontWeight: 700,
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          border: `1px solid ${style?.border || "#b1b4b6"}`,
+          background: isInactive ? (style?.bg || "#f3f2f1") : "#fff",
+          color: isInactive ? (style?.color || "#505a5f") : "#0b0c0c",
+          cursor: isInactive ? "default" : "text",
+          outline: "none",
+          borderRadius: 0,
+        }}
       />
     </div>
   );

@@ -91,6 +91,9 @@ export async function POST(request: Request) {
         existingPJ = await tx.penanggungJawab.findUnique({
           where: { userId: body.existingUserId },
         });
+        if (!existingPJ) {
+          throw new Error("PenanggungJawab tidak ditemukan untuk user yang dipilih.");
+        }
       }
 
       // --- CEK APAKAH JENAZAH SUDAH DIKUBUR --- //////////////////////////

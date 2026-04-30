@@ -1,24 +1,50 @@
+import Image from "next/image";
+
 export default function Footer() {
   return (
-    <div className="relative">
-      {/* More wavy top edge */}
-      <div className="absolute top-0 left-0 w-full -translate-y-full">
-        <svg
-          className="w-full h-20"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path fill="#223D3C" d="M0,160 C360,0 1080,320 1440,160 L1440,320 L0,320 Z" />
-        </svg>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-[#223D3C] text-white p-4 h-32 relative z-10">
-        <div className="flex items-center justify-center h-full">
-          <p>© 2025 Yayasan Sejarah Timbanganten</p>
+    <footer style={{
+      background: "#f3f2f1",
+      borderTop: "4px solid #1d70b8",
+      padding: "30px 16px",
+    }}>
+      <div style={{
+        maxWidth: "1440px",
+        margin: "0 auto",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: 24,
+      }}>
+        {/* Left: text content */}
+        <div>
+          <ul style={{
+            listStyle: "none",
+            margin: "0 0 16px 0",
+            padding: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "4px 20px",
+          }}>
+            <li><span style={{ fontSize: "0.875rem", color: "#505a5f" }}>TIMGRAVID v1.0</span></li>
+            <li><span style={{ fontSize: "0.875rem", color: "#505a5f" }}>Sistem Manajemen Pemakaman</span></li>
+            <li><span style={{ fontSize: "0.875rem", color: "#505a5f" }}>Yayasan Sajarah Timbanganten</span></li>
+          </ul>
+          <p style={{ fontSize: "0.875rem", color: "#505a5f", margin: 0 }}>
+            © 2026 Yayasan Sejarah Timbanganten
+          </p>
         </div>
-      </footer>
-    </div>
+
+        {/* Right: logo */}
+        <div style={{ flexShrink: 0 }}>
+          <Image
+            src="/images/logo.png"
+            alt="Logo Timbanganten"
+            width={60}
+            height={60}
+            style={{ objectFit: "contain", opacity: 0.6 }}
+          />
+        </div>
+      </div>
+    </footer>
   );
 }

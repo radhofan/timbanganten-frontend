@@ -7,13 +7,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MakamStatus } from "@/lib/types";
 import { StatusLabel } from "@/components/StatusLabel";
+import { GovukInput } from "@/components/govuk";
+
 export default function Status() {
   const [data, setData] = useState<MakamStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filterPayment, setFilterPayment] = useState<string[]>([]);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchMakam = async () => {
@@ -32,22 +34,17 @@ export default function Status() {
         setLoading(false);
       }
     };
-
     fetchMakam();
   }, []);
 
   const filteredData = data.filter((item) => {
     const query = searchName.toLowerCase();
-
     const matchNama = item.jenazah?.user?.name?.toLowerCase().includes(query);
-
-    // Check if **any pj's name matches** the search
-    const matchPenanggungJawab = item.pj.some((pj) => pj.user?.name?.toLowerCase().includes(query));
-
+    const matchPenanggungJawab = item.pj.some((pj) =>
+      pj.user?.name?.toLowerCase().includes(query)
+    );
     const matchBlok = item.blok?.id.toLowerCase().includes(query);
-
     const matchPayment = filterPayment.length === 0 || filterPayment.includes("");
-
     return (matchNama || matchPenanggungJawab || matchBlok) && matchPayment;
   });
 
@@ -66,222 +63,304 @@ export default function Status() {
   };
 
   const getPageNumbers = () => {
-    const pages = [];
+    const pages: (number | string)[] = [];
     const maxVisiblePages = 5;
-
     if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
+        for (let i = 1; i <= 4; i++) pages.push(i);
         pages.push("...");
         pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
         pages.push(1);
         pages.push("...");
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
       } else {
         pages.push(1);
         pages.push("...");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
         pages.push("...");
         pages.push(totalPages);
       }
     }
-
     return pages;
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main className="flex-1 page-container relative bg-white flex flex-col items-center gap-4">
-        <div className="text-lg sm:text-xl text-center">Status Pemesanan</div>
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
+        {/* Header row */}
+        <div style={{ marginBottom: 12, borderBottom: "1px solid #b1b4b6", paddingBottom: 10 }}>
+          <h1
+            style={{
+              fontWeight: 700,
+              fontSize: "clamp(1rem, 1.5vw, 1.1875rem)",
+              color: "#0b0c0c",
+              margin: 0,
+            }}
+          >
+            Status Pemesanan
+          </h1>
+        </div>
 
-        {/* Filters */}
-        <div className="w-full max-w-2xl mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 sm:gap-4">
-          <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Cari Nama Jenazah / Nama PJ / Blok
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: John Doe, Blok A, atau 123"
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Payment filter */}
-            <div className="flex flex-col">
-              <span className="text-xs font-medium text-gray-600 mb-1">Filter Pembayaran</span>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-1 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filterPayment.includes("PAID")}
-                    onChange={(e) =>
-                      setFilterPayment((prev) =>
-                        e.target.checked ? [...prev, "PAID"] : prev.filter((x) => x !== "PAID")
-                      )
-                    }
-                  />
-                  PAID
-                </label>
-                <label className="flex items-center gap-1 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filterPayment.includes("PENDING")}
-                    onChange={(e) =>
-                      setFilterPayment((prev) =>
-                        e.target.checked
-                          ? [...prev, "PENDING"]
-                          : prev.filter((x) => x !== "PENDING")
-                      )
-                    }
-                  />
-                  PENDING
-                </label>
+        {/* Toolbar */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 0 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="status-search">Cari</label>
+              <GovukInput
+                id="status-search"
+                type="text"
+                placeholder="Nama, blok, atau PJ..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                style={{ width: "clamp(180px, 28vw, 280px)" }}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }}>Filter Pembayaran</label>
+              <div style={{ display: "flex", gap: 12, alignItems: "center", height: 34 }}>
+                {["PAID", "PENDING"].map((opt) => (
+                  <label key={opt} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: "0.875rem", fontWeight: 600, color: "#0b0c0c", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={filterPayment.includes(opt)}
+                      onChange={(e) => setFilterPayment((prev) => e.target.checked ? [...prev, opt] : prev.filter((x) => x !== opt))}
+                      style={{ width: 16, height: 16, accentColor: "#1d70b8" }}
+                    />
+                    {opt}
+                  </label>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
+        {/* Result count */}
         {!loading && (
-          <div className="w-full max-w-2xl mb-2 text-xs sm:text-sm text-gray-600">
+          <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
             Menampilkan {currentItems.length} dari {filteredData.length} pemesanan
             {filteredData.length !== data.length && ` (difilter dari ${data.length} total)`}
-          </div>
+          </p>
         )}
 
-        <div className="w-full max-w-2xl space-y-3 sm:space-y-4 mb-6">
+        {/* List */}
+        <div style={{ border: "1px solid #b1b4b6" }}>
           {loading ? (
-            <p className="text-center text-gray-500">Loading...</p>
+            <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff" }}>
+              Memuat data...
+            </div>
           ) : filteredData.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center">Tidak ada data pemesanan ditemukan.</p>
+            <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff" }}>
+              Tidak ada data pemesanan ditemukan.
+            </div>
           ) : (
-            currentItems.map((item) => (
+            currentItems.map((item, idx) => (
               <Link
                 key={item.id}
                 href={`/layanan/pesan/status/${item.id}`}
-                className="block bg-white shadow-sm rounded-xl p-4 border-l-4 transition-all duration-300 ease-in-out hover:shadow-md hover:scale-[1.01] cursor-pointer"
                 style={{
-                  borderColor: "#facc15",
+                  display: "block",
+                  background: idx % 2 === 0 ? "#fff" : "#fafafa",
+                  borderBottom: "1px solid #b1b4b6",
+                  padding: "clamp(8px, 1vw, 12px) clamp(10px, 1.5vw, 16px)",
+                  textDecoration: "none",
+                  color: "inherit",
+                  borderLeft: "4px solid #1d70b8",
+                  transition: "background 0.08s",
                 }}
+                className="hover:bg-[#dce7f5]"
               >
-                <div className="flex justify-between items-start mb-1">
-                  <div className="flex flex-col gap-1 mb-4">
-                    <h2 className="text-base font-semibold text-gray-800">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: 12,
+                    marginBottom: 6,
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "0.9375rem",
+                        color: "#0b0c0c",
+                        marginBottom: 3,
+                      }}
+                    >
                       {item.jenazah?.user?.name}
-                    </h2>
-                    <div className="flex items-center gap-x-2 w-full">
-                      <div className="text-sm font-medium">Status Pembayaran Pesanan:</div>
-                      <div className="w-24">
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span
+                        style={{
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          color: "#505a5f",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        Status Bayar:
+                      </span>
+                      <div style={{ width: 80 }}>
                         <StatusLabel
                           id={`statusPembayaran-${item.id}`}
                           label=""
                           value={item.jenazah?.statusPembayaranPesanan || "UNKNOWN"}
-                          readOnly={true}
-                          disabled={true}
+                          readOnly
+                          disabled
                           size="small"
                         />
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex flex-col text-left gap-y-2"></div>
+                  <div
+                    style={{
+                      fontSize: "0.6875rem",
+                      fontWeight: 700,
+                      color: "#1d70b8",
+                      fontFamily: "monospace",
+                      flexShrink: 0,
+                    }}
+                  >
+                    ID: {item.id}
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600">
-                  <p>
-                    <span className="font-medium">ID:</span> {item.id}
-                  </p>
-                  <p>
-                    <span className="font-medium">Lokasi:</span> {item.blok?.lokasi}
-                  </p>
-                  <p>
-                    <span className="font-medium">Tanggal Pemesanan:</span>{" "}
-                    {/* {new Date(item.created_at).toLocaleDateString("id-ID")} */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                    gap: "3px 16px",
+                    fontSize: "0.8125rem",
+                    color: "#505a5f",
+                  }}
+                >
+                  <div>
+                    <span style={{ fontWeight: 700, color: "#0b0c0c" }}>Lokasi:</span>{" "}
+                    {item.blok?.lokasi}
+                  </div>
+                  <div>
+                    <span style={{ fontWeight: 700, color: "#0b0c0c" }}>Tgl. Pesan:</span>{" "}
                     {item.tanggalPemesanan
                       ? new Date(item.tanggalPemesanan).toLocaleDateString("id-ID")
                       : "-"}
-                  </p>
-                  <p className="col-span-2">
-                    <span className="font-medium">Penanggung Jawab:</span>{" "}
-                    {item.pj.map((pj, index) => (
+                  </div>
+                  <div style={{ gridColumn: "span 2" }}>
+                    <span style={{ fontWeight: 700, color: "#0b0c0c" }}>PJ:</span>{" "}
+                    {item.pj.map((pj, i) => (
                       <span key={pj.id}>
-                        {pj.user?.name} ({pj.user?.contact}){index < item.pj.length - 1 ? ", " : ""}
+                        {pj.user?.name} ({pj.user?.contact}){i < item.pj.length - 1 ? ", " : ""}
                       </span>
                     ))}
-                  </p>
+                  </div>
                 </div>
 
-                <p className="mt-2 text-gray-700 text-xs line-clamp-2">{item.description}</p>
+                {item.description && (
+                  <div
+                    style={{
+                      marginTop: 4,
+                      fontSize: "0.75rem",
+                      color: "#505a5f",
+                      overflow: "hidden",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {item.description}
+                  </div>
+                )}
               </Link>
             ))
           )}
         </div>
 
+        {/* Pagination */}
         {!loading && filteredData.length > 0 && (
-          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-lg shadow">
-            <div className="text-sm text-gray-700">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 8,
+              marginTop: 10,
+              padding: "6px 10px",
+              background: "#fff",
+              border: "1px solid #b1b4b6",
+            }}
+          >
+            <div style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
               Halaman {currentPage} dari {totalPages}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
-                  currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                }`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  padding: "4px 10px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  background: currentPage === 1 ? "#f3f2f1" : "#fff",
+                  color: currentPage === 1 ? "#b1b4b6" : "#0b0c0c",
+                  border: "1px solid",
+                  borderColor: currentPage === 1 ? "#b1b4b6" : "#505a5f",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                }}
               >
-                <ChevronLeft size={16} />
-                Sebelumnya
+                <ChevronLeft size={14} />
+                Prev
               </button>
 
-              <div className="flex items-center gap-1">
-                {getPageNumbers().map((page, index) => (
-                  <button
-                    key={index}
-                    onClick={() => typeof page === "number" && handlePageChange(page)}
-                    disabled={page === "..."}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                      page === currentPage
-                        ? "bg-blue-500 text-white"
-                        : page === "..."
-                          ? "text-gray-400 cursor-default"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+              {getPageNumbers().map((page, index) => (
+                <button
+                  key={index}
+                  onClick={() => typeof page === "number" && handlePageChange(page)}
+                  disabled={page === "..."}
+                  style={{
+                    padding: "4px 10px",
+                    fontSize: "0.8125rem",
+                    fontWeight: 600,
+                    background: page === currentPage ? "#1d70b8" : "#fff",
+                    color: page === currentPage ? "#fff" : page === "..." ? "#b1b4b6" : "#0b0c0c",
+                    border: "1px solid",
+                    borderColor: page === currentPage ? "#003078" : "#b1b4b6",
+                    cursor: page === "..." ? "default" : "pointer",
+                    minWidth: 32,
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
-                  currentPage === totalPages
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                }`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  padding: "4px 10px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  background: currentPage === totalPages ? "#f3f2f1" : "#fff",
+                  color: currentPage === totalPages ? "#b1b4b6" : "#0b0c0c",
+                  border: "1px solid",
+                  borderColor: currentPage === totalPages ? "#b1b4b6" : "#505a5f",
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                }}
               >
-                Selanjutnya
-                <ChevronRight size={16} />
+                Next
+                <ChevronRight size={14} />
               </button>
             </div>
           </div>

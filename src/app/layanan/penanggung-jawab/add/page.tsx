@@ -4,17 +4,27 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-import { Button } from "antd";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { UserCircle, Mail, Phone, CreditCard } from "lucide-react";
-
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { pjSchema, PJPayload, pjDefaultValues } from "@/validation/pj";
 import toast from "react-hot-toast";
+import { GovukButton, GovukFormGroup, GovukInput } from "@/components/govuk";
+
+const fields: {
+  name: keyof PJPayload;
+  label: string;
+  placeholder: string;
+  type?: string;
+  maxLength?: number;
+  fullWidth?: boolean;
+}[] = [
+  { name: "name", label: "Nama Lengkap", placeholder: "Masukkan Nama Lengkap", fullWidth: true },
+  { name: "contact", label: "No. Kontak", placeholder: "08XXXXXXXXX" },
+  { name: "email", label: "Email", placeholder: "user@gmail.com", type: "email" },
+  { name: "ktpNum", label: "No. KTP", placeholder: "Masukkan 16 digit nomor KTP", maxLength: 16, fullWidth: true },
+  { name: "emergencyName", label: "Nama Kontak Darurat", placeholder: "Masukkan Nama" },
+  { name: "emergencyContact", label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX" },
+];
 
 export default function AddPenanggungJawab() {
   const [loading, setLoading] = useState(false);
@@ -31,22 +41,18 @@ export default function AddPenanggungJawab() {
 
   const onSubmit: SubmitHandler<PJPayload> = async (data) => {
     setLoading(true);
-
     try {
       const res = await fetch("/api/penanggungJawab", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       if (res.ok) {
         toast.success("Penanggung Jawab berhasil ditambahkan!", { position: "top-center" });
         setTimeout(() => router.push("/layanan/penanggung-jawab"), 1500);
       } else {
         const err = await res.json();
-        toast.error(err?.error || "Terjadi kesalahan saat menyimpan data.", {
-          position: "top-center",
-        });
+        toast.error(err?.error || "Terjadi kesalahan saat menyimpan data.", { position: "top-center" });
       }
     } catch (err) {
       console.error(err);
@@ -57,201 +63,64 @@ export default function AddPenanggungJawab() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header hideBanner />
 
-      <main className="flex-1 flex justify-center items-start page-container">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-10"
-        >
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-800">Tambah Penanggung Jawab</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Silakan lengkapi data di bawah ini untuk menambahkan penanggung jawab baru.
-            </p>
-          </div>
+      <div className="govuk-width-container" style={{ flex: 1 }}>
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <h1 className="govuk-heading-l">Tambah Penanggung Jawab</h1>
 
-          <section className="space-y-5">
-            <h3 className="text-lg font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg shadow-md">
-                <UserCircle className="w-5 h-5 text-white" />
-              </div>
-              Data Pribadi
-            </h3>
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                <fieldset className="govuk-fieldset">
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <h2 className="govuk-fieldset__heading">Data Pribadi</h2>
+                  </legend>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col col-span-2">
-                <Label htmlFor="name" className="mb-2 flex items-center gap-2">
-                  <UserCircle className="w-4 h-4 text-purple-600" />
-                  Nama Lengkap
-                </Label>
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="name"
-                        placeholder="Masukkan Nama Lengkap"
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                />
-                {errors.name && (
-                  <p className="text-red-600 text-sm mt-2">{errors.name.message}</p>
-                )}
-              </div>
+                  {fields.map((f) => (
+                    <Controller
+                      key={f.name}
+                      name={f.name}
+                      control={control}
+                      render={({ field }) => (
+                        <GovukFormGroup
+                          id={f.name}
+                          label={f.label}
+                          error={errors[f.name]?.message}
+                        >
+                          <GovukInput
+                            {...field}
+                            id={f.name}
+                            type={f.type || "text"}
+                            placeholder={f.placeholder}
+                            maxLength={f.maxLength}
+                            error={!!errors[f.name]}
+                            style={{ width: "100%" }}
+                          />
+                        </GovukFormGroup>
+                      )}
+                    />
+                  ))}
+                </fieldset>
 
-              <div className="flex flex-col">
-                <Label htmlFor="contact" className="mb-2 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-green-600" />
-                  No. Kontak
-                </Label>
-                <Controller
-                  name="contact"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="contact"
-                        placeholder="08XXXXXXXXX"
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                />
-                {errors.contact && (
-                  <p className="text-red-600 text-sm mt-2">{errors.contact.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col">
-                <Label htmlFor="email" className="mb-2 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-blue-600" />
-                  Email
-                </Label>
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="email"
-                        type="email"
-                        placeholder="user@gmail.com"
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                />
-                {errors.email && (
-                  <p className="text-red-600 text-sm mt-2">{errors.email.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col col-span-2">
-                <Label htmlFor="ktpNum" className="mb-2 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-amber-600" />
-                  No KTP
-                </Label>
-                <Controller
-                  name="ktpNum"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="ktpNum"
-                        maxLength={16}
-                        placeholder="Masukkan 16 digit nomor KTP"
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                />
-                {errors.ktpNum && (
-                  <p className="text-red-600 text-sm mt-2">{errors.ktpNum.message}</p>
-                )}
-              </div>
+                <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                  <GovukButton type="submit" isLoading={loading}>
+                    Simpan
+                  </GovukButton>
+                  <GovukButton
+                    type="button"
+                    variant="secondary"
+                    onClick={() => router.push("/layanan/penanggung-jawab")}
+                  >
+                    Batal
+                  </GovukButton>
+                </div>
+              </form>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col">
-                <Label htmlFor="emergencyName" className="mb-2 flex items-center gap-2">
-                  <UserCircle className="w-4 h-4 text-indigo-600" />
-                  Nama Kontak Darurat
-                </Label>
-                <Controller
-                  name="emergencyName"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="emergencyName"
-                        placeholder="Masukkan Nama"
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                />
-                {errors.emergencyName && (
-                  <p className="text-red-600 text-sm mt-2">{errors.emergencyName.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col">
-                <Label htmlFor="emergencyContact" className="mb-2 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-teal-600" />
-                  No. Kontak Darurat
-                </Label>
-                <Controller
-                  name="emergencyContact"
-                  control={control}
-                  render={({ field }) => (
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        {...field}
-                        id="emergencyContact"
-                        placeholder="08XXXXXXXXX"
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                />
-                {errors.emergencyContact && (
-                  <p className="text-red-600 text-sm mt-2">{errors.emergencyContact.message}</p>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button
-              danger
-              onClick={() => router.push("/layanan/penanggung-jawab")}
-              className="min-w-[clamp(6.25rem,10vw,8rem)]"
-            >
-              Batal
-            </Button>
-
-            <Button type="primary" htmlType="submit" loading={loading} className="min-w-[clamp(6.25rem,10vw,8rem)]">
-              Simpan
-            </Button>
           </div>
-        </form>
-      </main>
+        </main>
+      </div>
 
       <Footer />
     </div>
