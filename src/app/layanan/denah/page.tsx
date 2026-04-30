@@ -86,8 +86,8 @@ const Denah = () => {
 
       <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
         {/* Page title */}
-        <div style={{ borderBottom: "2px solid #0b0c0c", paddingBottom: 8, marginBottom: 14 }}>
-          <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.25rem)", color: "#0b0c0c", margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+        <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 14 }}>
+          <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
             Denah Makam Timbanganten
           </h1>
         </div>
@@ -97,7 +97,7 @@ const Denah = () => {
           ref={containerRef}
           style={{
             background: "#f3f2f1",
-            border: "1px solid #505a5f",
+            border: "1px solid #b1b4b6",
             padding: "8px 12px",
             marginBottom: 0,
             display: "flex",
@@ -150,7 +150,7 @@ const Denah = () => {
         {/* Map canvas */}
         <div
           style={{
-            border: "1px solid #505a5f",
+            border: "1px solid #b1b4b6",
             borderTop: "none",
             background: "#fff",
             marginBottom: selectedPlot ? 12 : 0,
@@ -176,7 +176,7 @@ const Denah = () => {
           <div
             style={{
               background: "#fff",
-              border: "1px solid #505a5f",
+              border: "1px solid #b1b4b6",
               borderTop: "3px solid #1d70b8",
               padding: "12px 16px",
             }}

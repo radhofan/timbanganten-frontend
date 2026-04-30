@@ -103,16 +103,11 @@ export default function Status() {
             }}
           >
             Status Pemesanan
-            {!loading && (
-              <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600, marginLeft: 10 }}>
-                {filteredData.length} data
-              </span>
-            )}
           </h1>
         </div>
 
         {/* Toolbar */}
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #505a5f", marginBottom: 0 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 0 }}>
           <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }} htmlFor="status-search">Cari</label>
@@ -146,22 +141,10 @@ export default function Status() {
 
         {/* Result count */}
         {!loading && (
-          <div
-            style={{
-              padding: "4px 10px",
-              background: "#fff",
-              border: "1px solid #b1b4b6",
-              borderTop: "none",
-              borderBottom: "1px solid #b1b4b6",
-              fontSize: "0.75rem",
-              color: "#505a5f",
-              fontWeight: 600,
-              marginBottom: 8,
-            }}
-          >
+          <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
             Menampilkan {currentItems.length} dari {filteredData.length} pemesanan
             {filteredData.length !== data.length && ` (difilter dari ${data.length} total)`}
-          </div>
+          </p>
         )}
 
         {/* List */}

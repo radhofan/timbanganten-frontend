@@ -24,6 +24,43 @@
   max-width: 1440px;
 }
 
+/* ─── GOV.UK Table: admin density override ──────────────────────────────── */
+
+.govuk-table {
+  font-size: 0.8125rem !important;
+  margin-bottom: 0 !important;
+  border: 1px solid var(--ent-border);
+}
+
+.govuk-table__head {
+  background: var(--ent-gray-lt);
+}
+
+.govuk-table__head .govuk-table__header {
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--ent-border) !important;
+  white-space: nowrap;
+}
+
+.govuk-table__cell,
+.govuk-table__header {
+  padding: 7px 12px !important;
+  vertical-align: middle !important;
+  border-bottom-color: var(--ent-border) !important;
+}
+
+.govuk-table__body .govuk-table__row:last-child .govuk-table__cell,
+.govuk-table__body .govuk-table__row:last-child .govuk-table__header {
+  border-bottom: none !important;
+}
+
+.govuk-table__body .govuk-table__row:hover .govuk-table__cell,
+.govuk-table__body .govuk-table__row:hover .govuk-table__header {
+  background: #dce7f5;
+}
+
 /* Kill all border-radius globally */
 *, *::before, *::after {
   border-radius: 0 !important;

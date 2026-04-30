@@ -410,8 +410,8 @@ export default function UserDetail() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}
-            <div style={{ borderBottom: "2px solid #0b0c0c", padding: "12px 16px" }}>
-              <div style={{ fontWeight: 700, fontSize: "0.9375rem", color: "#0b0c0c", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            <div style={{ borderBottom: "1px solid #b1b4b6", padding: "12px 16px" }}>
+              <div style={{ fontWeight: 700, fontSize: "0.9375rem", color: "#0b0c0c" }}>
                 Daftar Penanggung Jawab Lainnya
               </div>
               <div style={{ fontSize: "0.8125rem", color: "#505a5f", marginTop: 4 }}>

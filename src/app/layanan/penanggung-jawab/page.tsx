@@ -72,15 +72,14 @@ export default function PenanggungJawab() {
 
       <div style={{ flex: 1 }} className="page-container">
         <main id="main-content" role="main">
-          <div style={{ borderBottom: "2px solid #0b0c0c", paddingBottom: 12, marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.25rem)", color: "#0b0c0c", margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>Daftar Penanggung Jawab</h1>
-              {!loading && <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>{filteredData.length} data</span>}
-            </div>
+          <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 12 }}>
+            <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
+              Daftar Penanggung Jawab
+            </h1>
           </div>
 
           {/* Search toolbar */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #505a5f", marginBottom: 0 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 10, padding: "10px 12px", background: "#f3f2f1", border: "1px solid #b1b4b6", marginBottom: 0 }}>
             {/* Filters - left */}
             <div style={{ display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -104,10 +103,10 @@ export default function PenanggungJawab() {
           </div>
 
           {!loading && (
-            <div style={{ padding: "4px 10px", background: "#fff", border: "1px solid #b1b4b6", borderTop: "none", borderBottom: "1px solid #b1b4b6", fontSize: "0.75rem", color: "#505a5f", fontWeight: 600, marginBottom: 8 }}>
+            <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
               Menampilkan {currentPJList.length} dari {filteredData.length} pengguna
               {filteredData.length !== penanggungJawabList.length && ` (difilter dari ${penanggungJawabList.length} total)`}
-            </div>
+            </p>
           )}
 
           {loading ? (

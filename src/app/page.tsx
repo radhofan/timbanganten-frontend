@@ -64,7 +64,7 @@ export default function Home() {
 
       <div className="govuk-width-container">
         <main className="govuk-main-wrapper" id="main-content" role="main" style={{ flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "1rem", borderBottom: "2px solid #0b0c0c", paddingBottom: "0.5rem" }}>
+          <div style={{ marginBottom: "1rem", borderBottom: "1px solid #b1b4b6", paddingBottom: "0.5rem" }}>
             <h2 className="govuk-heading-m" style={{ margin: 0 }}>Layanan Sistem</h2>
           </div>
 
