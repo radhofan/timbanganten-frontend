@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { DENAH } from "@/lib/denah";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { GovukSelect } from "@/components/govuk";
@@ -9,6 +8,17 @@ import CemeteryViewer from "@/components/CemeteryViewer";
 import { Blok } from "@/lib/types";
 import { useUserRoles } from "@/components/CheckRole";
 import { useRouter } from "next/navigation";
+import dalemKaumPlots from "@/components/plot/dalemKaum";
+import karangAnyarPlots from "@/components/plot/karangAnyar";
+import dayeuhKolotPlots from "@/components/plot/dayeuhKolot";
+
+const PLOT_MAP = {
+  "Dalem Kaum": dalemKaumPlots,
+  "Karang Anyar": karangAnyarPlots,
+  "Dayeuh Kolot": dayeuhKolotPlots,
+} as const;
+
+type Lokasi = keyof typeof PLOT_MAP;
 
 interface Plot {
   id: string;
@@ -22,8 +32,6 @@ interface PlotWithBlok extends Plot {
   blok?: Blok;
 }
 
-type Lokasi = keyof typeof DENAH;
-
 const Denah = () => {
   const { isAdmin } = useUserRoles();
   const router = useRouter();
@@ -36,7 +44,7 @@ const Denah = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const plots = useMemo(() => DENAH[selectedDenah].plots, [selectedDenah]);
+  const plots = useMemo(() => PLOT_MAP[selectedDenah], [selectedDenah]);
 
   useEffect(() => {
     const fetchBlok = async () => {
@@ -142,7 +150,7 @@ const Denah = () => {
                 <GovukSelect
                   value={selectedDenah}
                   onChange={handleDenahChange}
-                  options={Object.keys(DENAH).map((lokasi) => ({ value: lokasi, label: lokasi }))}
+                  options={Object.keys(PLOT_MAP).map((lokasi) => ({ value: lokasi, label: lokasi }))}
                   style={{ height: 27, fontSize: "0.75rem", padding: "0 8px" }}
                 />
               </div>

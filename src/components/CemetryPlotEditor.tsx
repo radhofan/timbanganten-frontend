@@ -128,7 +128,7 @@ const CemeteryPlotEditor = () => {
 
   const makamOptions = useMemo(() => [
     { code: "KU", name: "dalemKaum", label: "Dalem Kaum - KU" },
-    { code: "DK", name: "dayeuhkolot", label: "Dayeuhkolot - DK" },
+    { code: "DK", name: "dayeuhKolot", label: "Dayeuhkolot - DK" },
     { code: "KA", name: "karangAnyar", label: "Karang Anyar - KA" },
   ], []);
 
@@ -246,12 +246,12 @@ const CemeteryPlotEditor = () => {
     const formattedPlots = rounded
       .map((p) => `  { id: "${p.id}", x: ${p.x}, y: ${p.y}, width: ${p.width}, height: ${p.height} }`)
       .join(",\n");
-    const jsCode = `export const ${currentMakam.name} = [\n${formattedPlots},\n];`;
-    const blob = new Blob([jsCode], { type: "text/javascript" });
+    const tsCode = `export type PlotData = { id: string; x: number; y: number; width: number; height: number };\n\nconst ${currentMakam.name}Plots: PlotData[] = [\n${formattedPlots},\n];\n\nexport default ${currentMakam.name}Plots;\n`;
+    const blob = new Blob([tsCode], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${currentMakam.name}.js`;
+    a.download = `${currentMakam.name}.ts`;
     a.click();
     URL.revokeObjectURL(url);
   }, [plots, selectedMakam, makamOptions]);
@@ -493,7 +493,7 @@ const CemeteryPlotEditor = () => {
             )}
             <label style={{ cursor: "pointer", flexShrink: 0 }}>
               <span style={{ ...btnBase, background: "#505a5f", color: "#fff", whiteSpace: "nowrap" }}>Impor Koordinat</span>
-              <input type="file" accept=".js,.json,.txt" onChange={handleImportCoordinates} style={{ display: "none" }} />
+              <input type="file" accept=".ts,.js,.json,.txt" onChange={handleImportCoordinates} style={{ display: "none" }} />
             </label>
             <button onClick={exportData} disabled={plots.length === 0} style={{ ...(plots.length === 0 ? btnDisabled : { ...btnBase, background: "#00703c", color: "#fff" }), flexShrink: 0 }}>
               Ekspor ({plots.length})
