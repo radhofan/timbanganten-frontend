@@ -292,12 +292,16 @@ export default function MakamStatus({ page }: { page: string }) {
                         style={{ width: "100%", fontSize: "0.8125rem", padding: "4px 6px", border: "1px solid #b1b4b6", fontFamily: "inherit", resize: "vertical", boxSizing: "border-box" }}
                       />
                     </div>
-                  ) : field.value ? (
-                    <div style={{ marginBottom: 20 }}>
-                      <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Penjelasan</div>
-                      <div style={{ fontSize: "0.8125rem", color: "#0b0c0c" }}>{field.value}</div>
+                  ) : (
+                    <div style={{ marginBottom: field.value ? 20 : 0 }}>
+                      {field.value && (
+                        <>
+                          <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Penjelasan</div>
+                          <div style={{ fontSize: "0.8125rem", color: "#0b0c0c" }}>{field.value}</div>
+                        </>
+                      )}
                     </div>
-                  ) : null
+                  )
                 )} />
 
                 {/* ── Actions ── */}

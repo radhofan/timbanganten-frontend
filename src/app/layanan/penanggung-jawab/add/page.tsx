@@ -14,27 +14,24 @@ const fields: {
   name: keyof PJPayload;
   label: string;
   placeholder: string;
+  hint?: string;
   type?: string;
   maxLength?: number;
   fullWidth?: boolean;
 }[] = [
   { name: "name", label: "Nama Lengkap", placeholder: "Masukkan Nama Lengkap", fullWidth: true },
-  { name: "contact", label: "No. Kontak", placeholder: "08XXXXXXXXX" },
+  { name: "contact", label: "No. Kontak", placeholder: "08XXXXXXXXX", hint: "Diawali 08, 10–14 digit" },
   { name: "email", label: "Email", placeholder: "user@gmail.com", type: "email" },
-  { name: "ktpNum", label: "No. KTP", placeholder: "Masukkan 16 digit nomor KTP", maxLength: 16, fullWidth: true },
+  { name: "ktpNum", label: "No. KTP", placeholder: "Masukkan 16 digit nomor KTP", maxLength: 16, hint: "16 digit angka", fullWidth: true },
   { name: "emergencyName", label: "Nama Kontak Darurat", placeholder: "Masukkan Nama" },
-  { name: "emergencyContact", label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX" },
+  { name: "emergencyContact", label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX", hint: "Diawali 08, 10–14 digit" },
 ];
 
 export default function AddPenanggungJawab() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PJPayload>({
+  const { control, handleSubmit, formState: { errors } } = useForm<PJPayload>({
     defaultValues: pjDefaultValues,
     resolver: zodResolver(pjSchema),
   });
@@ -63,64 +60,57 @@ export default function AddPenanggungJawab() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <div className="govuk-width-container" style={{ flex: 1 }}>
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-two-thirds">
-              <h1 className="govuk-heading-l">Tambah Penanggung Jawab</h1>
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          style={{ width: "100%", maxWidth: "clamp(480px, 60vw, 760px)", background: "#fff", border: "1px solid #b1b4b6" }}
+        >
+          <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
+            <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
+              Tambah Penanggung Jawab
+            </h1>
+          </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} noValidate>
-                <fieldset className="govuk-fieldset">
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h2 className="govuk-fieldset__heading">Data Pribadi</h2>
-                  </legend>
-
-                  {fields.map((f) => (
-                    <Controller
-                      key={f.name}
-                      name={f.name}
-                      control={control}
-                      render={({ field }) => (
-                        <GovukFormGroup
-                          id={f.name}
-                          label={f.label}
-                          error={errors[f.name]?.message}
-                        >
-                          <GovukInput
-                            {...field}
-                            id={f.name}
-                            type={f.type || "text"}
-                            placeholder={f.placeholder}
-                            maxLength={f.maxLength}
-                            error={!!errors[f.name]}
-                            style={{ width: "100%" }}
-                          />
-                        </GovukFormGroup>
-                      )}
-                    />
-                  ))}
-                </fieldset>
-
-                <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-                  <GovukButton type="submit" isLoading={loading}>
-                    Simpan
-                  </GovukButton>
-                  <GovukButton
-                    type="button"
-                    variant="secondary"
-                    onClick={() => router.push("/layanan/penanggung-jawab")}
-                  >
-                    Batal
-                  </GovukButton>
+          <div style={{ padding: "clamp(14px, 2vw, 22px)" }}>
+            <div className="ent-section-heading">Data Pribadi</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))", gap: "10px 16px", marginBottom: 16 }}>
+              {fields.map((f) => (
+                <div key={f.name} style={f.fullWidth ? { gridColumn: "1 / -1" } : {}}>
+                  <Controller
+                    name={f.name}
+                    control={control}
+                    render={({ field }) => (
+                      <GovukFormGroup label={f.label} hint={f.hint} error={errors[f.name]?.message}>
+                        <GovukInput
+                          {...field}
+                          type={f.type || "text"}
+                          placeholder={f.placeholder}
+                          maxLength={f.maxLength}
+                          error={!!errors[f.name]}
+                          style={{ width: "100%" }}
+                        />
+                      </GovukFormGroup>
+                    )}
+                  />
                 </div>
-              </form>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 12, borderTop: "1px solid #b1b4b6" }}>
+              <GovukButton type="button" variant="secondary" onClick={() => router.push("/layanan/penanggung-jawab")}>
+                Batal
+              </GovukButton>
+              <GovukButton type="submit" isLoading={loading}>
+                Simpan
+              </GovukButton>
             </div>
           </div>
-        </main>
-      </div>
+        </form>
+      </main>
 
       <Footer />
     </div>

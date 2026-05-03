@@ -44,89 +44,61 @@ export default function AddKontakPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <div className="govuk-width-container" style={{ flex: 1 }}>
-        <main className="govuk-main-wrapper" id="main-content" role="main">
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-two-thirds">
-              <h1 className="govuk-heading-l">Tambah Kontak Admin</h1>
+      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          style={{ width: "100%", maxWidth: "clamp(480px, 60vw, 760px)", background: "#fff", border: "1px solid #b1b4b6" }}
+        >
+          <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
+            <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
+              Tambah Kontak Admin
+            </h1>
+          </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} noValidate>
-                <fieldset className="govuk-fieldset">
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h2 className="govuk-fieldset__heading">Informasi Kontak</h2>
-                  </legend>
+          <div style={{ padding: "clamp(14px, 2vw, 22px)" }}>
+            <div className="ent-section-heading">Informasi Kontak</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))", gap: "10px 16px", marginBottom: 16 }}>
+              <Controller name="name" control={control} render={({ field }) => (
+                <GovukFormGroup label="Nama" error={errors.name?.message}>
+                  <GovukInput {...field} error={!!errors.name} style={{ width: "100%" }} />
+                </GovukFormGroup>
+              )} />
+              <Controller name="email" control={control} render={({ field }) => (
+                <GovukFormGroup label="Email" error={errors.email?.message}>
+                  <GovukInput {...field} type="email" error={!!errors.email} style={{ width: "100%" }} />
+                </GovukFormGroup>
+              )} />
+              <Controller name="contact" control={control} render={({ field }) => (
+                <GovukFormGroup label="No. Kontak" hint="Diawali 08, 10–14 digit" error={errors.contact?.message}>
+                  <GovukInput {...field} placeholder="08XXXXXXXXX" error={!!errors.contact} style={{ width: "100%" }} />
+                </GovukFormGroup>
+              )} />
+            </div>
 
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <GovukFormGroup id="name" label="Nama" error={errors.name?.message}>
-                        <GovukInput {...field} id="name" error={!!errors.name} style={{ width: "100%" }} />
-                      </GovukFormGroup>
-                    )}
-                  />
+            <div className="ent-section-heading">Keamanan Akun</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(clamp(180px, 25vw, 240px), 1fr))", gap: "10px 16px", marginBottom: 16 }}>
+              <Controller name="password" control={control} render={({ field }) => (
+                <GovukFormGroup label="Password" error={errors.password?.message}>
+                  <GovukInput {...field} type="password" error={!!errors.password} style={{ width: "100%" }} />
+                </GovukFormGroup>
+              )} />
+            </div>
 
-                  <Controller
-                    name="email"
-                    control={control}
-                    render={({ field }) => (
-                      <GovukFormGroup id="email" label="Email" error={errors.email?.message}>
-                        <GovukInput {...field} id="email" type="email" error={!!errors.email} style={{ width: "100%" }} />
-                      </GovukFormGroup>
-                    )}
-                  />
-
-                  <Controller
-                    name="contact"
-                    control={control}
-                    render={({ field }) => (
-                      <GovukFormGroup id="contact" label="No. Kontak" error={errors.contact?.message}>
-                        <GovukInput {...field} id="contact" placeholder="08XXXXXXXXX" error={!!errors.contact} style={{ width: "100%" }} />
-                      </GovukFormGroup>
-                    )}
-                  />
-                </fieldset>
-
-                <fieldset className="govuk-fieldset" style={{ marginTop: 8 }}>
-                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h2 className="govuk-fieldset__heading">Keamanan Akun</h2>
-                  </legend>
-
-                  <Controller
-                    name="password"
-                    control={control}
-                    render={({ field }) => (
-                      <GovukFormGroup id="password" label="Password" error={errors.password?.message}>
-                        <GovukInput {...field} id="password" type="password" error={!!errors.password} style={{ width: "100%" }} />
-                      </GovukFormGroup>
-                    )}
-                  />
-                </fieldset>
-
-                <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-                  <GovukButton
-                    type="submit"
-                    isLoading={saving}
-                    disabled={role !== "admin"}
-                  >
-                    Simpan
-                  </GovukButton>
-                  <GovukButton
-                    type="button"
-                    variant="secondary"
-                    onClick={() => router.push("/layanan/kontak")}
-                  >
-                    Batal
-                  </GovukButton>
-                </div>
-              </form>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 12, borderTop: "1px solid #b1b4b6" }}>
+              <GovukButton type="button" variant="secondary" onClick={() => router.push("/layanan/kontak")}>
+                Batal
+              </GovukButton>
+              <GovukButton type="submit" isLoading={saving} disabled={role !== "admin"}>
+                Simpan
+              </GovukButton>
             </div>
           </div>
-        </main>
-      </div>
+        </form>
+      </main>
 
       <Footer />
     </div>

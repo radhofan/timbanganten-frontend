@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { X, UserPlus, Users, Mail, Phone, User as UserIcon } from "lucide-react";
-import { GovukButton, GovukInput } from "@/components/govuk";
+import { X, UserPlus, Users, Mail, Phone, User as UserIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { GovukButton, GovukInput, GovukTable, GovukTableHead, GovukTableBody, GovukTableRow, GovukTableHeader, GovukTableCell } from "@/components/govuk";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User, Makam, PenanggungJawab, MakamStatus } from "@/lib/types";
@@ -23,6 +23,40 @@ export default function UserDetail() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [addingPJ, setAddingPJ] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(userMakams.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = userMakams.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const getPageNumbers = (): (number | string)[] => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (currentPage <= 3) {
+      for (let i = 1; i <= 4; i++) pages.push(i);
+      pages.push("...");
+      pages.push(totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1);
+      pages.push("...");
+      for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      pages.push("...");
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+      pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -178,7 +212,8 @@ export default function UserDetail() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main style={{ flex: 1 }} className="page-container">
+      <main style={{ flex: 1, padding: "12px 16px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         {loading && !user ? (
           <div style={{ padding: "40px 0", color: "#505a5f", fontSize: "0.875rem" }}>
             Memuat data penanggung jawab...
@@ -186,14 +221,12 @@ export default function UserDetail() {
         ) : (
           <>
             {/* Page title */}
-            <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 14 }}>
-              <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
-                Detail Penanggung Jawab
-              </h1>
-            </div>
+            <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: "0 0 12px", paddingBottom: 8, borderBottom: "1px solid #b1b4b6" }}>
+              Detail Penanggung Jawab
+            </h1>
 
             {/* ── User Info Panel ── */}
-            <div style={{ background: "#fff", border: "1px solid #505a5f", borderTop: "3px solid #1d70b8", marginBottom: 12 }}>
+            <div style={{ background: "#fff", border: "1px solid #b1b4b6", borderTop: "3px solid #1d70b8", marginBottom: 12 }}>
               {/* Header bar */}
               <div style={{ background: "#f3f2f1", padding: "10px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #b1b4b6" }}>
                 <div style={{ background: "#1d70b8", padding: "5px 8px", display: "flex", alignItems: "center" }}>
@@ -246,137 +279,90 @@ export default function UserDetail() {
             </div>
 
             {/* ── Makam Table ── */}
-            <div style={{ background: "#fff", border: "1px solid #505a5f" }}>
-              {/* Table header bar */}
-              <div style={{
-                background: "#f3f2f1", padding: "8px 14px",
-                borderBottom: "1px solid #b1b4b6",
-                display: "flex", alignItems: "center", gap: 8,
-              }}>
-                <span style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#0b0c0c", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  Daftar Makam
-                </span>
-                <span style={{ fontSize: "0.75rem", color: "#505a5f", fontWeight: 600 }}>
-                  {userMakams.length} data
-                </span>
-              </div>
-
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8125rem" }}>
-                  <thead>
-                    <tr style={{ background: "#f3f2f1", borderBottom: "1px solid #b1b4b6" }}>
-                      {TABLE_HEADERS.map((h) => (
-                        <th key={h} style={{
-                          padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)",
-                          textAlign: "left", fontWeight: 700,
-                          fontSize: "0.6875rem", textTransform: "uppercase",
-                          letterSpacing: "0.04em", whiteSpace: "nowrap",
-                          color: "#0b0c0c",
-                        }}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {userMakams.length > 0 ? (
-                      userMakams.map((m, index) => {
-                        const supervisors = getSupervisors(m.id);
-                        const isMakam = m.__isMakam;
-
-                        return (
-                          <tr
-                            key={m.id}
-                            style={{
-                              background: index % 2 === 0 ? "#fff" : "#f3f2f1",
-                              borderBottom: "1px solid #e4e4e4",
-                            }}
-                          >
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)", fontWeight: 700, color: "#0b0c0c" }}>
-                              {m.blok?.id}
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)" }}>
-                              <span style={{
-                                fontSize: "0.6875rem", fontWeight: 700,
-                                padding: "2px 6px", background: "#e8f5e9",
-                                color: "#00703c", border: "1px solid #00703c",
-                              }}>
-                                {m.blok?.statusBlok || ""}
-                              </span>
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)", color: "#0b0c0c" }}>
-                              {m.jenazah?.user?.name || "-"}
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)", color: "#505a5f" }}>
-                              {m.jenazah?.user?.relasiOrang2?.[0]?.jenisHubungan || "-"}
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)", color: "#505a5f" }}>
-                              {m.tanggalPemesanan
-                                ? new Date(m.tanggalPemesanan).toLocaleDateString("id-ID")
-                                : "-"}
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)" }}>
-                              <StatusLabel
-                                id={`statusPesanan-${m.id}`}
-                                label=""
-                                value={m.jenazah?.statusPembayaranPesanan || "-"}
-                                readOnly
-                                disabled
-                                size="small"
-                              />
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)", color: "#505a5f" }}>
-                              {"-"}
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)", color: "#505a5f" }}>
-                              {m.jenazah?.masaAktif
-                                ? new Date(m.jenazah.masaAktif).toLocaleDateString("id-ID")
-                                : "-"}
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)" }}>
-                              <StatusLabel
-                                id={`statusIuran-${m.id}`}
-                                label=""
-                                value={m.jenazah?.statusPembayaranIuranTahunan || "-"}
-                                readOnly
-                                disabled
-                                size="small"
-                              />
-                            </td>
-                            <td style={{ padding: "clamp(4px,0.4vw,6px) clamp(6px,0.6vw,10px)" }}>
-                              {isMakam ? (
-                                <GovukButton
-                                  variant="secondary"
-                                  onClick={() => openModal(m)}
-                                >
-                                  <Users size={13} style={{ marginRight: 4 }} />
-                                  Daftar PJ ({supervisors.length})
-                                </GovukButton>
-                              ) : (
-                                <span style={{ fontSize: "0.6875rem", color: "#505a5f" }}>
-                                  Hanya Makam Aktif
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={10}
-                          style={{ padding: "24px", textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}
-                        >
-                          Belum ada data makam.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+            <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 12 }}>
+              <h2 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
+                Daftar Makam
+              </h2>
             </div>
+
+            <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
+              Menampilkan {currentItems.length} dari {userMakams.length} makam
+            </p>
+
+            <GovukTable>
+              <GovukTableHead>
+                <GovukTableRow>
+                  {TABLE_HEADERS.map((h, i) => (
+                    <GovukTableHeader key={h} last={i === TABLE_HEADERS.length - 1}>{h}</GovukTableHeader>
+                  ))}
+                </GovukTableRow>
+              </GovukTableHead>
+              <GovukTableBody>
+                {currentItems.length > 0 ? (
+                  currentItems.map((m) => {
+                    const supervisors = getSupervisors(m.id);
+                    const isMakam = m.__isMakam;
+                    return (
+                      <GovukTableRow key={m.id}>
+                        <GovukTableCell style={{ fontWeight: 700 }}>{m.blok?.id}</GovukTableCell>
+                        <GovukTableCell style={{ fontWeight: 700 }}>{m.blok?.statusBlok || ""}</GovukTableCell>
+                        <GovukTableCell>{m.jenazah?.user?.name || "-"}</GovukTableCell>
+                        <GovukTableCell>{m.jenazah?.user?.relasiOrang2?.[0]?.jenisHubungan || "-"}</GovukTableCell>
+                        <GovukTableCell>{m.tanggalPemesanan ? new Date(m.tanggalPemesanan).toLocaleDateString("id-ID") : "-"}</GovukTableCell>
+                        <GovukTableCell>
+                          <StatusLabel id={`statusPesanan-${m.id}`} label="" value={m.jenazah?.statusPembayaranPesanan || "-"} readOnly disabled size="small" />
+                        </GovukTableCell>
+                        <GovukTableCell>{"-"}</GovukTableCell>
+                        <GovukTableCell>{m.jenazah?.masaAktif ? new Date(m.jenazah.masaAktif).toLocaleDateString("id-ID") : "-"}</GovukTableCell>
+                        <GovukTableCell>
+                          <StatusLabel id={`statusIuran-${m.id}`} label="" value={m.jenazah?.statusPembayaranIuranTahunan || "-"} readOnly disabled size="small" />
+                        </GovukTableCell>
+                        <GovukTableCell last>
+                          {isMakam ? (
+                            <GovukButton variant="secondary" onClick={() => openModal(m)}>
+                              <Users size={13} style={{ marginRight: 4 }} />
+                              Daftar PJ ({supervisors.length})
+                            </GovukButton>
+                          ) : (
+                            <span style={{ fontSize: "0.6875rem", color: "#505a5f" }}>Hanya Makam Aktif</span>
+                          )}
+                        </GovukTableCell>
+                      </GovukTableRow>
+                    );
+                  })
+                ) : (
+                  <GovukTableRow>
+                    <GovukTableCell colSpan={10} style={{ textAlign: "center", color: "#505a5f" }}>
+                      Belum ada data makam.
+                    </GovukTableCell>
+                  </GovukTableRow>
+                )}
+              </GovukTableBody>
+            </GovukTable>
+
+            {userMakams.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10, padding: "6px 10px", background: "#fff", border: "1px solid #b1b4b6" }}>
+                <div style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
+                  Halaman {currentPage} dari {totalPages}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ display: "flex", alignItems: "center", gap: 3, padding: "4px 10px", fontSize: "0.8125rem", fontWeight: 600, background: currentPage === 1 ? "#f3f2f1" : "#fff", color: currentPage === 1 ? "#b1b4b6" : "#0b0c0c", border: "1px solid", borderColor: currentPage === 1 ? "#b1b4b6" : "#505a5f", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}>
+                    <ChevronLeft size={14} /> Prev
+                  </button>
+                  {getPageNumbers().map((page, index) => (
+                    <button key={index} onClick={() => typeof page === "number" && handlePageChange(page)} disabled={page === "..."} style={{ padding: "4px 10px", fontSize: "0.8125rem", fontWeight: 600, background: page === currentPage ? "#1d70b8" : "#fff", color: page === currentPage ? "#fff" : page === "..." ? "#b1b4b6" : "#0b0c0c", border: "1px solid", borderColor: page === currentPage ? "#003078" : "#b1b4b6", cursor: page === "..." ? "default" : "pointer", minWidth: 32 }}>
+                      {page}
+                    </button>
+                  ))}
+                  <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ display: "flex", alignItems: "center", gap: 3, padding: "4px 10px", fontSize: "0.8125rem", fontWeight: 600, background: currentPage === totalPages ? "#f3f2f1" : "#fff", color: currentPage === totalPages ? "#b1b4b6" : "#0b0c0c", border: "1px solid", borderColor: currentPage === totalPages ? "#b1b4b6" : "#505a5f", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}>
+                    Next <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
+        </div>
       </main>
 
       <Footer />
