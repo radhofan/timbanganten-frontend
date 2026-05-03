@@ -4,7 +4,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Makam, MakamStatus, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { GovukButton, GovukTag, GovukPagination, GovukTable, GovukTableHead, GovukTableBody, GovukTableRow, GovukTableHeader, GovukTableCell, GovukInput } from "@/components/govuk";
+import { GovukButton, GovukTag, GovukTable, GovukTableHead, GovukTableBody, GovukTableRow, GovukTableHeader, GovukTableCell, GovukInput } from "@/components/govuk";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type PenanggungJawabData = {
   userId: string;
@@ -66,11 +67,35 @@ export default function PenanggungJawab() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const getPageNumbers = (): (number | string)[] => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (currentPage <= 3) {
+      for (let i = 1; i <= 4; i++) pages.push(i);
+      pages.push("...");
+      pages.push(totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1);
+      pages.push("...");
+      for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      pages.push("...");
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+      pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header hideBanner />
 
-      <div style={{ flex: 1 }} className="page-container">
+      <div style={{ flex: 1, padding: "12px 16px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <main id="main-content" role="main">
           <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 12 }}>
             <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
@@ -153,11 +178,27 @@ export default function PenanggungJawab() {
           )}
 
           {!loading && filteredData.length > 0 && (
-            <div style={{ marginTop: 16 }}>
-              <GovukPagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginTop: 10, padding: "6px 10px", background: "#fff", border: "1px solid #b1b4b6" }}>
+              <div style={{ fontSize: "0.8125rem", color: "#505a5f", fontWeight: 600 }}>
+                Halaman {currentPage} dari {totalPages}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ display: "flex", alignItems: "center", gap: 3, padding: "4px 10px", fontSize: "0.8125rem", fontWeight: 600, background: currentPage === 1 ? "#f3f2f1" : "#fff", color: currentPage === 1 ? "#b1b4b6" : "#0b0c0c", border: "1px solid", borderColor: currentPage === 1 ? "#b1b4b6" : "#505a5f", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}>
+                  <ChevronLeft size={14} /> Prev
+                </button>
+                {getPageNumbers().map((page, index) => (
+                  <button key={index} onClick={() => typeof page === "number" && handlePageChange(page)} disabled={page === "..."} style={{ padding: "4px 10px", fontSize: "0.8125rem", fontWeight: 600, background: page === currentPage ? "#1d70b8" : "#fff", color: page === currentPage ? "#fff" : page === "..." ? "#b1b4b6" : "#0b0c0c", border: "1px solid", borderColor: page === currentPage ? "#003078" : "#b1b4b6", cursor: page === "..." ? "default" : "pointer", minWidth: 32 }}>
+                    {page}
+                  </button>
+                ))}
+                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ display: "flex", alignItems: "center", gap: 3, padding: "4px 10px", fontSize: "0.8125rem", fontWeight: 600, background: currentPage === totalPages ? "#f3f2f1" : "#fff", color: currentPage === totalPages ? "#b1b4b6" : "#0b0c0c", border: "1px solid", borderColor: currentPage === totalPages ? "#b1b4b6" : "#505a5f", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}>
+                  Next <ChevronRight size={14} />
+                </button>
+              </div>
             </div>
           )}
         </main>
+        </div>
       </div>
 
       <Footer />

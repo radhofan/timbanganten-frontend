@@ -92,6 +92,7 @@ export default function Status() {
       <Header hideBanner />
 
       <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         {/* Header row */}
         <div style={{ marginBottom: 12, borderBottom: "1px solid #b1b4b6", paddingBottom: 10 }}>
           <h1
@@ -365,6 +366,7 @@ export default function Status() {
             </div>
           </div>
         )}
+        </div>
       </main>
 
       <Footer />
