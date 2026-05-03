@@ -16,8 +16,8 @@
 TRUNCATE TABLE 
     "MakamStatus",
     "Makam",
-    "_PJ_MakamToMakam",
-    "_PJ_MakamStatusToMakamStatus",
+    "_PJ_Makam",
+    "_PJ_MakamStatus",
     "Jenazah",
     "PenanggungJawab",
     "RelasiOrang",

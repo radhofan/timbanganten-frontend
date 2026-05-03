@@ -56,22 +56,25 @@ export async function POST(request: Request) {
   const errors: Record<string, string> = {};
 
   // --- UNIQUE FIELD CHECKS --- //////////////////////////
-  if (body.userPAEmail) {
-    const existingEmail = await prisma.user.findUnique({
-      where: { email: body.userPAEmail },
-    });
-    if (existingEmail) errors.userPAEmail = "Email sudah digunakan";
-  }
+  // Skip when reusing an existing PJ — the user already exists in the DB.
+  if (!body.existingUserId) {
+    if (body.userPAEmail) {
+      const existingEmail = await prisma.user.findUnique({
+        where: { email: body.userPAEmail },
+      });
+      if (existingEmail) errors.userPAEmail = "Email sudah digunakan";
+    }
 
-  if (body.userPAKTP) {
-    const existingKTP = await prisma.user.findUnique({
-      where: { ktpNum: body.userPAKTP },
-    });
-    if (existingKTP) errors.userPAKTP = "KTP sudah digunakan";
-  }
+    if (body.userPAKTP) {
+      const existingKTP = await prisma.user.findUnique({
+        where: { ktpNum: body.userPAKTP },
+      });
+      if (existingKTP) errors.userPAKTP = "KTP sudah digunakan";
+    }
 
-  if (Object.keys(errors).length > 0) {
-    return NextResponse.json({ errors }, { status: 409 });
+    if (Object.keys(errors).length > 0) {
+      return NextResponse.json({ errors }, { status: 409 });
+    }
   }
 
   // --- TRANSACTION --- //////////////////////////

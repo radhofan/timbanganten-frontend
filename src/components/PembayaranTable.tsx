@@ -156,7 +156,7 @@ export default function JenazahTable(): JSX.Element {
       {/* Page title */}
       <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 12 }}>
         <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
-          Daftar Jenazah &amp; Pembayaran
+          Daftar Almarhum/ah &amp; Pembayaran
         </h1>
       </div>
 
@@ -208,7 +208,7 @@ export default function JenazahTable(): JSX.Element {
       {/* Result count */}
       {!loading && (
         <p style={{ fontSize: "0.75rem", color: "#505a5f", margin: "4px 0 6px" }}>
-          Menampilkan {visibleData.length} dari {total} jenazah
+          Menampilkan {visibleData.length} dari {total} almarhum/ah
           {filtered.length !== data.length && ` (difilter dari ${data.length} total)`}
         </p>
       )}
@@ -223,7 +223,7 @@ export default function JenazahTable(): JSX.Element {
             <GovukTableRow>
               <GovukTableHeader sortKey="blok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Blok</GovukTableHeader>
               <GovukTableHeader sortKey="statusBlok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Blok</GovukTableHeader>
-              <GovukTableHeader sortKey="statusJenazah" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama Jenazah</GovukTableHeader>
+              <GovukTableHeader sortKey="statusJenazah" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama Almarhum/ah</GovukTableHeader>
               <GovukTableHeader sortKey="tanggalPemakaman" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Tanggal Pemakaman</GovukTableHeader>
               <GovukTableHeader sortKey="pj" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Penanggung Jawab</GovukTableHeader>
               <GovukTableHeader sortKey="masaAktif" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Masa Aktif</GovukTableHeader>
@@ -353,7 +353,7 @@ export default function JenazahTable(): JSX.Element {
               <GovukSummaryList>
                 <GovukSummaryListRow label="Blok" value={selectedPesanan.blok?.id || "-"} />
                 <GovukSummaryListRow
-                  label="Nama Jenazah"
+                  label="Nama Almarhum/ah"
                   value={selectedPesanan.user?.name || "-"}
                 />
                 <GovukSummaryListRow
@@ -436,7 +436,7 @@ export default function JenazahTable(): JSX.Element {
               <GovukSummaryList>
                 <GovukSummaryListRow label="Blok" value={selectedIuran.blok?.id || "-"} />
                 <GovukSummaryListRow
-                  label="Nama Jenazah"
+                  label="Nama Almarhum/ah"
                   value={selectedIuran.user?.name || "-"}
                 />
                 <GovukSummaryListRow

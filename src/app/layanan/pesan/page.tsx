@@ -20,7 +20,6 @@ import {
   pemesananDefaultValues,
   PemesananPayload,
   pemesananSchema,
-  Silsilah,
 } from "@/validation/pemesanan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -63,11 +62,12 @@ export default function Pemesanan() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [blokListFetched, setBlokListFetched] = useState(false);
+  const [, setBlokListFetched] = useState(false);
   const [selectedBlok, setSelectedBlok] = useState<string>("");
 
   const [step, setStep] = useState(1);
   const [stepError, setStepError] = useState("");
+  const [step2Attempted, setStep2Attempted] = useState(false);
 
   const {
     control,
@@ -76,9 +76,10 @@ export default function Pemesanan() {
     setValue,
     watch,
     trigger,
+    clearErrors,
   } = useForm<PemesananPayload>({
     resolver: zodResolver(pemesananSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: pemesananDefaultValues,
   });
 
@@ -131,15 +132,22 @@ export default function Pemesanan() {
         setStepError("Pilih penanggung jawab terlebih dahulu.");
         return;
       }
+      if (useExisting && selectedUser) {
+        setValue("existingUserId", selectedUser.id);
+      }
       if (!useExisting) {
+        setValue("existingUserId", undefined);
         const valid = await trigger(["userPAName", "userPAContact", "userPAEmail", "emergencyName", "emergencyContact", "userPAKTP"]);
         if (!valid) return;
       }
+      clearErrors(["namaJenazah", "blokId", "lokasi", "silsilah", "tanggalPemesanan"]);
     }
 
     if (step === 2) {
+      setStep2Attempted(true);
       const valid = await trigger(["namaJenazah", "blokId", "lokasi", "silsilah", "tanggalPemesanan"]);
       if (!valid) return;
+      setStepError("");
     }
 
     setStep((s) => s + 1);
@@ -147,6 +155,10 @@ export default function Pemesanan() {
 
   const handlePrevStep = () => {
     setStepError("");
+    if (step === 2) {
+      setStep2Attempted(false);
+      clearErrors(["userPAName", "userPAContact", "userPAEmail", "emergencyName", "emergencyContact", "userPAKTP"]);
+    }
     setStep((s) => s - 1);
   };
 
@@ -171,10 +183,6 @@ export default function Pemesanan() {
             pjContact: selectedUser.contact,
             emergencyName: selectedUser.emergencyName,
             emergencyContact: selectedUser.emergencyContact,
-            userPAName: data.userPAName,
-            userPAContact: data.userPAContact,
-            userPAEmail: data.userPAEmail,
-            userPAKTP: data.userPAKTP,
           }
         : {
             userPAName: data.userPAName,
@@ -361,18 +369,16 @@ export default function Pemesanan() {
                     }}
                   >
                     {[
-                      { name: "userPAName" as const, label: "Nama Penanggung Jawab", placeholder: "Masukkan Nama PJ" },
-                      { name: "userPAContact" as const, label: "No. Kontak", placeholder: "08XXXXXXXXX" },
-                      { name: "userPAEmail" as const, label: "Email", placeholder: "user@gmail.com", type: "email" },
-                      { name: "emergencyName" as const, label: "Nama Kontak Darurat", placeholder: "Masukkan Nama" },
-                      { name: "emergencyContact" as const, label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX" },
+                      { name: "userPAName" as const, label: "Nama Penanggung Jawab", placeholder: "Masukkan Nama PJ", hint: "Nama lengkap penanggung jawab" },
+                      { name: "userPAContact" as const, label: "No. Kontak", placeholder: "08XXXXXXXXX", hint: "Diawali 08, 10–14 digit. Contoh: 081234567890" },
+                      { name: "userPAEmail" as const, label: "Email", placeholder: "user@gmail.com", type: "email", hint: "Format: nama@domain.com" },
                     ].map((f) => (
                       <Controller
                         key={f.name}
                         name={f.name}
                         control={control}
                         render={({ field }) => (
-                          <GovukFormGroup label={f.label} error={errors[f.name]?.message}>
+                          <GovukFormGroup label={f.label} hint={f.hint} error={errors[f.name]?.message}>
                             <GovukInput {...field} placeholder={f.placeholder} type={f.type || "text"} style={{ width: "100%" }} />
                           </GovukFormGroup>
                         )}
@@ -383,7 +389,7 @@ export default function Pemesanan() {
                       name="userPAKTP"
                       control={control}
                       render={({ field }) => (
-                        <GovukFormGroup label="No. KTP Pemesan" error={errors.userPAKTP?.message}>
+                        <GovukFormGroup label="No. KTP Pemesan" hint="16 digit angka. Contoh: 3201012345670001" error={errors.userPAKTP?.message}>
                           <GovukInput
                             {...field}
                             maxLength={16}
@@ -393,6 +399,22 @@ export default function Pemesanan() {
                         </GovukFormGroup>
                       )}
                     />
+
+                    {[
+                      { name: "emergencyName" as const, label: "Nama Kontak Darurat", placeholder: "Masukkan Nama", hint: "Nama lengkap kontak darurat" },
+                      { name: "emergencyContact" as const, label: "No. Kontak Darurat", placeholder: "08XXXXXXXXX", hint: "Diawali 08, 10–14 digit. Contoh: 081234567890" },
+                    ].map((f) => (
+                      <Controller
+                        key={f.name}
+                        name={f.name}
+                        control={control}
+                        render={({ field }) => (
+                          <GovukFormGroup label={f.label} hint={f.hint} error={errors[f.name]?.message}>
+                            <GovukInput {...field} placeholder={f.placeholder} style={{ width: "100%" }} />
+                          </GovukFormGroup>
+                        )}
+                      />
+                    ))}
                   </div>
                 )}
               </>
@@ -411,14 +433,14 @@ export default function Pemesanan() {
                     marginBottom: 16,
                   }}
                 >
-                  {/* Nama Jenazah — full width */}
+                  {/* Nama Almarhum/ah — full width */}
                   <div style={{ gridColumn: "1 / -1" }}>
                     <Controller
                       name="namaJenazah"
                       control={control}
                       render={({ field }) => (
-                        <GovukFormGroup label="Nama Jenazah" error={errors.namaJenazah?.message}>
-                          <GovukInput {...field} placeholder="Nama Jenazah" style={{ width: "100%" }} />
+                        <GovukFormGroup label="Nama Almarhum/ah" hint="Nama lengkap almarhum/almarhumah" error={step2Attempted ? errors.namaJenazah?.message : undefined}>
+                          <GovukInput {...field} placeholder="Nama Almarhum/ah" style={{ width: "100%" }} />
                         </GovukFormGroup>
                       )}
                     />
@@ -429,7 +451,7 @@ export default function Pemesanan() {
                     name="lokasi"
                     control={control}
                     render={({ field }) => (
-                      <GovukFormGroup label="Lokasi Pemakaman" error={errors.lokasi?.message}>
+                      <GovukFormGroup label="Lokasi Pemakaman" hint="Pilih lokasi pemakaman yang tersedia" error={step2Attempted ? errors.lokasi?.message : undefined}>
                         <GovukSelect
                           value={field.value}
                           onChange={(e) => { const v = e.target.value; field.onChange(v); setLokasi(v); }}
@@ -445,20 +467,6 @@ export default function Pemesanan() {
                     )}
                   />
 
-                  {/* Jenis Makam */}
-                  <GovukFormGroup label="Jenis Makam">
-                    <GovukSelect
-                      value={jenisMakam}
-                      onChange={(e) => setJenisMakam(e.target.value)}
-                      style={{ width: "100%" }}
-                      options={[
-                        { value: "", label: "Pilih Jenis Makam" },
-                        { value: "baru", label: "Baru" },
-                        { value: "tumpuk", label: "Tumpuk" },
-                      ]}
-                    />
-                  </GovukFormGroup>
-
                   {/* Blok Kavling */}
                   <div>
                     <Controller
@@ -467,7 +475,8 @@ export default function Pemesanan() {
                       render={({ field }) => (
                         <GovukFormGroup
                           label="Blok Kavling"
-                          error={errors.blokId?.message}
+                          hint="Pilih lokasi dan jenis makam terlebih dahulu"
+                          error={step2Attempted ? errors.blokId?.message : undefined}
                         >
                           <GovukSelect
                             value={field.value}
@@ -518,12 +527,28 @@ export default function Pemesanan() {
                     </button>
                   </div>
 
+                  {/* Jenis Makam — derived from selected blok, read-only */}
+                  <GovukFormGroup label="Jenis Makam">
+                    <div style={{
+                      padding: "5px 8px",
+                      border: "2px solid #b1b4b6",
+                      background: "#f3f2f1",
+                      fontSize: "0.875rem",
+                      color: jenisMakam ? "#0b0c0c" : "#505a5f",
+                      minHeight: 35,
+                      display: "flex",
+                      alignItems: "center",
+                    }}>
+                      {jenisMakam === "baru" ? "Baru" : jenisMakam === "tumpuk" ? "Tumpuk" : "Ditentukan otomatis setelah pilih blok"}
+                    </div>
+                  </GovukFormGroup>
+
                   {/* Silsilah */}
                   <Controller
                     name="silsilah"
                     control={control}
                     render={({ field }) => (
-                      <GovukFormGroup label="Hubungan dengan Pemesan" error={errors.silsilah?.message}>
+                      <GovukFormGroup label="Hubungan dengan Almarhum/ah Sebagai:" hint="Pilih hubungan antara pemesan dengan almarhum/ah" error={step2Attempted ? errors.silsilah?.message : undefined}>
                         <GovukSelect
                           value={field.value}
                           onChange={(e) => field.onChange(e.target.value)}
@@ -542,7 +567,7 @@ export default function Pemesanan() {
                     name="tanggalPemesanan"
                     control={control}
                     render={({ field }) => (
-                      <GovukFormGroup label="Tanggal Pemesanan" error={errors.tanggalPemesanan?.message}>
+                      <GovukFormGroup label="Tanggal Pemesanan" hint="Tanggal saat pemesanan dilakukan" error={step2Attempted ? errors.tanggalPemesanan?.message : undefined}>
                         <GovukDateInput
                           id="tanggalPemesanan"
                           value={field.value}
@@ -630,7 +655,7 @@ export default function Pemesanan() {
                     </div>
                   </div>
                   <div style={{ padding: "12px 14px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 16px" }}>
-                    <ReviewField label="Nama Jenazah" value={watchedValues.namaJenazah || "-"} />
+                    <ReviewField label="Nama Almarhum/ah" value={watchedValues.namaJenazah || "-"} />
                     <ReviewField label="Lokasi" value={watchedValues.lokasi || "-"} />
                     <ReviewField label="Blok Kavling" value={selectedBlok || "-"} />
                     <ReviewField label="Status Blok" value={selectedBlokData?.statusBlok || "-"} />
@@ -673,12 +698,12 @@ export default function Pemesanan() {
             >
               <div>
                 {step > 1 && (
-                  <GovukButton variant="secondary" onClick={handlePrevStep} disabled={loading}>
+                  <GovukButton type="button" variant="secondary" onClick={handlePrevStep} disabled={loading}>
                     ← Kembali
                   </GovukButton>
                 )}
                 {step === 1 && (
-                  <GovukButton variant="warning" onClick={() => router.push("/")}>
+                  <GovukButton type="button" variant="warning" onClick={() => router.push("/")}>
                     Batal
                   </GovukButton>
                 )}
@@ -686,7 +711,7 @@ export default function Pemesanan() {
 
               <div>
                 {step < 3 && (
-                  <GovukButton onClick={handleNextStep}>
+                  <GovukButton type="button" onClick={handleNextStep}>
                     Lanjut →
                   </GovukButton>
                 )}

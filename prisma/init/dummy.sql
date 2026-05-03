@@ -47,9 +47,9 @@ INSERT INTO "Jenazah" (
     "userId",
     "blokId"
 ) VALUES
-('jenazah-001', '2024-01-15', 'DIMAKAMKAN', '2029-01-15', 'LUNAS', 'LUNAS', 'user-001', 'KU-1'),
-('jenazah-002', '2024-03-20', 'DIMAKAMKAN', '2029-03-20', 'LUNAS', 'LUNAS', 'user-002', 'KU-2'),
-('jenazah-003', '2024-06-10', 'DIMAKAMKAN', '2029-06-10', 'LUNAS', 'BELUM LUNAS', 'user-003', 'KU-3');
+('jenazah-001', '2024-01-15', 'DIKUBURKAN', '2025-01-15', 'LUNAS', 'LUNAS', 'user-001', 'KU-1'),
+('jenazah-002', '2024-03-20', 'DIKUBURKAN', '2025-03-20', 'LUNAS', 'LUNAS', 'user-002', 'KU-2'),
+('jenazah-003', '2024-06-10', 'DIKUBURKAN', '2025-06-10', 'LUNAS', 'BELUM LUNAS', 'user-003', 'KU-3');
 
 -- Reserved plots (not yet buried)
 INSERT INTO "Jenazah" (
@@ -81,29 +81,29 @@ INSERT INTO "Makam" (
 ('makam-003', 'Makam Bapak Hatta (Alm)', '2024-06-05', 'jenazah-003', 'KU-3');
 
 -- Link Penanggung Jawab to Makam
-INSERT INTO "_PJ_MakamToMakam" ("A", "B") VALUES
+INSERT INTO "_PJ_Makam" ("A", "B") VALUES
 ('makam-001', 'pj-001'),
 ('makam-002', 'pj-002'),
 ('makam-003', 'pj-003');
 
 -- Update Blok status for active plots
 UPDATE "Blok" SET 
-    "statusBlok" = 'TERISI',
-    "availability" = 'TIDAK TERSEDIA',
+    "statusBlok" = 'DIGUNAKAN-1',
+    "availability" = 'TERSEDIA',
     "statusPesanan" = 'TIDAK DIPESAN',
     "tanggalPemakamanTerakhir" = '2024-01-15'
 WHERE id = 'KU-1';
 
 UPDATE "Blok" SET 
-    "statusBlok" = 'TERISI',
-    "availability" = 'TIDAK TERSEDIA',
+    "statusBlok" = 'DIGUNAKAN-1',
+    "availability" = 'TERSEDIA',
     "statusPesanan" = 'TIDAK DIPESAN',
     "tanggalPemakamanTerakhir" = '2024-03-20'
 WHERE id = 'KU-2';
 
 UPDATE "Blok" SET 
-    "statusBlok" = 'TERISI',
-    "availability" = 'TIDAK TERSEDIA',
+    "statusBlok" = 'DIGUNAKAN-1',
+    "availability" = 'TERSEDIA',
     "statusPesanan" = 'TIDAK DIPESAN',
     "tanggalPemakamanTerakhir" = '2024-06-10'
 WHERE id = 'KU-3';
@@ -123,7 +123,7 @@ INSERT INTO "MakamStatus" (
 ('status-003', 'Pesanan untuk Bapak Budi', '2024-12-01', 'jenazah-006', 'KU-6');
 
 -- Link Penanggung Jawab to MakamStatus
-INSERT INTO "_PJ_MakamStatusToMakamStatus" ("A", "B") VALUES
+INSERT INTO "_PJ_MakamStatus" ("A", "B") VALUES
 ('status-001', 'pj-004'),
 ('status-002', 'pj-005'),
 ('status-003', 'pj-006');

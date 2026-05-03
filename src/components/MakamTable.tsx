@@ -201,8 +201,8 @@ export default function MakamTable(): JSX.Element {
             <GovukTableRow>
               <GovukTableHeader sortKey="blok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Blok Makam</GovukTableHeader>
               <GovukTableHeader sortKey="statusBlok" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Blok</GovukTableHeader>
-              <GovukTableHeader sortKey="nama" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama Jenazah</GovukTableHeader>
-              <GovukTableHeader sortKey="statusJenazah" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Jenazah</GovukTableHeader>
+              <GovukTableHeader sortKey="nama" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama Almarhum/ah</GovukTableHeader>
+              <GovukTableHeader sortKey="statusJenazah" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Status Almarhum/ah</GovukTableHeader>
               <GovukTableHeader sortKey="lokasi" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Lokasi</GovukTableHeader>
               <GovukTableHeader sortKey="namaPJ" currentSort={sortField} sortDir={sortOrder} onSort={handleSort}>Nama PJ</GovukTableHeader>
               {!isGuest && (

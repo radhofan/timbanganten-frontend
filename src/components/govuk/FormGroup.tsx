@@ -15,7 +15,7 @@ export function GovukFormGroup({ id, label, hint, error, children, className = "
       <label className="govuk-label" htmlFor={id}>
         {label}
       </label>
-      {hint && <div className="govuk-hint" id={id ? `${id}-hint` : undefined}>{hint}</div>}
+      {hint && error && <div className="govuk-hint" id={id ? `${id}-hint` : undefined} style={{ fontSize: "0.7rem", color: "#d4351c", opacity: 0.75, marginBottom: 4 }}>{hint}</div>}
       {error && (
         <p className="govuk-error-message" id={id ? `${id}-error` : undefined}>
           <span className="govuk-visually-hidden">Error:</span> {error}

@@ -223,7 +223,7 @@ const Denah = () => {
                 {
                   label: "Availability",
                   value: selectedPlot.blok.availability,
-                  color: selectedPlot.blok.availability === "AVAILABLE" ? "#00703c" : "#d4351c",
+                  color: selectedPlot.blok.availability === "TERSEDIA" ? "#00703c" : "#d4351c",
                 },
                 { label: "Status Blok", value: selectedPlot.blok.statusBlok },
                 { label: "Status Pesanan", value: selectedPlot.blok.statusPesanan },

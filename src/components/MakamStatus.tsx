@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useStore } from "zustand";
 import { authStore } from "@/stores/useAuthStore";
-import { GovukDateInput, GovukButton, GovukSelect, GovukFormGroup, GovukInput, GovukTextarea, GovukWarningText } from "@/components/govuk";
+import { GovukButton } from "@/components/govuk";
 import { StatusLabel } from "./StatusLabel";
 import { useUserRoles } from "./CheckRole";
 import { makamDefaultValues, MakamPayload, makamSchema } from "@/validation/makam";
@@ -14,18 +14,42 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-const errorStyle: React.CSSProperties = {
-  fontSize: "0.75rem", fontWeight: 700, color: "#d4351c",
-  borderLeft: "4px solid #d4351c", background: "#fdf2f2", padding: "2px 8px", marginTop: 2,
-};
+// ── Compact field label+value display (read-only rows) ──────────────────────
+function InfoField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: "0.8125rem", color: "#0b0c0c" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Compact editable field ───────────────────────────────────────────────────
+function CompactField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>
+        {label}
+      </div>
+      {error && (
+        <div style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#d4351c", borderLeft: "3px solid #d4351c", paddingLeft: 5, marginBottom: 3 }}>
+          {error}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
 
 export default function MakamStatus({ page }: { page: string }) {
   const { id } = useParams();
   const { isAdmin } = useUserRoles();
   const endpoint = page === "pesan-status" ? "makamStatus" : "makam";
-  const [backendHadTanggalPemakaman, setBackendHadTanggalPemakaman] = useState<boolean | null>(
-    null
-  );
+  const [backendHadTanggalPemakaman, setBackendHadTanggalPemakaman] = useState<boolean | null>(null);
 
   const {
     control,
@@ -50,15 +74,16 @@ export default function MakamStatus({ page }: { page: string }) {
 
   const fetchData = useCallback(async () => {
     if (!id) return;
-
     try {
       setLoading(true);
-
       const res = await fetch(`/api/${endpoint}?id=${id}`);
       const data = await res.json();
 
       const backendTanggal = data.jenazah?.tanggalPemakaman;
       setBackendHadTanggalPemakaman((prev) => (prev === null ? Boolean(backendTanggal) : prev));
+
+      const toDateStr = (val: string | null | undefined) =>
+        val ? new Date(val).toISOString().slice(0, 10) : "";
 
       reset({
         namapj: data.pj?.[0]?.user?.name || "",
@@ -66,8 +91,8 @@ export default function MakamStatus({ page }: { page: string }) {
         namajenazah: data.jenazah.user.name || "",
         lokasi: data.blok.lokasi || "",
         notes: data.description || "",
-        tanggalPemesanan: data.tanggalPemesanan || "",
-        tanggalPemakaman: data.jenazah.tanggalPemakaman || "",
+        tanggalPemesanan: toDateStr(data.tanggalPemesanan),
+        tanggalPemakaman: toDateStr(data.jenazah.tanggalPemakaman),
         blok: data.blok?.id || "",
         statusBlok: data.blok.statusBlok || "",
         statusJenazah: data.jenazah.statusJenazah || "",
@@ -86,10 +111,6 @@ export default function MakamStatus({ page }: { page: string }) {
     fetchData();
   }, [fetchData]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   async function convertMakam(id: string): Promise<boolean> {
     try {
       const res = await fetch("/api/convertMakam", {
@@ -97,12 +118,10 @@ export default function MakamStatus({ page }: { page: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error?.error || "Konversi makam gagal");
       }
-
       return true;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -118,10 +137,8 @@ export default function MakamStatus({ page }: { page: string }) {
 
   const onSubmit = async (data: MakamPayload) => {
     setLoading(true);
-
     try {
       const validatedData = makamSchema.parse(data);
-
       const payload = {
         id,
         blok: validatedData.blok,
@@ -133,18 +150,13 @@ export default function MakamStatus({ page }: { page: string }) {
         tanggal_pemakaman: validatedData.tanggalPemakaman,
         tanggalPemesanan: validatedData.tanggalPemesanan,
       };
-
       const res = await fetch(`/api/${endpoint}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (res.ok) {
-        toast.success("Blok makam berhasil diperbarui!", {
-          position: "top-center",
-          duration: 2000,
-        });
+        toast.success("Blok makam berhasil diperbarui!", { position: "top-center", duration: 2000 });
         setTimeout(
           () => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam"),
           1500
@@ -152,288 +164,157 @@ export default function MakamStatus({ page }: { page: string }) {
       } else {
         const responseData = await res.json();
         if (responseData.errors) {
-          const allMessages = Object.values(responseData.errors).join("\n");
-          toast.error(allMessages, { position: "top-center", duration: 5000 });
+          toast.error(Object.values(responseData.errors).join("\n"), { position: "top-center", duration: 5000 });
         } else {
-          toast.error(responseData?.error || "Terjadi kesalahan saat memperbarui data.", {
-            position: "top-center",
-            duration: 5000,
-          });
+          toast.error(responseData?.error || "Terjadi kesalahan saat memperbarui data.", { position: "top-center", duration: 5000 });
         }
       }
     } catch (err: unknown) {
       console.error(err);
-      if (err instanceof Error) {
-        toast.error("Validasi atau pengiriman gagal: " + err.message, {
-          position: "top-center",
-          duration: 5000,
-        });
-      } else {
-        toast.error("Terjadi kesalahan tidak diketahui.", {
-          position: "top-center",
-          duration: 5000,
-        });
-      }
+      toast.error(err instanceof Error ? "Validasi atau pengiriman gagal: " + err.message : "Terjadi kesalahan tidak diketahui.", { position: "top-center", duration: 5000 });
     } finally {
       setLoading(false);
     }
   };
 
-  const isApproveReady =
-    watch("statusPembayaranPesanan") === "PAID" && !!watch("tanggalPemakaman");
+  const isApproveReady = watch("statusPembayaranPesanan") === "PAID" && !!watch("tanggalPemakaman");
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {loading ? (
-          <div style={{ padding: "40px 0", color: "#505a5f", fontSize: "0.875rem" }}>
-            Memuat data status pemesanan...
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            style={{ width: "100%", maxWidth: "clamp(480px, 60vw, 760px)", background: "#fff", border: "1px solid #b1b4b6", marginBottom: 24 }}
-          >
-            {/* GOV.UK page heading */}
-            <div style={{ padding: "clamp(12px, 2vw, 18px) clamp(14px, 2vw, 22px)", borderBottom: "1px solid #b1b4b6" }}>
-              <h1 style={{ margin: 0, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", fontWeight: 700, color: "#0b0c0c" }}>
-                Status Pemesanan Makam
-              </h1>
-            </div>
+      <main style={{ flex: 1, padding: "12px 16px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
-            <div style={{ padding: "clamp(12px, 2vw, 20px)" }}>
+          {/* Page title */}
+          <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: "0 0 12px", paddingBottom: 8, borderBottom: "1px solid #b1b4b6" }}>
+            {page === "pesan-status" ? "Status Pemesanan Makam" : "Detail Makam"}
+          </h1>
 
-              {/* ── Section 1: Informasi Dasar ── */}
-              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Informasi Dasar</div>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
-                gap: "10px 16px",
-                marginBottom: 20,
-              }}>
-                {/* Nama Jenazah */}
-                <Controller
-                  name="namajenazah"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <GovukFormGroup label="Nama Jenazah" error={fieldState.error?.message}>
-                      <GovukInput {...field} disabled={!canEdit} style={{ width: "100%" }} />
-                    </GovukFormGroup>
+          {loading ? (
+            <div style={{ color: "#505a5f", fontSize: "0.8125rem" }}>Memuat data...</div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div style={{ background: "#fff", border: "1px solid #b1b4b6", borderTop: "4px solid #1d70b8", padding: "20px 24px" }}>
+
+                {/* ── Row 1: all info fields flat in one grid ── */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "16px 24px", marginBottom: 20 }}>
+
+                  {canEdit ? (
+                    <Controller
+                      name="namajenazah"
+                      control={control}
+                      render={({ field, fieldState }) => (
+                        <CompactField label="Nama Almarhum/ah" error={fieldState.error?.message}>
+                          <input
+                            {...field}
+                            style={{ width: "100%", fontSize: "0.8125rem", padding: "3px 6px", border: "1px solid #b1b4b6", fontFamily: "inherit", boxSizing: "border-box", background: "#fff" }}
+                          />
+                        </CompactField>
+                      )}
+                    />
+                  ) : (
+                    <Controller
+                      name="namajenazah"
+                      control={control}
+                      render={({ field }) => (
+                        <InfoField label="Nama Almarhum/ah"><strong>{field.value || "-"}</strong></InfoField>
+                      )}
+                    />
                   )}
-                />
 
-                {/* Nama Penanggung Jawab */}
-                <Controller
-                  name="namapj"
-                  control={control}
-                  render={({ field }) => (
-                    <GovukFormGroup label="Nama Penanggung Jawab">
-                      <GovukInput {...field} disabled style={{ width: "100%" }} />
-                    </GovukFormGroup>
-                  )}
-                />
+                  <Controller name="namapj" control={control} render={({ field }) => (
+                    <InfoField label="Penanggung Jawab">{field.value || "-"}</InfoField>
+                  )} />
 
-                {/* No. Kontak PJ */}
-                <Controller
-                  name="kontak"
-                  control={control}
-                  render={({ field }) => (
-                    <GovukFormGroup label="No. Kontak PJ">
-                      <GovukInput {...field} disabled style={{ width: "100%" }} />
-                    </GovukFormGroup>
-                  )}
-                />
+                  <Controller name="kontak" control={control} render={({ field }) => (
+                    <InfoField label="No. Kontak PJ">{field.value || "-"}</InfoField>
+                  )} />
 
-                {/* Lokasi */}
-                <Controller
-                  name="lokasi"
-                  control={control}
-                  render={({ field }) => (
-                    <GovukFormGroup label="Lokasi">
-                      <GovukSelect
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        disabled
-                        style={{ width: "100%" }}
-                        options={[
-                          { value: "", label: "Pilih Lokasi Pemakaman" },
-                          { value: "Karang Anyar", label: "Karang Anyar" },
-                          { value: "Dalem Kaum", label: "Dalem Kaum" },
-                          { value: "Dayeuhkolot", label: "Dayeuhkolot" },
-                        ]}
-                      />
-                    </GovukFormGroup>
-                  )}
-                />
+                  <Controller name="lokasi" control={control} render={({ field }) => (
+                    <InfoField label="Lokasi">{field.value || "-"}</InfoField>
+                  )} />
 
-                {/* Blok Makam */}
-                <Controller
-                  name="blok"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <GovukFormGroup label="Blok Makam" error={fieldState.error?.message}>
-                      <GovukInput {...field} disabled style={{ width: "100%" }} />
-                    </GovukFormGroup>
-                  )}
-                />
-              </div>
+                  <Controller name="blok" control={control} render={({ field }) => (
+                    <InfoField label="Blok Makam"><strong style={{ color: "#1d70b8" }}>{field.value || "-"}</strong></InfoField>
+                  )} />
 
-              {/* ── Section 2: Tanggal ── */}
-              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Tanggal</div>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
-                gap: "10px 16px",
-                marginBottom: 20,
-              }}>
-                {/* Tanggal Pemesanan */}
-                <Controller
-                  name="tanggalPemesanan"
-                  control={control}
-                  render={({ field }) => (
-                    <GovukFormGroup label="Tanggal Pemesanan">
-                      <GovukDateInput id="tanggalPemesanan" value={field.value} onChange={(v) => field.onChange(v)} disabled style={{ width: "100%" }} />
-                    </GovukFormGroup>
-                  )}
-                />
+                  <Controller name="tanggalPemesanan" control={control} render={({ field }) => (
+                    <InfoField label="Tgl. Pemesanan">
+                      {field.value ? new Date(field.value).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "-"}
+                    </InfoField>
+                  )} />
 
-                {/* Tanggal Pemakaman */}
-                <div>
-                  <Controller
-                    name="tanggalPemakaman"
-                    control={control}
-                    render={({ field }) => (
-                      <GovukFormGroup label="Tanggal Pemakaman">
-                        <GovukDateInput
-                          id="tanggalPemakaman"
-                          value={field.value}
-                          onChange={(v) => field.onChange(v)}
-                          disabled={!canEdit || isTanggalPemakamanLocked}
-                          style={{ width: "100%" }}
+                  <Controller name="tanggalPemakaman" control={control} render={({ field }) => (
+                    canEdit && !isTanggalPemakamanLocked ? (
+                      <CompactField label="Tgl. Pemakaman" error={errors.tanggalPemakaman?.message}>
+                        <input
+                          type="date"
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          style={{ width: "100%", fontSize: "0.8125rem", padding: "3px 6px", border: "1px solid #b1b4b6", fontFamily: "inherit", boxSizing: "border-box", background: "#fff" }}
                         />
-                      </GovukFormGroup>
-                    )}
-                  />
-                  <p className="govuk-hint" style={{ marginTop: -20, fontSize: "0.75rem" }}>Harap diisi sebelum approve</p>
+                      </CompactField>
+                    ) : (
+                      <InfoField label="Tgl. Pemakaman">
+                        {field.value ? new Date(field.value).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "-"}
+                      </InfoField>
+                    )
+                  )} />
+
+                  <Controller name="statusBlok" control={control} render={({ field }) => (
+                    <InfoField label="Status Blok"><StatusBadge value={field.value} /></InfoField>
+                  )} />
+
+                  <Controller name="statusJenazah" control={control} render={({ field }) => (
+                    <InfoField label="Status Almarhum/ah"><StatusBadge value={field.value} /></InfoField>
+                  )} />
+
+                  <Controller name="statusPembayaranPesanan" control={control} render={({ field }) => (
+                    <InfoField label="Pembayaran Pesanan"><StatusBadge value={field.value || "UNKNOWN"} /></InfoField>
+                  )} />
+
+                  {page !== "pesan-status" && (
+                    <Controller name="statusPembayaranIuranTahunan" control={control} render={({ field }) => (
+                      <InfoField label="Iuran Tahunan"><StatusBadge value={field.value || "UNKNOWN"} /></InfoField>
+                    )} />
+                  )}
                 </div>
-              </div>
 
-              {/* ── Section 3: Status ── */}
-              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Status</div>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px, 28vw, 280px), 1fr))",
-                gap: "10px 16px",
-                marginBottom: 20,
-              }}>
-                <Controller
-                  name="statusBlok"
-                  control={control}
-                  render={({ field }) => (
-                    <StatusLabel
-                      label="Status Blok"
-                      id="statusBlok"
-                      {...field}
-                      readOnly
-                      disabled
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="statusJenazah"
-                  control={control}
-                  render={({ field }) => (
-                    <StatusLabel
-                      label="Status Jenazah"
-                      id="statusJenazah"
-                      {...field}
-                      readOnly
-                      disabled
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="statusPembayaranPesanan"
-                  control={control}
-                  render={({ field }) => (
-                    <StatusLabel
-                      label="Status Pembayaran Pesanan"
-                      id="statusPembayaranPesanan"
-                      value={field.value || "UNKNOWN"}
-                      readOnly
-                      disabled
-                    />
-                  )}
-                />
-
-                {page !== "pesan-status" && (
-                  <Controller
-                    name="statusPembayaranIuranTahunan"
-                    control={control}
-                    render={({ field }) => (
-                      <StatusLabel
-                        label="Status Pembayaran Iuran Tahunan"
-                        id="statusPembayaranIuranTahunan"
-                        value={field.value || "UNKNOWN"}
-                        readOnly
-                        disabled
+                {/* ── Notes ── */}
+                <Controller name="notes" control={control} render={({ field }) => (
+                  canEdit ? (
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Penjelasan</div>
+                      <textarea
+                        {...field}
+                        rows={3}
+                        style={{ width: "100%", fontSize: "0.8125rem", padding: "4px 6px", border: "1px solid #b1b4b6", fontFamily: "inherit", resize: "vertical", boxSizing: "border-box" }}
                       />
-                    )}
-                  />
-                )}
-              </div>
+                    </div>
+                  ) : field.value ? (
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Penjelasan</div>
+                      <div style={{ fontSize: "0.8125rem", color: "#0b0c0c" }}>{field.value}</div>
+                    </div>
+                  ) : null
+                )} />
 
-              {/* ── Section 4: Penjelasan ── */}
-              <div className="ent-section-heading" style={{ marginBottom: 12 }}>Penjelasan</div>
-              <Controller
-                name="notes"
-                control={control}
-                render={({ field }) => (
-                  <GovukTextarea
-                    {...field}
-                    rows={4}
-                    disabled={role !== "admin"}
-                  />
-                )}
-              />
-
-              {/* ── Action Buttons ── */}
-              <div style={{
-                borderTop: "1px solid #b1b4b6",
-                paddingTop: 12,
-                marginTop: 16,
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                gap: 8,
-                flexWrap: "wrap",
-              }}>
-                <GovukButton
-                  variant="warning"
-                  onClick={() => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam")}
-                >
-                  Batal
-                </GovukButton>
-
-                {role === "admin" && (
-                  <GovukButton type="submit">
-                    Perbarui
+                {/* ── Actions ── */}
+                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8, flexWrap: "wrap", paddingTop: 12, borderTop: "1px solid #f0f0f0" }}>
+                  {role === "approver" && page === "pesan-status" && !isApproveReady && (
+                    <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#d4351c", marginRight: "auto" }}>
+                      {watch("statusPembayaranPesanan") !== "PAID" && "Pembayaran belum PAID. "}
+                      {!watch("tanggalPemakaman") && "Tanggal pemakaman belum diisi."}
+                    </div>
+                  )}
+                  <GovukButton type="button" variant="secondary" onClick={() => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam")}>
+                    ← Kembali
                   </GovukButton>
-                )}
-
-                {role === "approver" && page === "pesan-status" && (
-                  <>
-                    {!isApproveReady && (
-                      <GovukWarningText>
-                        {watch("statusPembayaranPesanan") !== "PAID" && "Pembayaran pesanan belum PAID. "}
-                        {!watch("tanggalPemakaman") && "Tanggal pemakaman belum diisi."}
-                      </GovukWarningText>
-                    )}
+                  {role === "admin" && <GovukButton type="submit">Simpan</GovukButton>}
+                  {role === "approver" && page === "pesan-status" && (
                     <GovukButton
+                      type="button"
                       disabled={!isApproveReady}
                       onClick={() => {
                         if (!isApproveReady) return;
@@ -446,15 +327,47 @@ export default function MakamStatus({ page }: { page: string }) {
                     >
                       Approve
                     </GovukButton>
-                  </>
-                )}
+                  )}
+                </div>
+
               </div>
-            </div>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+// ── Inline status badge ──────────────────────────────────────────────────────
+function StatusBadge({ value }: { value: string | null | undefined }) {
+  if (!value) return <span style={{ color: "#505a5f", fontSize: "0.8125rem" }}>-</span>;
+
+  const colorMap: Record<string, { bg: string; color: string }> = {
+    PAID:      { bg: "#00703c", color: "#fff" },
+    UNPAID:    { bg: "#d4351c", color: "#fff" },
+    ACTIVE:    { bg: "#00703c", color: "#fff" },
+    INACTIVE:  { bg: "#505a5f", color: "#fff" },
+    KOSONG:    { bg: "#00703c", color: "#fff" },
+    TERISI:    { bg: "#d4351c", color: "#fff" },
+    UNKNOWN:   { bg: "#b1b4b6", color: "#0b0c0c" },
+  };
+
+  const style = colorMap[value.toUpperCase()] ?? { bg: "#1d70b8", color: "#fff" };
+
+  return (
+    <span style={{
+      display: "inline-block",
+      padding: "1px 7px",
+      fontSize: "0.6875rem",
+      fontWeight: 700,
+      background: style.bg,
+      color: style.color,
+      letterSpacing: "0.04em",
+    }}>
+      {value}
+    </span>
   );
 }

@@ -38,6 +38,7 @@ export async function GET(request: Request) {
   const users = query
     ? await prisma.user.findMany({
         where: {
+          penanggungJawab: { isNot: null },
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { contact: { contains: query, mode: "insensitive" } },
@@ -50,6 +51,9 @@ export async function GET(request: Request) {
         },
       })
     : await prisma.user.findMany({
+        where: {
+          penanggungJawab: { isNot: null },
+        },
         include: {
           penanggungJawab: {
             include: { makam: true, makamStatus: true },
