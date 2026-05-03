@@ -8,32 +8,35 @@ import { Stage, Layer, Rect, Text, Group, Image as KonvaImage, Transformer } fro
 type PlotData = { id: string; x: number; y: number; width: number; height: number };
 
 const PlotShape = React.memo(({ plot, isSelected, onSelect, onDragEnd, onTransformEnd, mode }) => {
-  const shapeRef = useRef();
+  const groupRef = useRef();
   const trRef = useRef();
 
   useEffect(() => {
-    if (isSelected && trRef.current && shapeRef.current) {
-      trRef.current.nodes([shapeRef.current]);
+    if (isSelected && trRef.current && groupRef.current) {
+      trRef.current.nodes([groupRef.current]);
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
 
   const handleClick = useCallback((e) => { onSelect(e.evt.ctrlKey || e.evt.metaKey); }, [onSelect]);
   const handleTap = useCallback(() => { onSelect(false); }, [onSelect]);
-  const handleTransformEnd = useCallback(() => { onTransformEnd(shapeRef.current); }, [onTransformEnd]);
+  const handleTransformEnd = useCallback(() => { onTransformEnd(groupRef.current); }, [onTransformEnd]);
   const fontSize = useMemo(() => Math.min(plot.width, plot.height) * 0.3, [plot.width, plot.height]);
   const isDraggable = mode === "select" || mode === "multiselect";
 
   return (
     <>
       <Group
+        ref={groupRef}
         draggable={isDraggable}
         x={plot.x}
         y={plot.y}
+        width={plot.width}
+        height={plot.height}
         onClick={handleClick}
         onTap={handleTap}
         onDragEnd={onDragEnd}
-        ref={shapeRef}
+        onTransformEnd={handleTransformEnd}
       >
         <Rect
           width={plot.width}
@@ -62,7 +65,6 @@ const PlotShape = React.memo(({ plot, isSelected, onSelect, onDragEnd, onTransfo
             if (newBox.width < 5 || newBox.height < 5) return oldBox;
             return newBox;
           }}
-          onTransformEnd={handleTransformEnd}
         />
       )}
     </>
@@ -392,7 +394,6 @@ const CemeteryPlotEditor = () => {
       h[plot.id] = (e) => {
         const dx = snapVal(e.target.x() / scale) - plot.x;
         const dy = snapVal(e.target.y() / scale) - plot.y;
-        // always include the dragged plot, even if it wasn't pre-selected
         const affectedIds = selectedIds.includes(plot.id) ? selectedIds : [plot.id];
         setPlots((prev) => {
           const next = prev.map((p) =>
@@ -412,13 +413,11 @@ const CemeteryPlotEditor = () => {
       h[plot.id] = (node) => {
         const scaleX = node.scaleX();
         const scaleY = node.scaleY();
-        // reset node scale — transformer uses scaleX/Y on the Group, not width/height
         node.scaleX(1);
         node.scaleY(1);
         setPlots((prev) => {
           const next = prev.map((p) => {
             if (p.id !== plot.id) return p;
-            // Group.width()/height() returns 0; use stored plot dimensions instead
             return {
               ...p,
               x: snapVal(node.x() / scale),
@@ -465,243 +464,165 @@ const CemeteryPlotEditor = () => {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  const modeLabel = mode === "select" ? "Pilih" : mode === "multiselect" ? "Multi-Pilih" : "Gambar";
+  // const modeLabel = mode === "select" ? "Pilih" : mode === "multiselect" ? "Multi-Pilih" : "Gambar";
   const stageCursor = mode === "draw" ? "crosshair" : mode === "multiselect" ? "cell" : "default";
 
   return (
-    <div style={{ background: "#f3f2f1", padding: "clamp(0.75rem, 2vw, 1.5rem)" }}>
-      <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+    <div style={{ background: "#f3f2f1", padding: "12px 16px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
-        {/* ── Main control panel ── */}
-        <div style={{ background: "#fff", border: "1px solid #b1b4b6", padding: "clamp(0.75rem, 1.5vw, 1.25rem)", marginBottom: "0.75rem" }}>
-          <h1 style={{ fontSize: "clamp(1.25rem, 2.5vw, 1.75rem)", fontWeight: 700, color: "#0b0c0c", margin: "0 0 1rem", borderBottom: "4px solid #1d70b8", paddingBottom: "0.5rem" }}>
+        {/* Page title */}
+        <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 6, marginBottom: 8 }}>
+          <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
             Editor Tata Letak Plot Makam
           </h1>
+        </div>
 
-          {/* ── Row 1: Berkas + Mode + Makam ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem", marginBottom: "0.75rem" }}>
+        {/* ── Main control panel ── */}
+        <div style={{ background: "#fff", border: "1px solid #b1b4b6", marginBottom: 8 }}>
 
-            {/* Berkas */}
+          {/* Row 1: Berkas + Mode + ID + Lokasi */}
+          <div style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap" }}>
+            <span style={{ ...sectionLabel, marginBottom: 0, flexShrink: 0 }}>Berkas:</span>
+            <label style={{ cursor: "pointer", flexShrink: 0 }}>
+              <span style={{ ...btnBase, background: "#505a5f", color: "#fff", whiteSpace: "nowrap" }}>Unggah Gambar</span>
+              <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+            </label>
+            {backgroundImage && (
+              <button onClick={() => setBackgroundImage(null)} style={{ ...btnBase, background: "#d4351c", color: "#fff", flexShrink: 0 }}>Hapus Gambar</button>
+            )}
+            <label style={{ cursor: "pointer", flexShrink: 0 }}>
+              <span style={{ ...btnBase, background: "#505a5f", color: "#fff", whiteSpace: "nowrap" }}>Impor Koordinat</span>
+              <input type="file" accept=".js,.json,.txt" onChange={handleImportCoordinates} style={{ display: "none" }} />
+            </label>
+            <button onClick={exportData} disabled={plots.length === 0} style={{ ...(plots.length === 0 ? btnDisabled : { ...btnBase, background: "#00703c", color: "#fff" }), flexShrink: 0 }}>
+              Ekspor ({plots.length})
+            </button>
+
+            <span style={{ ...sectionLabel, marginBottom: 0, flexShrink: 0, marginLeft: 8 }}>Mode:</span>
+            {[
+              { key: "select", label: "⬡ Pilih" },
+              { key: "multiselect", label: "⬜ Area" },
+              { key: "draw", label: "✏ Gambar" },
+            ].map(({ key, label }) => (
+              <button key={key} onClick={() => setMode(key)} style={{ ...btn(mode === key), flexShrink: 0 }}>{label}</button>
+            ))}
+            <input
+              type="text"
+              value={plotIdInput}
+              onChange={(e) => setPlotIdInput(e.target.value)}
+              placeholder="ID plot (opsional)"
+              disabled={mode !== "draw"}
+              style={{
+                padding: "0.3rem 0.5rem",
+                border: "2px solid #0b0c0c",
+                fontSize: "0.8125rem",
+                outline: "none",
+                width: 130,
+                flexShrink: 0,
+                opacity: mode === "draw" ? 1 : 0.35,
+                cursor: mode === "draw" ? "text" : "not-allowed",
+                background: mode === "draw" ? "#fff" : "#f3f2f1",
+              }}
+            />
+
+            <span style={{ ...sectionLabel, marginBottom: 0, flexShrink: 0, marginLeft: 8 }}>Lokasi:</span>
+            <select
+              value={selectedMakam}
+              onChange={(e) => setSelectedMakam(e.target.value)}
+              style={{ padding: "0.3rem 0.5rem", border: "2px solid #0b0c0c", fontSize: "0.8125rem", fontWeight: 600, background: "#fff", height: 30, flexShrink: 0 }}
+            >
+              {makamOptions.map((opt) => (
+                <option key={opt.code} value={opt.code}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Row 2: Zoom + Actions + Snap */}
+          <div style={{ borderBottom: "1px solid #b1b4b6", padding: "6px 10px", display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap" }}>
+            <span style={{ ...sectionLabel, marginBottom: 0, flexShrink: 0 }}>Zoom: {Math.round(scale * 100)}%</span>
+            <input type="range" min="0.25" max="3" step="0.05" value={scale} onChange={(e) => setScale(parseFloat(e.target.value))} style={{ width: 80, flexShrink: 0 }} />
+            <button onClick={selectAll} style={{ ...btn(false, "#1d70b8"), flexShrink: 0 }}>Pilih Semua</button>
+            <button onClick={deselectAll} disabled={selectedIds.length === 0} style={{ ...(selectedIds.length === 0 ? btnDisabled : btn(false, "#505a5f")), flexShrink: 0 }}>Batal Pilih</button>
+            <button onClick={deletePlot} disabled={selectedIds.length === 0} style={{ ...(selectedIds.length === 0 ? btnDisabled : btn(false, "#d4351c")), flexShrink: 0, minWidth: 80 }}>
+              Hapus{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
+            </button>
+            <button onClick={clearAll} disabled={plots.length === 0} style={{ ...(plots.length === 0 ? btnDisabled : btn(false, "#f47738")), flexShrink: 0 }}>Hapus Semua</button>
+            <button onClick={undo} disabled={!canUndo} style={{ ...(!canUndo ? btnDisabled : btn()), flexShrink: 0 }} title="Ctrl+Z">↩ Undo</button>
+            <button onClick={redo} disabled={!canRedo} style={{ ...(!canRedo ? btnDisabled : btn()), flexShrink: 0 }} title="Ctrl+Y">↪ Redo</button>
+            <span style={{ ...sectionLabel, marginBottom: 0, flexShrink: 0, marginLeft: 8 }}>Snap:</span>
+            <button onClick={() => setSnapEnabled(!snapEnabled)} style={{ ...btn(snapEnabled, snapEnabled ? "#1d70b8" : undefined), flexShrink: 0 }}>
+              {snapEnabled ? "Aktif" : "Mati"}
+            </button>
+            <input
+              type="number" min={1} max={100} value={snapSize}
+              onChange={(e) => setSnapSize(Math.max(1, parseInt(e.target.value) || 10))}
+              style={{ width: 48, padding: "0.3rem 0.4rem", border: "2px solid #0b0c0c", fontSize: "0.8125rem", outline: "none", flexShrink: 0, visibility: snapEnabled ? "visible" : "hidden" }}
+            />
+          </div>
+
+          {/* Selected plot controls — always visible */}
+          <div style={{
+            padding: "8px 10px",
+            background: "#f3f2f1",
+            borderBottom: "1px solid #b1b4b6",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            gap: 16,
+            opacity: selectedIds.length > 0 ? 1 : 0.35,
+            pointerEvents: selectedIds.length > 0 ? "auto" : "none",
+          }}>
+            <div style={{ fontWeight: 700, color: "#0b0c0c", fontSize: "0.8125rem", alignSelf: "center", minWidth: 90 }}>
+              {selectedIds.length > 0 ? `${selectedIds.length} plot terpilih` : "Pilih plot"}
+            </div>
             <div>
-              <div style={sectionLabel}>Berkas</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-                  <span style={{ ...btnBase, background: "#505a5f", color: "#fff", whiteSpace: "nowrap" }}>
-                    Unggah Gambar
-                  </span>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                </label>
-                {backgroundImage && (
-                  <button onClick={() => setBackgroundImage(null)} style={{ ...btnBase, background: "#d4351c", color: "#fff", textAlign: "left" }}>
-                    Hapus Gambar
-                  </button>
-                )}
-                <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-                  <span style={{ ...btnBase, background: "#505a5f", color: "#fff", whiteSpace: "nowrap" }}>
-                    Impor Koordinat
-                  </span>
-                  <input type="file" accept=".js,.json,.txt" onChange={handleImportCoordinates} style={{ display: "none" }} />
-                </label>
-                <button
-                  onClick={exportData}
-                  disabled={plots.length === 0}
-                  style={plots.length === 0 ? btnDisabled : { ...btnBase, background: "#00703c", color: "#fff" }}
-                >
-                  Ekspor Data ({plots.length} plot)
-                </button>
+              <div style={sectionLabel}>Geser (↑↓←→ · Shift×10 · Ctrl×50)</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 30px)", gridTemplateRows: "repeat(3, 30px)", gap: 2 }}>
+                <div />
+                <button onClick={() => moveSelected(0, -1)} style={{ ...btnBase, padding: "0.15rem", display: "flex", alignItems: "center", justifyContent: "center" }}>↑</button>
+                <div />
+                <button onClick={() => moveSelected(-1, 0)} style={{ ...btnBase, padding: "0.15rem", display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
+                <div style={{ background: "#e4e4e4", border: "2px solid #b1b4b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6875rem", color: "#505a5f" }}>✛</div>
+                <button onClick={() => moveSelected(1, 0)} style={{ ...btnBase, padding: "0.15rem", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
+                <div />
+                <button onClick={() => moveSelected(0, 1)} style={{ ...btnBase, padding: "0.15rem", display: "flex", alignItems: "center", justifyContent: "center" }}>↓</button>
+                <div />
               </div>
             </div>
-
-            {/* Mode */}
-            <div>
-              <div style={sectionLabel}>Mode Interaksi</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <div style={sectionLabel}>Posisi & Ukuran (Enter untuk terapkan)</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
                 {[
-                  { key: "select", label: "⬡ Pilih & Seret", hint: "Klik plot, Ctrl+Klik = pilih banyak" },
-                  { key: "multiselect", label: "⬜ Seleksi Area", hint: "Seret untuk memilih banyak plot sekaligus" },
-                  { key: "draw", label: "✏ Gambar Plot", hint: "Klik & seret untuk buat plot baru" },
-                ].map(({ key, label, hint }) => (
-                  <button
-                    key={key}
-                    onClick={() => setMode(key)}
-                    title={hint}
-                    style={btn(mode === key)}
-                  >
-                    {label}
-                  </button>
-                ))}
-                {mode === "draw" && (
-                  <div style={{ marginTop: 4 }}>
-                    <div style={{ ...sectionLabel, marginBottom: 2 }}>ID Plot Berikutnya</div>
+                  { field: "x", label: "X", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].x)) : "" },
+                  { field: "y", label: "Y", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].y)) : "" },
+                  { field: "width", label: "Lebar", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].width)) : "" },
+                  { field: "height", label: "Tinggi", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].height)) : "" },
+                ].map(({ field, label, hint }) => (
+                  <div key={field}>
+                    <div style={{ ...sectionLabel, marginBottom: 2 }}>{label}{hint ? `: ${hint}` : ""}</div>
                     <input
-                      type="text"
-                      value={plotIdInput}
-                      onChange={(e) => setPlotIdInput(e.target.value)}
-                      placeholder="e.g. 28 (opsional)"
-                      style={{ width: "100%", padding: "0.4rem 0.5rem", border: "2px solid #0b0c0c", fontSize: "0.875rem", outline: "none" }}
+                      type="number"
+                      placeholder={hint || label}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setSelectedValue(field, (e.target as HTMLInputElement).value);
+                          (e.target as HTMLInputElement).value = "";
+                        }
+                      }}
+                      style={{ width: "100%", padding: "0.3rem 0.4rem", border: "2px solid #0b0c0c", fontSize: "0.8125rem", outline: "none" }}
                     />
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Makam + Snap + Zoom */}
-            <div>
-              <div style={sectionLabel}>Lokasi Makam</div>
-              <select
-                value={selectedMakam}
-                onChange={(e) => setSelectedMakam(e.target.value)}
-                style={{ width: "100%", padding: "0.4rem 0.5rem", border: "2px solid #0b0c0c", fontSize: "0.875rem", fontWeight: 600, background: "#fff", marginBottom: 10 }}
-              >
-                {makamOptions.map((opt) => (
-                  <option key={opt.code} value={opt.code}>{opt.label}</option>
                 ))}
-              </select>
-
-              <div style={sectionLabel}>Snap ke Grid</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-                <button
-                  onClick={() => setSnapEnabled(!snapEnabled)}
-                  style={btn(snapEnabled, snapEnabled ? "#1d70b8" : undefined)}
-                >
-                  {snapEnabled ? "Snap Aktif" : "Snap Mati"}
-                </button>
-                {snapEnabled && (
-                  <input
-                    type="number"
-                    min={1}
-                    max={100}
-                    value={snapSize}
-                    onChange={(e) => setSnapSize(Math.max(1, parseInt(e.target.value) || 10))}
-                    style={{ width: 56, padding: "0.4rem 0.5rem", border: "2px solid #0b0c0c", fontSize: "0.875rem", outline: "none" }}
-                    title="Ukuran grid (px)"
-                  />
-                )}
-                {snapEnabled && <span style={{ fontSize: "0.75rem", color: "#505a5f" }}>px</span>}
-              </div>
-
-              <div style={sectionLabel}>Zoom: {Math.round(scale * 100)}%</div>
-              <input
-                type="range"
-                min="0.25"
-                max="3"
-                step="0.05"
-                value={scale}
-                onChange={(e) => setScale(parseFloat(e.target.value))}
-                style={{ width: "100%" }}
-              />
-            </div>
-          </div>
-
-          {/* ── Row 2: Selection actions + Undo/Redo ── */}
-          <div style={{ borderTop: "1px solid #b1b4b6", paddingTop: "0.75rem", display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: 6 }}>
-            <div>
-              <div style={sectionLabel}>Seleksi</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={selectAll} style={btn(false, "#1d70b8")}>Pilih Semua</button>
-                <button
-                  onClick={deselectAll}
-                  disabled={selectedIds.length === 0}
-                  style={selectedIds.length === 0 ? btnDisabled : btn(false, "#505a5f")}
-                >
-                  Batal Pilih
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <div style={sectionLabel}>Hapus</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button
-                  onClick={deletePlot}
-                  disabled={selectedIds.length === 0}
-                  style={selectedIds.length === 0 ? btnDisabled : btn(false, "#d4351c")}
-                  title="Del"
-                >
-                  Hapus Terpilih {selectedIds.length > 0 ? `(${selectedIds.length})` : ""}
-                </button>
-                <button
-                  onClick={clearAll}
-                  disabled={plots.length === 0}
-                  style={plots.length === 0 ? btnDisabled : btn(false, "#f47738")}
-                >
-                  Hapus Semua
-                </button>
-              </div>
-            </div>
-
-            <div style={{ marginLeft: "auto" }}>
-              <div style={sectionLabel}>Riwayat</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={undo} disabled={!canUndo} style={!canUndo ? btnDisabled : btn()} title="Ctrl+Z">
-                  ↩ Undo
-                </button>
-                <button onClick={redo} disabled={!canRedo} style={!canRedo ? btnDisabled : btn()} title="Ctrl+Y">
-                  ↪ Redo
-                </button>
               </div>
             </div>
           </div>
-
-          {/* ── Row 3: Selected plot controls ── */}
-          {selectedIds.length > 0 && (
-            <div style={{ marginTop: "0.75rem", padding: "0.75rem 1rem", background: "#f3f2f1", border: "3px solid #1d70b8" }}>
-              <div style={{ fontWeight: 700, color: "#0b0c0c", marginBottom: "0.5rem", fontSize: "0.875rem" }}>
-                {selectedIds.length} plot terpilih
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-start" }}>
-                {/* Arrow movement */}
-                <div>
-                  <div style={sectionLabel}>Geser (↑↓←→ · Shift×10 · Ctrl×50)</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 36px)", gridTemplateRows: "repeat(3, 36px)", gap: 2 }}>
-                    <div />
-                    <button onClick={() => moveSelected(0, -1)} style={{ ...btnBase, padding: "0.25rem", display: "flex", alignItems: "center", justifyContent: "center" }}>↑</button>
-                    <div />
-                    <button onClick={() => moveSelected(-1, 0)} style={{ ...btnBase, padding: "0.25rem", display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
-                    <div style={{ background: "#e4e4e4", border: "2px solid #b1b4b6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6875rem", color: "#505a5f" }}>✛</div>
-                    <button onClick={() => moveSelected(1, 0)} style={{ ...btnBase, padding: "0.25rem", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
-                    <div />
-                    <button onClick={() => moveSelected(0, 1)} style={{ ...btnBase, padding: "0.25rem", display: "flex", alignItems: "center", justifyContent: "center" }}>↓</button>
-                    <div />
-                  </div>
-                </div>
-
-                {/* Coordinate inputs */}
-                <div style={{ flex: 1, minWidth: 240 }}>
-                  <div style={sectionLabel}>Atur Posisi & Ukuran (Enter untuk terapkan)</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-                    {[
-                      { field: "x", label: "X", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].x)) : "" },
-                      { field: "y", label: "Y", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].y)) : "" },
-                      { field: "width", label: "Lebar", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].width)) : "" },
-                      { field: "height", label: "Tinggi", hint: selectedPlots.length === 1 ? String(Math.round(selectedPlots[0].height)) : "" },
-                    ].map(({ field, label, hint }) => (
-                      <div key={field}>
-                        <div style={{ ...sectionLabel, marginBottom: 2 }}>{label}{hint ? `: ${hint}` : ""}</div>
-                        <input
-                          type="number"
-                          placeholder={hint || label}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              setSelectedValue(field, (e.target as HTMLInputElement).value);
-                              (e.target as HTMLInputElement).value = "";
-                            }
-                          }}
-                          style={{ width: "100%", padding: "0.3rem 0.4rem", border: "2px solid #0b0c0c", fontSize: "0.8125rem", outline: "none" }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ── Canvas ── */}
         <div
           ref={containerRef}
-          style={{ background: "#fff", border: "2px solid #0b0c0c", overflow: "hidden", cursor: stageCursor }}
+          style={{ background: "#fff", border: "1px solid #b1b4b6", overflow: "hidden", cursor: stageCursor }}
         >
           <Stage
             ref={stageRef}
@@ -744,46 +665,26 @@ const CemeteryPlotEditor = () => {
           </Stage>
         </div>
 
-        {/* ── Status bar ── */}
-        <div style={{
-          background: "#0b0c0c",
-          padding: "5px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: 20,
-          fontSize: "0.75rem",
-          color: "#b1b4b6",
-          fontWeight: 600,
-          flexWrap: "wrap",
-        }}>
-          <span>Mode: <span style={{ color: "#fff" }}>{modeLabel}</span></span>
-          <span>Plot: <span style={{ color: "#fff" }}>{plots.length}</span></span>
-          <span>Terpilih: <span style={{ color: "#fff" }}>{selectedIds.length}</span></span>
-          <span>Snap: <span style={{ color: snapEnabled ? "#00e676" : "#b1b4b6" }}>{snapEnabled ? `Aktif (${snapSize}px)` : "Mati"}</span></span>
-          <span>Zoom: <span style={{ color: "#fff" }}>{Math.round(scale * 100)}%</span></span>
-          <span style={{ marginLeft: "auto", color: "#505a5f" }}>
-            Ctrl+Z Undo · Ctrl+Y Redo · Del Hapus · Ctrl+A Pilih Semua · Shift+↑↓←→ ×10 · Ctrl+↑↓←→ ×50
-          </span>
-        </div>
+        {/* ── Status bar removed ── */}
 
         {/* ── Plot list ── */}
         {plots.length > 0 && (
-          <div style={{ marginTop: "0.75rem", background: "#fff", border: "1px solid #b1b4b6", padding: "0.75rem" }}>
-            <div style={{ fontWeight: 700, color: "#0b0c0c", marginBottom: "0.5rem", fontSize: "0.875rem" }}>
+          <div style={{ marginTop: 8, background: "#fff", border: "1px solid #b1b4b6", padding: "8px 10px" }}>
+            <div style={{ fontWeight: 700, color: "#0b0c0c", marginBottom: 6, fontSize: "0.8125rem" }}>
               Daftar Plot ({plots.length})
             </div>
-            <div style={{ maxHeight: "140px", overflowY: "auto" }}>
+            <div style={{ maxHeight: "120px", overflowY: "auto" }}>
               <div className="grid grid-cols-8 gap-2">
                 {plots.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => setSelectedIds([p.id])}
                     style={{
-                      padding: "0.4rem",
+                      padding: "0.3rem",
                       background: selectedIdsSet.has(p.id) ? "#1d70b8" : "#f3f2f1",
                       color: selectedIdsSet.has(p.id) ? "#fff" : "#0b0c0c",
                       border: "2px solid #0b0c0c",
-                      fontSize: "0.8125rem",
+                      fontSize: "0.75rem",
                       fontWeight: 700,
                       cursor: "pointer",
                     }}

@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef, useEffect, useMemo, useState } from "react";
 import { Stage, Layer, Rect, Text, Group } from "react-konva";
-import type Konva from "konva";
-import type { KonvaEventObject } from "konva/lib/Node";
+// import type Konva from "konva";
+// import type { KonvaEventObject } from "konva/lib/Node";
 
 interface Plot {
   id: string;
@@ -40,15 +40,9 @@ const PlotRect = React.memo<{
         y={y}
         width={plot.width}
         height={plot.height}
-        fill={isSelected ? "#3b82f6" : isHovered ? "#14b8a6" : "#10b981"}
-        stroke={isSelected ? "#1d4ed8" : "#059669"}
-        strokeWidth={2}
-        shadowColor="rgba(0, 0, 0, 0.2)"
-        shadowBlur={isHovered ? 8 : 4}
-        shadowOffsetX={0}
-        shadowOffsetY={2}
-        shadowOpacity={0.3}
-        cornerRadius={3}
+        fill={isSelected ? "#1d70b8" : isHovered ? "#0b5394" : "#00703c"}
+        stroke={isSelected ? "#003078" : "#005a30"}
+        strokeWidth={1}
         onClick={onClick}
         onTap={onClick}
         onMouseEnter={() => setIsHovered(true)}
@@ -62,7 +56,7 @@ const PlotRect = React.memo<{
         y={y + plot.height / 2 - 6}
         width={plot.width}
         text={plot.id}
-        fontSize={10}
+        fontSize={9}
         fontStyle="bold"
         fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
         fill="white"
@@ -79,29 +73,41 @@ PlotRect.displayName = "PlotRect";
 
 const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, onPlotClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [stageSize, setStageSize] = useState({ width: 1400, height: 700 });
+  const [stageSize, setStageSize] = useState({ width: BASE_WIDTH, height: BASE_HEIGHT });
   const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [initialScale, setInitialScale] = useState(1);
-  const stageRef = useRef<Konva.Stage>(null);
+  const [position] = useState({ x: 32, y: 32 });
+
+  // ── Zoom / drag state (commented out — view is locked) ──────────────────
+  // const [scale, setScale] = useState(1);
+  // const [position, setPosition] = useState({ x: 24, y: 16 });
+  // const [initialScale, setInitialScale] = useState(1);
+  // const stageRef = useRef<Konva.Stage>(null);
+  // const [hintVisible, setHintVisible] = useState(true);
+  // const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Auto-hide hint (commented out — no zoom hint needed) ────────────────
+  // useEffect(() => {
+  //   hintTimerRef.current = setTimeout(() => setHintVisible(false), 3000);
+  //   return () => { if (hintTimerRef.current) clearTimeout(hintTimerRef.current); };
+  // }, []);
+  // const handleMouseEnter = () => {
+  //   if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+  //   setHintVisible(true);
+  //   hintTimerRef.current = setTimeout(() => setHintVisible(false), 2000);
+  // };
 
   // Memoize plot bounds calculation
   const plotBounds = useMemo(() => {
     if (!plots.length) {
       return { offsetX: 0, offsetY: 0, width: BASE_WIDTH, height: BASE_HEIGHT };
     }
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     plots.forEach((p) => {
       minX = Math.min(minX, p.x);
       minY = Math.min(minY, p.y);
       maxX = Math.max(maxX, p.x + p.width);
       maxY = Math.max(maxY, p.y + p.height);
     });
-
     return {
       offsetX: -minX,
       offsetY: -minY,
@@ -110,27 +116,45 @@ const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, on
     };
   }, [plots]);
 
-  // Resize handler
+  // Resize handler — fits the entire layout to the container width, locked
   useEffect(() => {
     const resize = () => {
       if (!containerRef.current) return;
-      const containerWidth = containerRef.current.offsetWidth - 48;
-      const aspectRatio = plotBounds.height / plotBounds.width;
-      const calculatedScale = containerWidth / plotBounds.width;
+      const containerWidth = containerRef.current.offsetWidth;
+      const pad = 64; // 32px each side
+      const fitScale = (containerWidth - pad) / plotBounds.width;
+      const fitHeight = plotBounds.height * fitScale + pad;
 
-      setStageSize({
-        width: containerWidth,
-        height: containerWidth * aspectRatio,
-      });
-      setInitialScale(calculatedScale);
-      setScale(calculatedScale);
-      setPosition({ x: 0, y: 0 });
+      setScale(fitScale);
+      setStageSize({ width: containerWidth, height: fitHeight });
     };
 
     resize();
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
   }, [plotBounds]);
+
+  // ── Wheel zoom handler (commented out — view is locked) ─────────────────
+  // const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
+  //   e.evt.preventDefault();
+  //   const stage = stageRef.current;
+  //   if (!stage) return;
+  //   const oldScale = scale;
+  //   const pointer = stage.getPointerPosition();
+  //   if (!pointer) return;
+  //   const mousePointTo = {
+  //     x: (pointer.x - position.x) / oldScale,
+  //     y: (pointer.y - position.y) / oldScale,
+  //   };
+  //   const scaleBy = e.evt.ctrlKey ? 1.05 : 1.1;
+  //   const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+  //   const boundedScale = Math.max(initialScale, Math.min(initialScale * 5, newScale));
+  //   setScale(boundedScale);
+  //   setPosition({
+  //     x: pointer.x - mousePointTo.x * boundedScale,
+  //     y: pointer.y - mousePointTo.y * boundedScale,
+  //   });
+  // };
 
   // Memoize click handlers
   const plotClickHandlers = useMemo(() => {
@@ -141,88 +165,34 @@ const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, on
     return handlers;
   }, [plots, onPlotClick]);
 
-  // Handle zoom with mouse wheel
-  const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
-    e.evt.preventDefault();
-
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const oldScale = scale;
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return;
-
-    const mousePointTo = {
-      x: (pointer.x - position.x) / oldScale,
-      y: (pointer.y - position.y) / oldScale,
-    };
-
-    const scaleBy = e.evt.ctrlKey ? 1.05 : 1.1;
-    const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
-
-    // Limit zoom range relative to initial scale
-    const boundedScale = Math.max(initialScale * 0.5, Math.min(initialScale * 5, newScale));
-
-    setScale(boundedScale);
-    setPosition({
-      x: pointer.x - mousePointTo.x * boundedScale,
-      y: pointer.y - mousePointTo.y * boundedScale,
-    });
-  };
-
   return (
     <div
       ref={containerRef}
       style={{
-        width: "100vw",
-        maxWidth: "100%",
-        background: "#f8fafc",
-        borderRadius: "clamp(0.5rem, 1vw, 0.75rem)",
+        width: "100%",
+        background: "#f3f2f1",
         overflow: "hidden",
-        boxShadow: "0 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1), 0 0.125rem 0.25rem -0.0625rem rgba(0, 0, 0, 0.06)",
-        padding: "clamp(1rem, 2vw, 1.5rem)",
         position: "relative",
       }}
     >
-      {/* Zoom controls indicator */}
-      <div
-        style={{
-          position: "absolute",
-          top: "clamp(1rem, 2vw, 2rem)",
-          right: "clamp(1rem, 2vw, 2rem)",
-          background: "rgba(255, 255, 255, 0.95)",
-          padding: "clamp(0.5rem, 1vw, 0.75rem)",
-          borderRadius: "clamp(0.375rem, 0.75vw, 0.5rem)",
-          fontSize: "clamp(0.625rem, 1vw, 0.75rem)",
-          color: "#64748b",
-          boxShadow: "0 0.125rem 0.5rem rgba(0, 0, 0, 0.1)",
-          zIndex: 10,
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>🔍 Zoom Controls</div>
-        <div>Scroll to zoom • Drag to pan</div>
-      </div>
+      {/* Zoom hint (commented out — view is locked) */}
+      {/* <div style={{ position: "absolute", top: 12, right: 12, ... }}>
+        Scroll to zoom · Drag to pan
+      </div> */}
+
       <Stage
-        ref={stageRef}
         width={stageSize.width}
         height={stageSize.height}
-        onWheel={handleWheel}
-        draggable
+        // ── Drag disabled ──────────────────────────────────────────────────
+        // draggable
+        // onDragEnd={(e) => { setPosition({ x: e.target.x(), y: e.target.y() }); }}
+        // ── Wheel zoom disabled ────────────────────────────────────────────
+        // onWheel={handleWheel}
         x={position.x}
         y={position.y}
         scaleX={scale}
         scaleY={scale}
-        onDragEnd={(e) => {
-          setPosition({
-            x: e.target.x(),
-            y: e.target.y(),
-          });
-        }}
-        style={{
-          cursor: "grab",
-        }}
+        style={{ cursor: "default" }}
       >
         <Layer imageSmoothingEnabled={true} pixelRatio={window.devicePixelRatio || 2}>
           {plots.map((plot) => (

@@ -2,7 +2,7 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Calendar, CheckCircle, MapPin, List, CreditCard, Users, Phone } from "lucide-react";
+import { Calendar, CheckCircle, Map, List, CreditCard, Users, Phone } from "lucide-react";
 import Link from "next/link";
 
 const services = [
@@ -48,13 +48,6 @@ const services = [
     href: "/layanan/kontak",
     tag: undefined as undefined,
   },
-  {
-    title: "Denah Makam",
-    subtitle: "Peta interaktif lokasi makam",
-    icon: <MapPin className="w-5 h-5" />,
-    href: "/layanan/denah",
-    tag: "orange" as const,
-  },
 ];
 
 export default function Home() {
@@ -72,50 +65,84 @@ export default function Home() {
             .services-grid { grid-template-columns: repeat(2, 1fr); }
             @media (max-width: 600px) {
               .services-grid { grid-template-columns: 1fr !important; }
-              .services-grid a { grid-column: 1 !important; justify-content: flex-start !important; }
-              .services-grid a > div { width: 100% !important; }
             }
           `}</style>
           <div className="services-grid" style={{ display: "grid", gap: 1, background: "#b1b4b6", border: "1px solid #b1b4b6", margin: 0 }}>
-            {services.map((service, idx) => {
-              const isLastOdd = services.length % 2 !== 0 && idx === services.length - 1;
-              return (
-                <Link
-                  key={service.href}
-                  href={service.href}
-                  style={{
-                    display: "flex",
-                    alignItems: "stretch",
-                    background: "#fff",
-                    textDecoration: "none",
-                    color: "inherit",
-                    gridColumn: isLastOdd ? "1 / -1" : undefined,
-                    justifyContent: isLastOdd ? "center" : undefined,
-                  }}
-                  className="group"
+            {services.map((service) => (
+              <Link
+                key={service.href}
+                href={service.href}
+                style={{
+                  display: "flex",
+                  alignItems: "stretch",
+                  background: "#fff",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+                className="group"
+              >
+                <div
+                  style={{ padding: "clamp(10px, 1.2vw, 16px)", display: "flex", alignItems: "center", gap: 14, width: "100%" }}
+                  className="group-hover:bg-[#f3f2f1] transition-colors"
                 >
-                  <div
-                    style={{ padding: "clamp(10px, 1.2vw, 16px)", width: isLastOdd ? "50%" : undefined, display: "flex", alignItems: "center", gap: 14 }}
-                    className="group-hover:bg-[#f3f2f1] transition-colors"
-                  >
-                    <div style={{ flexShrink: 0, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {service.icon}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="govuk-body" style={{ fontWeight: 700, marginBottom: 2 }}>
-                        {service.title}
-                      </p>
-                      <p className="govuk-body-s" style={{ color: "#505a5f", margin: 0 }}>
-                        {service.subtitle}
-                      </p>
-                    </div>
-                    <span style={{ color: "#b1b4b6", flexShrink: 0 }} className="group-hover:text-[#1d70b8] transition-colors">
-                      →
-                    </span>
+                  <div style={{ flexShrink: 0, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {service.icon}
                   </div>
-                </Link>
-              );
-            })}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="govuk-body" style={{ fontWeight: 700, marginBottom: 2 }}>
+                      {service.title}
+                    </p>
+                    <p className="govuk-body-s" style={{ color: "#505a5f", margin: 0 }}>
+                      {service.subtitle}
+                    </p>
+                  </div>
+                  <span style={{ color: "#b1b4b6", flexShrink: 0 }} className="group-hover:text-[#1d70b8] transition-colors">
+                    →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Denah Makam — standalone featured block */}
+          <div style={{ marginTop: 48 }}>
+            <Link
+              href="/layanan/denah"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#fff",
+                border: "1px solid #b1b4b6",
+                textDecoration: "none",
+                color: "inherit",
+                gap: 16,
+                padding: "60px 40px",
+                minHeight: 280,
+                textAlign: "center",
+              }}
+              className="group"
+            >
+              <div
+                style={{ color: "#0b0c0c" }}
+                className="group-hover:text-[#1d70b8] transition-colors"
+              >
+                <Map style={{ width: 64, height: 64 }} />
+              </div>
+
+              <div>
+                <p
+                  className="govuk-body"
+                  style={{ fontWeight: 700, fontSize: "1.5rem", marginBottom: 8 }}
+                >
+                  Denah Makam
+                </p>
+                <p className="govuk-body-s" style={{ color: "#505a5f", margin: 0, fontSize: "1rem" }}>
+                  Peta interaktif lokasi makam — lihat dan pilih blok makam secara visual
+                </p>
+              </div>
+            </Link>
           </div>
 
           {/* <div className="govuk-inset-text" style={{ marginTop: "1rem" }}>

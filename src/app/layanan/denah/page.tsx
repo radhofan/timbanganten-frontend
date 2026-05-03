@@ -84,160 +84,160 @@ const Denah = () => {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f3f2f1" }}>
       <Header hideBanner />
 
-      <main style={{ flex: 1, padding: "clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 2rem)" }}>
+      <main style={{ flex: 1, padding: "12px 16px" }}>
         {/* Page title */}
-        <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 8, marginBottom: 14 }}>
+        <div style={{ borderBottom: "1px solid #b1b4b6", paddingBottom: 6, marginBottom: 8, maxWidth: 1100, margin: "0 auto 8px" }}>
           <h1 style={{ fontWeight: 700, fontSize: "clamp(1rem, 1.5vw, 1.1875rem)", color: "#0b0c0c", margin: 0 }}>
             Denah Makam Timbanganten
           </h1>
         </div>
 
-        {/* Toolbar panel */}
-        <div
-          ref={containerRef}
-          style={{
-            background: "#f3f2f1",
-            border: "1px solid #b1b4b6",
-            padding: "8px 12px",
-            marginBottom: 0,
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          {/* Legend */}
-          {[
-            { color: "#00703c", label: "Available" },
-            { color: "#d4351c", label: "Occupied" },
-            { color: "#1d70b8", label: "Selected" },
-          ].map((item) => (
-            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <div style={{ width: 16, height: 16, background: item.color, border: "1px solid rgba(0,0,0,0.3)", flexShrink: 0 }} />
-              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#0b0c0c" }}>{item.label}</span>
-            </div>
-          ))}
+        {/* Outer cinema-style box */}
+        <div style={{ border: "1px solid #b1b4b6", background: "#fff", maxWidth: 1100, margin: "0 auto" }}>
 
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-            {isAdmin && (
-              <button
-                onClick={() => router.push("/layanan/denah/editor")}
-                style={{
-                  padding: "4px 12px",
-                  fontSize: "0.8125rem",
-                  fontWeight: 700,
-                  background: "#1d70b8",
-                  color: "#fff",
-                  border: "2px solid #003078",
-                  cursor: "pointer",
-                }}
-              >
-                Edit Denah →
-              </button>
-            )}
-
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#0b0c0c" }}>Lokasi:</span>
-              <GovukSelect
-                value={selectedDenah}
-                onChange={handleDenahChange}
-                options={Object.keys(DENAH).map((lokasi) => ({ value: lokasi, label: lokasi }))}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Map canvas */}
-        <div
-          style={{
-            border: "1px solid #b1b4b6",
-            borderTop: "none",
-            background: "#fff",
-            marginBottom: selectedPlot ? 12 : 0,
-            overflow: "hidden",
-          }}
-        >
-          {isLoading && (
-            <div style={{ padding: 40, textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
-              Memuat data blok...
-            </div>
-          )}
-          {!isLoading && (
-            <CemeteryViewer
-              plots={plots}
-              selectedPlot={selectedPlot}
-              onPlotClick={handlePlotClick}
-            />
-          )}
-        </div>
-
-        {/* Plot info panel */}
-        {selectedPlot && (
+          {/* Toolbar */}
           <div
+            ref={containerRef}
             style={{
-              background: "#fff",
-              border: "1px solid #b1b4b6",
-              borderTop: "3px solid #1d70b8",
-              padding: "12px 16px",
+              background: "#f3f2f1",
+              borderBottom: "1px solid #b1b4b6",
+              padding: "6px 10px",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 10,
             }}
           >
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                color: "#0b0c0c",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-                borderBottom: "1px solid #b1b4b6",
-                paddingBottom: 6,
-                marginBottom: 10,
-              }}
-            >
-              Informasi Blok: {selectedPlot.id}
-            </div>
-
-            {!selectedPlot.blok ? (
-              <div style={{ padding: "16px 0", textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
-                Blok makam tidak ditemukan
+            {/* Legend */}
+            {[
+              { color: "#00703c", label: "Available" },
+              { color: "#d4351c", label: "Occupied" },
+              { color: "#1d70b8", label: "Selected" },
+            ].map((item) => (
+              <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ width: 12, height: 12, background: item.color, border: "1px solid rgba(0,0,0,0.3)", flexShrink: 0 }} />
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#0b0c0c" }}>{item.label}</span>
               </div>
-            ) : (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(clamp(140px, 20vw, 220px), 1fr))",
-                  gap: "8px 20px",
-                }}
-              >
-                {[
-                  { label: "Blok ID", value: selectedPlot.id },
-                  { label: "Lokasi", value: selectedPlot.blok.lokasi },
-                  {
-                    label: "Availability",
-                    value: selectedPlot.blok.availability,
-                    color: selectedPlot.blok.availability === "AVAILABLE" ? "#00703c" : "#d4351c",
-                  },
-                  { label: "Status Blok", value: selectedPlot.blok.statusBlok },
-                  { label: "Status Pesanan", value: selectedPlot.blok.statusPesanan },
-                  {
-                    label: "Tgl. Pemakaman Terakhir",
-                    value: selectedPlot.blok.tanggalPemakamanTerakhir
-                      ? new Date(selectedPlot.blok.tanggalPemakamanTerakhir).toLocaleDateString()
-                      : "-",
-                  },
-                ].map(({ label, value, color }) => (
-                  <div key={label}>
-                    <div style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
-                      {label}
-                    </div>
-                    <div style={{ fontSize: "0.875rem", fontWeight: 700, color: color || "#0b0c0c" }}>
-                      {value || "-"}
-                    </div>
-                  </div>
-                ))}
+            ))}
+
+            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+              {isAdmin && (
+                <button
+                  onClick={() => router.push("/layanan/denah/editor")}
+                  style={{
+                    padding: "3px 10px",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    background: "#1d70b8",
+                    color: "#fff",
+                    border: "2px solid #003078",
+                    cursor: "pointer",
+                  }}
+                >
+                  Edit Denah →
+                </button>
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0b0c0c" }}>Lokasi:</span>
+                <GovukSelect
+                  value={selectedDenah}
+                  onChange={handleDenahChange}
+                  options={Object.keys(DENAH).map((lokasi) => ({ value: lokasi, label: lokasi }))}
+                  style={{ height: 27, fontSize: "0.75rem", padding: "0 8px" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Map canvas */}
+          <div style={{ background: "#fff", overflow: "hidden" }}>
+            {isLoading && (
+              <div style={{ padding: 32, textAlign: "center", color: "#505a5f", fontSize: "0.8125rem" }}>
+                Memuat data blok...
               </div>
             )}
+            {!isLoading && (
+              <CemeteryViewer
+                plots={plots}
+                selectedPlot={selectedPlot}
+                onPlotClick={handlePlotClick}
+              />
+            )}
           </div>
-        )}
+
+        </div>
+
+        {/* Plot info panel — always visible */}
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #b1b4b6",
+            borderTop: "3px solid #1d70b8",
+            padding: "10px 14px",
+            maxWidth: 1100,
+            margin: "8px auto 0",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: "0.8125rem",
+              color: "#0b0c0c",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              borderBottom: "1px solid #b1b4b6",
+              paddingBottom: 5,
+              marginBottom: 8,
+            }}
+          >
+            {selectedPlot ? `Informasi Blok: ${selectedPlot.id}` : "Informasi Blok"}
+          </div>
+
+          {!selectedPlot ? (
+            <div style={{ padding: "10px 0", color: "#505a5f", fontSize: "0.8125rem", fontStyle: "italic" }}>
+              Pilih blok pada denah untuk melihat informasi.
+            </div>
+          ) : !selectedPlot.blok ? (
+            <div style={{ padding: "10px 0", textAlign: "center", color: "#505a5f", fontSize: "0.8125rem" }}>
+              Blok makam tidak ditemukan
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                gap: "6px 16px",
+              }}
+            >
+              {[
+                { label: "Blok ID", value: selectedPlot.id },
+                { label: "Lokasi", value: selectedPlot.blok.lokasi },
+                {
+                  label: "Availability",
+                  value: selectedPlot.blok.availability,
+                  color: selectedPlot.blok.availability === "AVAILABLE" ? "#00703c" : "#d4351c",
+                },
+                { label: "Status Blok", value: selectedPlot.blok.statusBlok },
+                { label: "Status Pesanan", value: selectedPlot.blok.statusPesanan },
+                {
+                  label: "Tgl. Pemakaman Terakhir",
+                  value: selectedPlot.blok.tanggalPemakamanTerakhir
+                    ? new Date(selectedPlot.blok.tanggalPemakamanTerakhir).toLocaleDateString()
+                    : "-",
+                },
+              ].map(({ label, value, color }) => (
+                <div key={label}>
+                  <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#505a5f", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+                    {label}
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", fontWeight: 700, color: color || "#0b0c0c" }}>
+                    {value || "-"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
       <Footer />
