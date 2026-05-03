@@ -215,8 +215,8 @@ export default function MakamTable(): JSX.Element {
       )}
 
       {loading ? (
-        <div style={{ padding: "2rem", textAlign: "center", background: "#fff", border: "1px solid #b1b4b6" }}>
-          <p style={{ color: "#505a5f", fontSize: "0.875rem", margin: 0 }}>Memuat data...</p>
+        <div style={{ padding: "2rem", textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
+          Memuat data...
         </div>
       ) : (
         <GovukTable>
