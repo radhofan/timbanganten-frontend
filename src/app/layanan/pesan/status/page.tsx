@@ -149,17 +149,17 @@ export default function Status() {
         )}
 
         {/* List */}
-        <div style={{ border: "1px solid #b1b4b6" }}>
-          {loading ? (
-            <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff" }}>
-              Memuat data...
-            </div>
-          ) : filteredData.length === 0 ? (
-            <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff" }}>
-              Tidak ada data pemesanan ditemukan.
-            </div>
-          ) : (
-            currentItems.map((item, idx) => (
+        {loading ? (
+          <div style={{ padding: "2rem", textAlign: "center", color: "#505a5f", fontSize: "0.875rem" }}>
+            Memuat data...
+          </div>
+        ) : filteredData.length === 0 ? (
+          <div style={{ padding: 24, textAlign: "center", color: "#505a5f", background: "#fff", border: "1px solid #b1b4b6" }}>
+            Tidak ada data pemesanan ditemukan.
+          </div>
+        ) : (
+          <div style={{ border: "1px solid #b1b4b6" }}>
+            {currentItems.map((item, idx) => (
               <Link
                 key={item.id}
                 href={`/layanan/pesan/status/${item.id}`}
@@ -277,9 +277,9 @@ export default function Status() {
                   </div>
                 )}
               </Link>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Pagination */}
         {!loading && filteredData.length > 0 && (

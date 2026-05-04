@@ -135,11 +135,11 @@ export default function Login() {
               </GovukFormGroup>
 
               <div style={{ display: "flex", gap: 12, paddingTop: 4 }}>
-                <GovukButton type="submit" isLoading={isLoading} style={{ flex: 1 }}>
-                  Masuk
-                </GovukButton>
                 <GovukButton type="button" variant="secondary" onClick={handleGuestLogin} style={{ flex: 1 }}>
                   Masuk sebagai Guest
+                </GovukButton>
+                <GovukButton type="submit" isLoading={isLoading} style={{ flex: 1 }}>
+                  Masuk
                 </GovukButton>
               </div>
             </form>

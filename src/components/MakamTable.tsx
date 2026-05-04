@@ -295,7 +295,7 @@ export default function MakamTable(): JSX.Element {
                               return (
                                 <span key={pj.id}>
                                   <button
-                                    onClick={() => router.push(`/layanan/histori/user/${userId}`)}
+                                    onClick={() => router.push(`/layanan/penanggung-jawab/${userId}`)}
                                     style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "#1d70b8", textDecoration: "underline", fontSize: "0.8125rem" }}
                                   >
                                     {userName}

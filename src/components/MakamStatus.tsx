@@ -306,31 +306,49 @@ export default function MakamStatus({ page }: { page: string }) {
 
                 {/* ── Actions ── */}
                 <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8, flexWrap: "wrap", paddingTop: 12, borderTop: "1px solid #f0f0f0" }}>
+                  {/* Hint for approver when conditions not met */}
                   {role === "approver" && page === "pesan-status" && !isApproveReady && (
                     <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#d4351c", marginRight: "auto" }}>
                       {watch("statusPembayaranPesanan") !== "PAID" && "Pembayaran belum PAID. "}
                       {!watch("tanggalPemakaman") && "Tanggal pemakaman belum diisi."}
                     </div>
                   )}
+                  {/* Hint for admin: show what's still needed before approver can act */}
+                  {role === "admin" && page === "pesan-status" && (
+                    <div style={{ fontSize: "0.75rem", color: isApproveReady ? "#00703c" : "#505a5f", marginRight: "auto", fontWeight: isApproveReady ? 700 : 400 }}>
+                      {!isApproveReady ? (
+                        <>
+                          {watch("statusPembayaranPesanan") !== "PAID" && <span>Pembayaran belum PAID.&nbsp;</span>}
+                          {!watch("tanggalPemakaman") && <span>Tanggal pemakaman belum diisi.&nbsp;</span>}
+                          <span style={{ fontWeight: 700 }}>Selesaikan dulu sebelum approver dapat menyetujui.</span>
+                        </>
+                      ) : (
+                        <span>✓ Semua data lengkap. Tunggu sampai approver menyetujui.</span>
+                      )}
+                    </div>
+                  )}
                   <GovukButton type="button" variant="secondary" onClick={() => router.push(page === "pesan-status" ? "/layanan/pesan/status" : "/layanan/makam")}>
                     ← Kembali
                   </GovukButton>
                   {role === "admin" && <GovukButton type="submit">Simpan</GovukButton>}
-                  {role === "approver" && page === "pesan-status" && (
-                    <GovukButton
-                      type="button"
-                      disabled={!isApproveReady}
-                      onClick={() => {
-                        if (!isApproveReady) return;
-                        if (window.confirm("Aksi ini akan mengaktifkan makam dan memindahkan data dari status pemesanan ke makam aktif. Lanjutkan?")) {
-                          convertMakam(id as string).then((success) => {
-                            if (success) router.push("/layanan/makam");
-                          });
-                        }
-                      }}
-                    >
-                      Approve
-                    </GovukButton>
+                  {/* Approve button: active for approver, disabled preview for admin */}
+                  {page === "pesan-status" && (role === "approver" || role === "admin") && (
+                    <div title={role === "admin" ? "Hanya approver yang dapat menyetujui" : undefined}>
+                      <GovukButton
+                        type="button"
+                        disabled={role === "admin" || !isApproveReady}
+                        onClick={() => {
+                          if (role !== "approver" || !isApproveReady) return;
+                          if (window.confirm("Aksi ini akan mengaktifkan makam dan memindahkan data dari status pemesanan ke makam aktif. Lanjutkan?")) {
+                            convertMakam(id as string).then((success) => {
+                              if (success) router.push("/layanan/makam");
+                            });
+                          }
+                        }}
+                      >
+                        Approve
+                      </GovukButton>
+                    </div>
                   )}
                 </div>
 

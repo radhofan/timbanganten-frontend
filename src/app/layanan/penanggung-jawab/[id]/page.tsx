@@ -184,11 +184,15 @@ export default function UserDetail() {
     }
   };
 
-  const getSupervisors = (makamId: string): PenanggungJawab[] => {
-    return penanggungJawabs.filter((pj) => pj.makam?.some((m) => m.id === makamId));
+  const getSupervisors = (makamId: string, isMakam: boolean): PenanggungJawab[] => {
+    if (isMakam) {
+      return penanggungJawabs.filter((pj) => pj.makam?.some((m) => m.id === makamId));
+    } else {
+      return penanggungJawabs.filter((pj) => pj.makamStatus?.some((ms) => ms.id === makamId));
+    }
   };
 
-  const currentSupervisors = selectedMakam ? getSupervisors(selectedMakam.id) : [];
+  const currentSupervisors = selectedMakam ? getSupervisors(selectedMakam.id, selectedMakam.__isMakam) : [];
 
   const filteredAvailable = penanggungJawabs.filter(
     (pj) =>
@@ -300,7 +304,7 @@ export default function UserDetail() {
               <GovukTableBody>
                 {currentItems.length > 0 ? (
                   currentItems.map((m) => {
-                    const supervisors = getSupervisors(m.id);
+                    const supervisors = getSupervisors(m.id, m.__isMakam);
                     const isMakam = m.__isMakam;
                     return (
                       <GovukTableRow key={m.id}>
@@ -318,14 +322,10 @@ export default function UserDetail() {
                           <StatusLabel id={`statusIuran-${m.id}`} label="" value={m.jenazah?.statusPembayaranIuranTahunan || "-"} readOnly disabled size="small" />
                         </GovukTableCell>
                         <GovukTableCell last>
-                          {isMakam ? (
-                            <GovukButton variant="secondary" onClick={() => openModal(m)}>
-                              <Users size={13} style={{ marginRight: 4 }} />
-                              Daftar PJ ({supervisors.length})
-                            </GovukButton>
-                          ) : (
-                            <span style={{ fontSize: "0.6875rem", color: "#505a5f" }}>Hanya Makam Aktif</span>
-                          )}
+                          <GovukButton variant="secondary" onClick={() => openModal(m)}>
+                            <Users size={13} style={{ marginRight: 4 }} />
+                            Daftar PJ ({supervisors.length})
+                          </GovukButton>
                         </GovukTableCell>
                       </GovukTableRow>
                     );
@@ -415,7 +415,7 @@ export default function UserDetail() {
                     <div style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#0b0c0c", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                       PJ Sudah Ditambahkan
                     </div>
-                    {selectedMakam?.__isMakam && (
+                    {selectedMakam?.__isMakam ? (
                       <GovukButton
                         variant="secondary"
                         onClick={() => setIsAddingNew(true)}
@@ -423,6 +423,16 @@ export default function UserDetail() {
                         <UserPlus size={14} style={{ marginRight: 4 }} />
                         Tambah PJ Baru
                       </GovukButton>
+                    ) : (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: "0.75rem", color: "#505a5f", fontStyle: "italic" }}>
+                          Makam belum aktif
+                        </span>
+                        <GovukButton variant="secondary" disabled>
+                          <UserPlus size={14} style={{ marginRight: 4 }} />
+                          Tambah PJ Baru
+                        </GovukButton>
+                      </div>
                     )}
                   </div>
 

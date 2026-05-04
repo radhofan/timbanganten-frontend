@@ -19,8 +19,10 @@ import {
   GovukSummaryListRow,
 } from "@/components/govuk";
 import toast from "react-hot-toast";
+import { useUserRoles } from "@/components/CheckRole";
 
 export default function JenazahTable(): JSX.Element {
+  const { isAdmin } = useUserRoles();
   const [data, setData] = useState<Jenazah[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
@@ -293,32 +295,48 @@ export default function JenazahTable(): JSX.Element {
                       {record.masaAktif ? new Date(record.masaAktif).toLocaleDateString() : "-"}
                     </GovukTableCell>
                     <GovukTableCell>
-                      <button
-                        onClick={() => pesananClickable && openPesananModal(record)}
-                        disabled={!pesananClickable}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          cursor: pesananClickable ? "pointer" : "default",
-                          padding: 0,
-                        }}
-                      >
+                      {isAdmin ? (
+                        <button
+                          onClick={() => openPesananModal(record)}
+                          style={{
+                            padding: "2px 10px",
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.04em",
+                            cursor: "pointer",
+                            border: `2px solid ${pesananClickable ? "#aa2a12" : "#005a30"}`,
+                            background: pesananClickable ? "#d4351c" : "#00703c",
+                            color: "#fff",
+                            fontFamily: "inherit",
+                          }}
+                        >
+                          {pesananTag.label}
+                        </button>
+                      ) : (
                         <GovukTag color={pesananTag.color}>{pesananTag.label}</GovukTag>
-                      </button>
+                      )}
                     </GovukTableCell>
                     <GovukTableCell>
-                      <button
-                        onClick={() => iuranClickable && openIuranModal(record)}
-                        disabled={!iuranClickable}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          cursor: iuranClickable ? "pointer" : "default",
-                          padding: 0,
-                        }}
-                      >
+                      {isAdmin ? (
+                        <button
+                          onClick={() => openIuranModal(record)}
+                          style={{
+                            padding: "2px 10px",
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.04em",
+                            cursor: "pointer",
+                            border: `2px solid ${iuranClickable ? "#aa2a12" : "#005a30"}`,
+                            background: iuranClickable ? "#d4351c" : "#00703c",
+                            color: "#fff",
+                            fontFamily: "inherit",
+                          }}
+                        >
+                          {iuranTag.label}
+                        </button>
+                      ) : (
                         <GovukTag color={iuranTag.color}>{iuranTag.label}</GovukTag>
-                      </button>
+                      )}
                     </GovukTableCell>
                   </GovukTableRow>
                 );
@@ -407,6 +425,7 @@ export default function JenazahTable(): JSX.Element {
                   Batal
                 </GovukButton>
                 <GovukButton
+                  disabled={selectedPesanan.statusPembayaranPesanan === "PAID"}
                   onClick={async () => {
                     await fetch("/api/bayarPesanan", {
                       method: "PUT",
@@ -498,6 +517,7 @@ export default function JenazahTable(): JSX.Element {
                   Batal
                 </GovukButton>
                 <GovukButton
+                  disabled={selectedIuran.statusPembayaranIuranTahunan === "PAID"}
                   onClick={async () => {
                     await fetch("/api/bayarIuranTahunan", {
                       method: "PUT",

@@ -30,6 +30,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const blokId = searchParams.get("blokId");
 
   if (id) {
     if (!id.trim()) {
@@ -49,6 +50,7 @@ export async function GET(request: Request) {
   }
 
   const makams = await prisma.makam.findMany({
+    where: blokId ? { blokId } : undefined,
     include: makamInclude,
   });
 

@@ -12,10 +12,32 @@ interface Plot {
   height: number;
 }
 
+interface BlokStatus {
+  statusBlok?: string | null;
+  availability?: string | null;
+  statusPesanan?: string | null;
+}
+
 interface CemeteryViewerProps {
   plots: readonly Plot[];
   selectedPlot: { id: string } | null;
   onPlotClick: (plot: Plot) => void;
+  blokMap?: Record<string, BlokStatus>;
+}
+
+/** Returns the fill colour for a plot based on its blok status. */
+function getPlotColor(blok: BlokStatus | undefined, isSelected: boolean, isHovered: boolean): string {
+  if (isSelected) return "#1d70b8";
+  // Not available or reserved → red (takes priority over occupied state)
+  if (blok?.availability === "TIDAK TERSEDIA" || blok?.statusPesanan === "DIPESAN") {
+    return isHovered ? "#aa2a12" : "#d4351c";
+  }
+  // Occupied but still available for stacking → yellow
+  if (blok?.statusBlok && blok.statusBlok.startsWith("DIGUNAKAN")) {
+    return isHovered ? "#c47a00" : "#f4a100";
+  }
+  // Default: empty and available → green
+  return isHovered ? "#005a30" : "#00703c";
 }
 
 const BASE_WIDTH = 1400;
@@ -27,11 +49,14 @@ const PlotRect = React.memo<{
   offsetX: number;
   offsetY: number;
   isSelected: boolean;
+  blok?: BlokStatus;
   onClick: () => void;
-}>(({ plot, offsetX, offsetY, isSelected, onClick }) => {
+}>(({ plot, offsetX, offsetY, isSelected, blok, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
   const x = plot.x + offsetX;
   const y = plot.y + offsetY;
+  const fill = getPlotColor(blok, isSelected, isHovered);
+  const stroke = isSelected ? "#003078" : fill === "#f4a100" ? "#c47a00" : fill === "#d4351c" ? "#aa2a12" : "#005a30";
 
   return (
     <Group>
@@ -40,8 +65,8 @@ const PlotRect = React.memo<{
         y={y}
         width={plot.width}
         height={plot.height}
-        fill={isSelected ? "#1d70b8" : isHovered ? "#0b5394" : "#00703c"}
-        stroke={isSelected ? "#003078" : "#005a30"}
+        fill={fill}
+        stroke={stroke}
         strokeWidth={1}
         onClick={onClick}
         onTap={onClick}
@@ -71,7 +96,7 @@ const PlotRect = React.memo<{
 
 PlotRect.displayName = "PlotRect";
 
-const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, onPlotClick }) => {
+const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, onPlotClick, blokMap = {} }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: BASE_WIDTH, height: BASE_HEIGHT });
   const [scale, setScale] = useState(1);
@@ -202,6 +227,7 @@ const CemeteryViewer: React.FC<CemeteryViewerProps> = ({ plots, selectedPlot, on
               offsetX={plotBounds.offsetX}
               offsetY={plotBounds.offsetY}
               isSelected={selectedPlot?.id === plot.id}
+              blok={blokMap[plot.id]}
               onClick={plotClickHandlers[plot.id]}
             />
           ))}
