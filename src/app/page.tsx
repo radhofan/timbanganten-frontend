@@ -19,14 +19,9 @@ export default function Home() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header />
 
-      <div style={{ maxWidth: "1440px", margin: "1vw 20vw 1vw", padding: "0 15px" }}>
-        <main id="main-content" role="main" style={{ display: "block", padding: "40px 0" }}>
-
-          <div style={{ marginBottom: "1.5rem", borderBottom: "1px solid #b1b4b6", paddingBottom: "0.5rem" }}>
-            <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "#0b0c0c" }}>Layanan Sistem</h2>
-          </div>
-
-          <style>{`
+      <style>{`
+            .page-wrapper { max-width: 1440px; margin: 0 auto; padding: 0 12px; }
+            @media (min-width: 601px) { .page-wrapper { margin: 1vw 20vw 1vw; padding: 0 15px; } }
             .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.83vw; }
             .card-link { height: 15.3vw; }
             .card-body { padding: 2.2vw 0 1.4vw; }
@@ -38,6 +33,7 @@ export default function Home() {
             .denah-icon { width: 5vw; height: 5vw; }
             .denah-title { font-size: 1.2vw; margin: 0.8vw 0 0 0; }
             @media (max-width: 600px) {
+              .page-wrapper { margin: 0 4vw !important; padding: 0 12px !important; }
               .card-grid { grid-template-columns: 1fr; gap: 2vw; }
               .card-link { height: 45vw; }
               .card-body { padding: 6vw 0 4vw; }
@@ -50,6 +46,13 @@ export default function Home() {
               .denah-title { font-size: 4vw; margin: 3vw 0 0 0; }
             }
           `}</style>
+
+      <div className="page-wrapper">
+        <main id="main-content" role="main" style={{ display: "block", padding: "40px 0" }}>
+
+          <div style={{ marginBottom: "1.5rem", borderBottom: "1px solid #b1b4b6", paddingBottom: "0.5rem" }}>
+            <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700, color: "#0b0c0c" }}>Layanan Sistem</h2>
+          </div>
 
           <div className="card-grid">
             {services.map((service) => {
