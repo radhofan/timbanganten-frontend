@@ -1,6 +1,29 @@
 # Timbanganten - Cemetery Management System
 
-Next.js cemetery management system with PostgreSQL database.
+Timbanganten is a cemetery management system built with Next.js and PostgreSQL. It lets administrators register burial plots, manage deceased records, handle booking requests, and track plot statuses across multiple cemetery blocks.
+
+### Dashboard
+
+![Dashboard](public/images/dashboard.png)
+
+### Login and role selection
+
+![Login page](public/images/login.png)
+
+Access the system through role-specific login pages for Admin, Approver, and Pengawas.
+
+### Cemetery plot map
+
+![Cemetery plot map](public/images/denah_makam.jpg)
+
+Browse and manage burial plots across cemetery blocks with a visual plot layout.
+
+### Plot list and status
+
+![Plot list](public/images/table_makam.png)
+![Plot list](public/images/list_makam.jpg)
+
+View all plots with occupancy status, block assignment, and reservation details.
 
 ## Tech Stack
 
